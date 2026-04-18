@@ -89,6 +89,7 @@ function LeafRxLogo({ size = 44 }: { size?: number }) {
 type Toast = { id: number; message: string; type: "success" | "error" | "info" };
 
 function LoginPage() {
+  const navigate = useNavigate();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -230,6 +231,7 @@ function LoginPage() {
     setLoading(false);
     setSuccess(true);
     pushToast("Welcome back to LeafRx 🌿", "success");
+    setTimeout(() => navigate({ to: "/app" }), 900);
   };
 
   const canSubmit = email.length > 0 && password.length > 0 && !loading;
