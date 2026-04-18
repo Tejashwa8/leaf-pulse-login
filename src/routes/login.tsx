@@ -1,5 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -105,7 +106,7 @@ function LoginPage() {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const cardRef = useRef<HTMLDivElement | null>(null);
 
-  // Restore remembered email
+  // Restore remembered email & redirect if already signed in
   useEffect(() => {
     try {
       const saved = localStorage.getItem("leafrx_remember_email");
@@ -114,7 +115,10 @@ function LoginPage() {
         setRemember(true);
       }
     } catch {}
-  }, []);
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: "/app", replace: true });
+    });
+  }, [navigate]);
 
   const pushToast = (message: string, type: Toast["type"] = "info") => {
     const id = Date.now() + Math.random();
@@ -165,14 +169,18 @@ function LoginPage() {
     }, 60);
   };
 
-  const handleForgot = (e: React.MouseEvent) => {
+  const handleForgot = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!email || !validateEmail(email)) {
       setEmailError("Enter your email first to reset password");
       pushToast("Please enter a valid email first", "error");
       return;
     }
-    pushToast(`Reset link sent to ${email}`, "success");
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/login`,
+    });
+    if (error) pushToast(error.message, "error");
+    else pushToast(`Reset link sent to ${email}`, "success");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
