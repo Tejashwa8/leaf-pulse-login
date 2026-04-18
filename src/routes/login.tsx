@@ -1,5 +1,6 @@
-import { createFileRoute, useNavigate } from "@tanstack/react-router";
+import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
+import { supabase } from "@/integrations/supabase/client";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -105,7 +106,7 @@ function LoginPage() {
   const [toasts, setToasts] = useState<Toast[]>([]);
   const cardRef = useRef<HTMLDivElement | null>(null);
 
-  // Restore remembered email
+  // Restore remembered email & redirect if already signed in
   useEffect(() => {
     try {
       const saved = localStorage.getItem("leafrx_remember_email");
@@ -114,7 +115,10 @@ function LoginPage() {
         setRemember(true);
       }
     } catch {}
-  }, []);
+    supabase.auth.getSession().then(({ data }) => {
+      if (data.session) navigate({ to: "/app", replace: true });
+    });
+  }, [navigate]);
 
   const pushToast = (message: string, type: Toast["type"] = "info") => {
     const id = Date.now() + Math.random();
@@ -165,14 +169,18 @@ function LoginPage() {
     }, 60);
   };
 
-  const handleForgot = (e: React.MouseEvent) => {
+  const handleForgot = async (e: React.MouseEvent) => {
     e.preventDefault();
     if (!email || !validateEmail(email)) {
       setEmailError("Enter your email first to reset password");
       pushToast("Please enter a valid email first", "error");
       return;
     }
-    pushToast(`Reset link sent to ${email}`, "success");
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/login`,
+    });
+    if (error) pushToast(error.message, "error");
+    else pushToast(`Reset link sent to ${email}`, "success");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -191,39 +199,17 @@ function LoginPage() {
 
     setLoading(true);
 
-    /*
-     * BACKEND INTEGRATION
-     * POST /login
-     * Headers: { 'Content-Type': 'application/json' }
-     * Body: { email, password }
-     * Success -> localStorage.setItem('leafrx_token', data.token)
-     * Error   -> show data.message in global error banner
-     *
-     * Example:
-     * const res = await fetch('/login', {
-     *   method: 'POST',
-     *   headers: { 'Content-Type': 'application/json' },
-     *   body: JSON.stringify({ email, password }),
-     * });
-     * const data = await res.json();
-     * if (!res.ok) throw new Error(data.message || 'Login failed');
-     * localStorage.setItem('leafrx_token', data.token);
-     */
+    const { data, error } = await supabase.auth.signInWithPassword({ email, password });
 
-    // Simulated request with demo credentials
-    await new Promise((r) => setTimeout(r, 1100));
-
-    const isDemo = email === "demo@leafrx.com" && password === "leafrx123";
-    if (!isDemo) {
+    if (error || !data.session) {
       setLoading(false);
-      setGlobalError("Invalid email or password. Try demo@leafrx.com / leafrx123");
+      setGlobalError(error?.message || "Invalid email or password.");
       pushToast("Login failed", "error");
       triggerShake();
       return;
     }
 
     try {
-      localStorage.setItem("leafrx_token", "demo.jwt.token");
       if (remember) localStorage.setItem("leafrx_remember_email", email);
       else localStorage.removeItem("leafrx_remember_email");
     } catch {}
@@ -417,13 +403,13 @@ function LoginPage() {
 
               <p className="signup-line fade-up delay-5">
                 Don't have an account?{" "}
-                <a href="#" className="signup-link">
+                <Link to="/signup" className="signup-link">
                   Create one free →
-                </a>
+                </Link>
               </p>
 
               <p className="demo-hint fade-up delay-5">
-                Demo: <code>demo@leafrx.com</code> / <code>leafrx123</code>
+                Sign up with any email — no confirmation needed.
               </p>
             </form>
 

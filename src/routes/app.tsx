@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { LeafRxLogo, LeafRxWordmark } from "@/components/LeafRxLogo";
+import { supabase } from "@/integrations/supabase/client";
+import { diagnoseLeaf, type Diagnosis } from "@/utils/diagnose.functions";
 
 export const Route = createFileRoute("/app")({
   component: AppPage,
@@ -142,7 +144,9 @@ const TECH = [
 function AppPage() {
   const navigate = useNavigate();
   const [preview, setPreview] = useState<string | null>(null);
-  const [diagnosis, setDiagnosis] = useState<(typeof MOCK_DIAGNOSES)[number] | null>(null);
+  const [diagnosis, setDiagnosis] = useState<Diagnosis | null>(null);
+  const [diagnosing, setDiagnosing] = useState(false);
+  const [diagError, setDiagError] = useState<string | null>(null);
   const [confFill, setConfFill] = useState(0);
   const [statCount, setStatCount] = useState(0);
   const [barsAnimated, setBarsAnimated] = useState(false);
@@ -151,11 +155,15 @@ function AppPage() {
   const barsRef = useRef<HTMLDivElement>(null);
   const countedRef = useRef(false);
 
-  // Auth gate — push back to /login if no token
+  // Auth gate — push back to /login if no session
   useEffect(() => {
-    if (typeof window !== "undefined" && !localStorage.getItem("leafrx_token")) {
-      navigate({ to: "/login" });
-    }
+    supabase.auth.getSession().then(({ data }) => {
+      if (!data.session) navigate({ to: "/login", replace: true });
+    });
+    const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
+      if (!session) navigate({ to: "/login", replace: true });
+    });
+    return () => sub.subscription.unsubscribe();
   }, [navigate]);
 
   // Scroll reveal
@@ -244,14 +252,23 @@ function AppPage() {
 
   function handleFile(file: File, originRect?: DOMRect) {
     const reader = new FileReader();
-    reader.onload = (ev) => {
+    reader.onload = async (ev) => {
       const url = ev.target?.result as string;
       setPreview(url);
-      const pick = MOCK_DIAGNOSES[Math.floor(Math.random() * MOCK_DIAGNOSES.length)];
-      setDiagnosis(pick);
+      setDiagnosis(null);
       setConfFill(0);
-      setTimeout(() => setConfFill(pick.conf), 300);
+      setDiagError(null);
+      setDiagnosing(true);
       if (originRect) spawnParticles(originRect.left + originRect.width / 2, originRect.top + 60);
+      try {
+        const result = await diagnoseLeaf({ data: { imageDataUrl: url } });
+        setDiagnosis(result);
+        setTimeout(() => setConfFill(result.conf), 200);
+      } catch (err) {
+        setDiagError(err instanceof Error ? err.message : "Diagnosis failed.");
+      } finally {
+        setDiagnosing(false);
+      }
     };
     reader.readAsDataURL(file);
   }
@@ -260,10 +277,12 @@ function AppPage() {
     setPreview(null);
     setDiagnosis(null);
     setConfFill(0);
+    setDiagError(null);
+    setDiagnosing(false);
   }
 
-  function logout() {
-    localStorage.removeItem("leafrx_token");
+  async function logout() {
+    await supabase.auth.signOut();
     navigate({ to: "/login" });
   }
 
@@ -358,7 +377,21 @@ function AppPage() {
             ) : (
               <div className="upload-box upload-result">
                 <img src={preview} alt="Leaf preview" className="preview-img previewReveal" />
-                {diagnosis && (
+                {diagnosing && (
+                  <div className="result-card resultSlide" style={{ textAlign: "center" }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 10, color: "#9E9E9E" }}>
+                      <span style={{ width: 16, height: 16, border: "2px solid rgba(127,163,40,.3)", borderTopColor: "#7fa328", borderRadius: "50%", animation: "spin .7s linear infinite", display: "inline-block" }} />
+                      <span>AI is analyzing the leaf…</span>
+                    </div>
+                  </div>
+                )}
+                {diagError && !diagnosing && (
+                  <div className="result-card resultSlide" style={{ borderColor: "rgba(239,83,80,.4)" }}>
+                    <div style={{ color: "#ffb4b1", fontSize: 14 }}>⚠️ {diagError}</div>
+                    <button className="reset-link" onClick={reset}>↩ Try another leaf</button>
+                  </div>
+                )}
+                {diagnosis && !diagnosing && (
                   <div className="result-card resultSlide">
                     <div className="result-row">
                       <span className="result-label">Disease Detected</span>
