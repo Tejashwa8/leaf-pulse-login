@@ -377,7 +377,21 @@ function AppPage() {
             ) : (
               <div className="upload-box upload-result">
                 <img src={preview} alt="Leaf preview" className="preview-img previewReveal" />
-                {diagnosis && (
+                {diagnosing && (
+                  <div className="result-card resultSlide" style={{ textAlign: "center" }}>
+                    <div style={{ display: "inline-flex", alignItems: "center", gap: 10, color: "#9E9E9E" }}>
+                      <span style={{ width: 16, height: 16, border: "2px solid rgba(127,163,40,.3)", borderTopColor: "#7fa328", borderRadius: "50%", animation: "spin .7s linear infinite", display: "inline-block" }} />
+                      <span>AI is analyzing the leaf…</span>
+                    </div>
+                  </div>
+                )}
+                {diagError && !diagnosing && (
+                  <div className="result-card resultSlide" style={{ borderColor: "rgba(239,83,80,.4)" }}>
+                    <div style={{ color: "#ffb4b1", fontSize: 14 }}>⚠️ {diagError}</div>
+                    <button className="reset-link" onClick={reset}>↩ Try another leaf</button>
+                  </div>
+                )}
+                {diagnosis && !diagnosing && (
                   <div className="result-card resultSlide">
                     <div className="result-row">
                       <span className="result-label">Disease Detected</span>
