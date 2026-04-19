@@ -549,6 +549,49 @@ function AppPage() {
         </div>
       </section>
 
+      {/* DIAGNOSIS HISTORY */}
+      {history.length > 0 && (
+        <section id="history" className="section">
+          <div className="container">
+            <div className="section-label reveal">YOUR PAST SCANS</div>
+            <h2 className="section-title reveal">Diagnosis History</h2>
+            <div className="history-grid">
+              {history.map((h) => (
+                <div key={h.id} className="history-card reveal">
+                  {h.signed_url && (
+                    <img src={h.signed_url} alt={h.disease_name} className="history-img" loading="lazy" />
+                  )}
+                  <div className="history-body">
+                    <div className="history-name">{h.disease_name}</div>
+                    <div className="history-meta">
+                      <span
+                        className="sev-badge sev-badge-sm"
+                        style={{
+                          background: (SEVERITY_COLOR[h.severity] || "#999") + "22",
+                          color: SEVERITY_COLOR[h.severity] || "#999",
+                          borderColor: (SEVERITY_COLOR[h.severity] || "#999") + "55",
+                        }}
+                      >
+                        {h.severity}
+                      </span>
+                      <span className="history-conf">{h.confidence}% confident</span>
+                    </div>
+                    <p className="history-rx">{h.rx}</p>
+                    <div className="history-date">
+                      {new Date(h.created_at).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* HOW IT WORKS */}
       <section id="how" className="section">
         <div className="container">
