@@ -27,6 +27,7 @@ function SignupPage() {
   const [name, setName] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [sent, setSent] = useState(false);
 
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
@@ -52,8 +53,12 @@ function SignupPage() {
     setLoading(false);
 
     if (err) return setError(err.message);
-    if (data.session) navigate({ to: "/app" });
-    else if (data.user) navigate({ to: "/app" }); // auto-confirm enabled
+    if (data.session) {
+      navigate({ to: "/app" });
+    } else {
+      // Email confirmation required
+      setSent(true);
+    }
   };
 
   return (
@@ -66,44 +71,60 @@ function SignupPage() {
             Leaf<span className="rx">Rx</span>
           </span>
         </Link>
-        <h1>Create your account</h1>
-        <p className="sub">Start diagnosing plant diseases with AI in seconds.</p>
 
-        {error && <div className="err">⚠️ {error}</div>}
+        {sent ? (
+          <>
+            <h1>Check your email 📬</h1>
+            <p className="sub">
+              We sent a confirmation link to <strong style={{ color: "#7fa328" }}>{email}</strong>.
+              Click it to verify your account, then come back and sign in.
+            </p>
+            <Link to="/login" className="link" style={{ display: "block", textAlign: "center", marginTop: 22, padding: "12px", border: "1px solid #2e2e2e", borderRadius: 10 }}>
+              ← Back to login
+            </Link>
+          </>
+        ) : (
+          <>
+            <h1>Create your account</h1>
+            <p className="sub">Start diagnosing plant diseases with AI in seconds.</p>
 
-        <form onSubmit={handleSubmit}>
-          <label>Full name (optional)</label>
-          <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ramesh Patel" />
+            {error && <div className="err">⚠️ {error}</div>}
 
-          <label>Email</label>
-          <input
-            type="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            placeholder="you@example.com"
-            required
-          />
+            <form onSubmit={handleSubmit}>
+              <label>Full name (optional)</label>
+              <input value={name} onChange={(e) => setName(e.target.value)} placeholder="Ramesh Patel" />
 
-          <label>Password</label>
-          <input
-            type="password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            placeholder="At least 6 characters"
-            required
-          />
+              <label>Email</label>
+              <input
+                type="email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                placeholder="you@example.com"
+                required
+              />
 
-          <button type="submit" disabled={loading}>
-            {loading ? "Creating account…" : "Create free account →"}
-          </button>
-        </form>
+              <label>Password</label>
+              <input
+                type="password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                placeholder="At least 6 characters"
+                required
+              />
 
-        <p className="signin">
-          Already have an account?{" "}
-          <Link to="/login" className="link">
-            Sign in
-          </Link>
-        </p>
+              <button type="submit" disabled={loading}>
+                {loading ? "Creating account…" : "Create account →"}
+              </button>
+            </form>
+
+            <p className="signin">
+              Already have an account?{" "}
+              <Link to="/login" className="link">
+                Sign in
+              </Link>
+            </p>
+          </>
+        )}
       </div>
     </div>
   );

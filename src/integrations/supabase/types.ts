@@ -14,7 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      diagnoses: {
+        Row: {
+          confidence: number
+          created_at: string
+          disease_name: string
+          id: string
+          image_hash: string | null
+          image_url: string
+          rx: string
+          severity: string
+          user_id: string
+        }
+        Insert: {
+          confidence: number
+          created_at?: string
+          disease_name: string
+          id?: string
+          image_hash?: string | null
+          image_url: string
+          rx: string
+          severity: string
+          user_id: string
+        }
+        Update: {
+          confidence?: number
+          created_at?: string
+          disease_name?: string
+          id?: string
+          image_hash?: string | null
+          image_url?: string
+          rx?: string
+          severity?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

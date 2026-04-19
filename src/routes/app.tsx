@@ -70,7 +70,7 @@ const SEVERITY_COLOR: Record<string, string> = {
 const STEPS = [
   { n: "01", icon: "📷", title: "Capture Leaf", text: "Snap or upload a photo of an affected leaf." },
   { n: "02", icon: "⚙️", title: "Preprocess", text: "Resize, normalize, and enhance for the model." },
-  { n: "03", icon: "🧠", title: "CNN Analysis", text: "Deep convolutional network extracts features." },
+  { n: "03", icon: "🧠", title: "Smart AI Vision", text: "A multimodal AI model studies the leaf the same way a CNN does — pixel by pixel — to spot disease patterns, lesions and color shifts." },
   { n: "04", icon: "🏷️", title: "Classify", text: "Match against 38+ disease classes with confidence." },
   { n: "05", icon: "💊", title: "Get Rx", text: "Receive a tailored treatment prescription." },
 ];
@@ -94,30 +94,70 @@ const METRICS = [
   { label: "Recall", value: 93 },
 ];
 
-const TESTIMONIALS = [
+const SAFETY_TIPS = [
   {
-    stars: 5,
-    name: "Ramesh Patel",
-    role: "Tomato Farmer, Maharashtra",
-    quote: "LeafRx caught early blight a week before I would have noticed. Saved my season.",
+    icon: "🍃",
+    title: "Inspect Weekly",
+    text: "Walk your field once a week and check the underside of leaves — most diseases show there first, before any visible damage on top.",
   },
   {
-    stars: 5,
-    name: "Sunita Devi",
-    role: "Potato Farmer, Punjab",
-    quote: "The prescription was simple and worked. Even my husband uses it now.",
+    icon: "💧",
+    title: "Water at the Roots",
+    text: "Water early morning at the soil line — never on leaves. Wet foliage overnight is the #1 cause of fungal outbreaks.",
   },
   {
-    stars: 4,
-    name: "Arun Kumar",
-    role: "Rice Farmer, Tamil Nadu",
-    quote: "Works on my old phone without internet. That alone makes it priceless.",
+    icon: "🔄",
+    title: "Rotate Your Crops",
+    text: "Never plant the same crop family in the same spot two seasons in a row. Rotation breaks pest and disease cycles naturally.",
+  },
+  {
+    icon: "✂️",
+    title: "Prune & Remove",
+    text: "Cut and BURN infected leaves immediately. Don't compost them — spores survive and re-infect next season.",
+  },
+  {
+    icon: "🌾",
+    title: "Mulch the Soil",
+    text: "A 2-inch mulch layer stops soil-borne spores from splashing onto leaves during rain or irrigation.",
+  },
+  {
+    icon: "🧪",
+    title: "Test, Don't Guess",
+    text: "Scan a leaf with LeafRx before reaching for chemicals. Targeted treatment saves money and protects pollinators.",
   },
 ];
 
 // Tech stack catalog removed per request.
 
 /* ---------------- component ---------------- */
+type HistoryRow = {
+  id: string;
+  image_url: string;
+  disease_name: string;
+  severity: string;
+  confidence: number;
+  rx: string;
+  created_at: string;
+  signed_url?: string;
+};
+
+async function sha256Hex(buf: ArrayBuffer): Promise<string> {
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function dataUrlToBlob(dataUrl: string): { blob: Blob; ext: string } {
+  const [meta, b64] = dataUrl.split(",");
+  const mime = meta.match(/data:(.*?);/)?.[1] || "image/jpeg";
+  const ext = mime.split("/")[1]?.split("+")[0] || "jpg";
+  const bytes = atob(b64);
+  const arr = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+  return { blob: new Blob([arr], { type: mime }), ext };
+}
+
 function AppPage() {
   const navigate = useNavigate();
   const [preview, setPreview] = useState<string | null>(null);
@@ -128,6 +168,8 @@ function AppPage() {
   const [statCount, setStatCount] = useState(0);
   const [barsAnimated, setBarsAnimated] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [history, setHistory] = useState<HistoryRow[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const barsRef = useRef<HTMLDivElement>(null);
@@ -137,12 +179,39 @@ function AppPage() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (!data.session) navigate({ to: "/login", replace: true });
+      else setUserId(data.session.user.id);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) navigate({ to: "/login", replace: true });
+      else setUserId(session.user.id);
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
+
+  // Load diagnosis history when user available
+  const loadHistory = async (uid: string) => {
+    const { data, error } = await supabase
+      .from("diagnoses")
+      .select("id, image_url, disease_name, severity, confidence, rx, created_at")
+      .eq("user_id", uid)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    if (error || !data) return;
+    // Sign each storage path
+    const rows: HistoryRow[] = await Promise.all(
+      data.map(async (r) => {
+        const { data: signed } = await supabase.storage
+          .from("leaf-images")
+          .createSignedUrl(r.image_url, 3600);
+        return { ...r, signed_url: signed?.signedUrl };
+      }),
+    );
+    setHistory(rows);
+  };
+
+  useEffect(() => {
+    if (userId) loadHistory(userId);
+  }, [userId]);
 
   // Scroll reveal
   useEffect(() => {
@@ -239,9 +308,57 @@ function AppPage() {
       setDiagnosing(true);
       if (originRect) spawnParticles(originRect.left + originRect.width / 2, originRect.top + 60);
       try {
+        // Hash the image bytes for deterministic caching
+        const buf = await file.arrayBuffer();
+        const hash = await sha256Hex(buf);
+
+        // If we already diagnosed this exact image, reuse the result for consistency
+        if (userId) {
+          const { data: existing } = await supabase
+            .from("diagnoses")
+            .select("disease_name, severity, confidence, rx")
+            .eq("user_id", userId)
+            .eq("image_hash", hash)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          if (existing) {
+            const cached: Diagnosis = {
+              name: existing.disease_name,
+              sev: existing.severity as Diagnosis["sev"],
+              conf: existing.confidence,
+              rx: existing.rx,
+            };
+            setDiagnosis(cached);
+            setTimeout(() => setConfFill(cached.conf), 200);
+            setDiagnosing(false);
+            return;
+          }
+        }
+
         const result = await diagnoseLeaf({ data: { imageDataUrl: url } });
         setDiagnosis(result);
         setTimeout(() => setConfFill(result.conf), 200);
+
+        // Persist: upload image + insert row
+        if (userId) {
+          const { ext } = dataUrlToBlob(url);
+          const path = `${userId}/${hash}.${ext}`;
+          await supabase.storage.from("leaf-images").upload(path, file, {
+            contentType: file.type,
+            upsert: true,
+          });
+          await supabase.from("diagnoses").insert({
+            user_id: userId,
+            image_url: path,
+            image_hash: hash,
+            disease_name: result.name,
+            severity: result.sev,
+            confidence: result.conf,
+            rx: result.rx,
+          });
+          loadHistory(userId);
+        }
       } catch (err) {
         setDiagError(err instanceof Error ? err.message : "Diagnosis failed.");
       } finally {
@@ -277,14 +394,12 @@ function AppPage() {
           <div className="nav-links">
             <a onClick={() => smoothScroll("how")}>How it Works</a>
             <a onClick={() => smoothScroll("features")}>Features</a>
+            {history.length > 0 && <a onClick={() => smoothScroll("history")}>History</a>}
             <a onClick={() => setChatOpen(true)}>Dr. LeafRx</a>
           </div>
           <div className="nav-actions">
             <button className="btn btn-ghost" onClick={logout}>
               Logout
-            </button>
-            <button className="btn btn-primary" onClick={() => fileRef.current?.click()}>
-              Try for Free →
             </button>
           </div>
         </div>
@@ -435,6 +550,49 @@ function AppPage() {
         </div>
       </section>
 
+      {/* DIAGNOSIS HISTORY */}
+      {history.length > 0 && (
+        <section id="history" className="section">
+          <div className="container">
+            <div className="section-label reveal">YOUR PAST SCANS</div>
+            <h2 className="section-title reveal">Diagnosis History</h2>
+            <div className="history-grid">
+              {history.map((h) => (
+                <div key={h.id} className="history-card reveal">
+                  {h.signed_url && (
+                    <img src={h.signed_url} alt={h.disease_name} className="history-img" loading="lazy" />
+                  )}
+                  <div className="history-body">
+                    <div className="history-name">{h.disease_name}</div>
+                    <div className="history-meta">
+                      <span
+                        className="sev-badge sev-badge-sm"
+                        style={{
+                          background: (SEVERITY_COLOR[h.severity] || "#999") + "22",
+                          color: SEVERITY_COLOR[h.severity] || "#999",
+                          borderColor: (SEVERITY_COLOR[h.severity] || "#999") + "55",
+                        }}
+                      >
+                        {h.severity}
+                      </span>
+                      <span className="history-conf">{h.confidence}% confident</span>
+                    </div>
+                    <p className="history-rx">{h.rx}</p>
+                    <div className="history-date">
+                      {new Date(h.created_at).toLocaleDateString(undefined, {
+                        month: "short",
+                        day: "numeric",
+                        year: "numeric",
+                      })}
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </section>
+      )}
+
       {/* HOW IT WORKS */}
       <section id="how" className="section">
         <div className="container">
@@ -482,7 +640,6 @@ function AppPage() {
             { v: statCount.toLocaleString(), l: "Training Images" },
             { v: "38", l: "Disease Classes" },
             { v: "96.4%", l: "Accuracy" },
-            { v: "14ms", l: "Avg. Inference" },
             { v: "8+", l: "Crops Supported" },
           ].map((s) => (
             <div key={s.l} className="stat-block reveal">
@@ -520,18 +677,17 @@ function AppPage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
+      {/* CROP-SAFETY TIPS (replaces testimonials) */}
       <section className="section section-alt">
         <div className="container">
-          <div className="section-label reveal">FARMERS LOVE IT</div>
-          <h2 className="section-title reveal">Trusted in the Field</h2>
+          <div className="section-label reveal">PROTECT YOUR HARVEST</div>
+          <h2 className="section-title reveal">How to Keep Crops Disease-Free</h2>
           <div className="testimonials-grid">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={t.name} className={`step-card reveal delay-${(i % 5) + 1}`}>
-                <div className="stars">{"★".repeat(t.stars) + "☆".repeat(5 - t.stars)}</div>
-                <p className="quote">"{t.quote}"</p>
-                <div className="testi-name">{t.name}</div>
-                <div className="testi-role">{t.role}</div>
+            {SAFETY_TIPS.map((t, i) => (
+              <div key={t.title} className={`step-card reveal delay-${(i % 5) + 1}`}>
+                <div className="step-icon">{t.icon}</div>
+                <div className="step-title">{t.title}</div>
+                <p className="step-text">{t.text}</p>
               </div>
             ))}
           </div>
@@ -797,5 +953,17 @@ const CSS = `
   .stat-pill { min-width:calc(50% - 8px); }
   .footer-grid { grid-template-columns:1fr; }
   .footer-bottom { flex-direction:column; gap:8px; text-align:center; }
-}
+
+/* history cards */
+.history-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:16px; }
+.history-card { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; transition:all .3s cubic-bezier(.34,1.2,.64,1); }
+.history-card:hover { transform:translateY(-4px); border-color:var(--olive); box-shadow:0 12px 32px rgba(107,142,35,.18); }
+.history-img { width:100%; height:160px; object-fit:cover; display:block; background:#0d0d0d; }
+.history-body { padding:14px 16px 16px; }
+.history-name { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; margin-bottom:8px; color:#fff; }
+.history-meta { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.history-conf { color:var(--muted); font-size:12px; }
+.history-rx { color:var(--text); font-size:13px; line-height:1.5; margin:0 0 10px; }
+.history-date { color:var(--muted); font-size:11px; letter-spacing:.5px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 `;
