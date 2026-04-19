@@ -1,8 +1,9 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LeafRxLogo, LeafRxWordmark } from "@/components/LeafRxLogo";
 import { supabase } from "@/integrations/supabase/client";
 import { diagnoseLeaf, type Diagnosis } from "@/utils/diagnose.functions";
+import { DrLeafRxChat, DrLeafRxFab } from "@/components/DrLeafRxChat";
 
 export const Route = createFileRoute("/app")({
   component: AppPage,
