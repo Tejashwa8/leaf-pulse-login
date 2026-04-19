@@ -177,10 +177,18 @@ function LoginPage() {
       return;
     }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
+      redirectTo: `${window.location.origin}/reset-password`,
     });
     if (error) pushToast(error.message, "error");
     else pushToast(`Reset link sent to ${email}`, "success");
+  };
+
+  const handleGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/app` },
+    });
+    if (error) pushToast(error.message || "Google sign-in unavailable", "error");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {

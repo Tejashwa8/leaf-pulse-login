@@ -75,18 +75,7 @@ const STEPS = [
   { n: "05", icon: "💊", title: "Get Rx", text: "Receive a tailored treatment prescription." },
 ];
 
-const DISEASES = [
-  { emoji: "🍅", crop: "Tomato", name: "Early Blight", sev: "Moderate", accent: "#f57f17" },
-  { emoji: "🥔", crop: "Potato", name: "Late Blight", sev: "Severe", accent: "#c62828" },
-  { emoji: "🌽", crop: "Corn", name: "N. Leaf Blight", sev: "High", accent: "#e65100" },
-  { emoji: "🍇", crop: "Grape", name: "Black Rot", sev: "Severe", accent: "#6a1b9a" },
-  { emoji: "🍎", crop: "Apple", name: "Cedar Rust", sev: "Moderate", accent: "#6B8E23" },
-  { emoji: "🌾", crop: "Wheat", name: "Powdery Mildew", sev: "Low", accent: "#827717" },
-  { emoji: "🌾", crop: "Rice", name: "Brown Spot", sev: "High", accent: "#5d4037" },
-  { emoji: "🍅", crop: "Tomato", name: "Leaf Mold", sev: "Moderate", accent: "#558b2f" },
-  { emoji: "🌶️", crop: "Pepper", name: "Bacterial Spot", sev: "High", accent: "#d84315" },
-  { emoji: "🍓", crop: "Strawberry", name: "Leaf Scorch", sev: "Moderate", accent: "#c2185b" },
-];
+// Diseases catalog removed per request — diagnosis still uses live AI results.
 
 const FEATURES = [
   { icon: "⚡", title: "Instant Results", text: "Sub-second inference on any device." },
@@ -126,20 +115,7 @@ const TESTIMONIALS = [
   },
 ];
 
-const TECH = [
-  { cat: "Lang", name: "Python 3.10" },
-  { cat: "DL", name: "TensorFlow/Keras" },
-  { cat: "DL", name: "PyTorch" },
-  { cat: "Vision", name: "OpenCV" },
-  { cat: "Data", name: "NumPy & Pandas" },
-  { cat: "Viz", name: "Matplotlib" },
-  { cat: "App", name: "Streamlit" },
-  { cat: "Model", name: "ResNet-50" },
-  { cat: "Model", name: "VGG-16" },
-  { cat: "Data", name: "PlantVillage" },
-  { cat: "Edge", name: "TFLite" },
-  { cat: "API", name: "Flask API" },
-];
+// Tech stack catalog removed per request.
 
 /* ---------------- component ---------------- */
 function AppPage() {
