@@ -295,9 +295,6 @@ function AppPage() {
             <button className="btn btn-ghost" onClick={logout}>
               Logout
             </button>
-            <button className="btn btn-primary" onClick={() => fileRef.current?.click()}>
-              Try for Free →
-            </button>
           </div>
         </div>
       </nav>
@@ -494,7 +491,6 @@ function AppPage() {
             { v: statCount.toLocaleString(), l: "Training Images" },
             { v: "38", l: "Disease Classes" },
             { v: "96.4%", l: "Accuracy" },
-            { v: "14ms", l: "Avg. Inference" },
             { v: "8+", l: "Crops Supported" },
           ].map((s) => (
             <div key={s.l} className="stat-block reveal">
@@ -532,18 +528,17 @@ function AppPage() {
         </div>
       </section>
 
-      {/* TESTIMONIALS */}
+      {/* CROP-SAFETY TIPS (replaces testimonials) */}
       <section className="section section-alt">
         <div className="container">
-          <div className="section-label reveal">FARMERS LOVE IT</div>
-          <h2 className="section-title reveal">Trusted in the Field</h2>
+          <div className="section-label reveal">PROTECT YOUR HARVEST</div>
+          <h2 className="section-title reveal">How to Keep Crops Disease-Free</h2>
           <div className="testimonials-grid">
-            {TESTIMONIALS.map((t, i) => (
-              <div key={t.name} className={`step-card reveal delay-${(i % 5) + 1}`}>
-                <div className="stars">{"★".repeat(t.stars) + "☆".repeat(5 - t.stars)}</div>
-                <p className="quote">"{t.quote}"</p>
-                <div className="testi-name">{t.name}</div>
-                <div className="testi-role">{t.role}</div>
+            {SAFETY_TIPS.map((t, i) => (
+              <div key={t.title} className={`step-card reveal delay-${(i % 5) + 1}`}>
+                <div className="step-icon">{t.icon}</div>
+                <div className="step-title">{t.title}</div>
+                <p className="step-text">{t.text}</p>
               </div>
             ))}
           </div>

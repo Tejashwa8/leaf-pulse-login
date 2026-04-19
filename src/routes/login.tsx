@@ -409,23 +409,6 @@ function LoginPage() {
                 )}
               </button>
 
-              <div className="oauth-divider fade-up delay-4"><span>or sign in with</span></div>
-
-              <button
-                type="button"
-                className="oauth-btn fade-up delay-5"
-                onClick={handleGoogle}
-                disabled={loading}
-              >
-                <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
-                  <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/>
-                  <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
-                  <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8L6.1 32.7C9.3 39.4 16 44 24 44z"/>
-                  <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.3-4.1 5.7l6.2 5.2c-.4.4 6.6-4.8 6.6-14.9 0-1.2-.1-2.3-.4-3.5z"/>
-                </svg>
-                <span>Continue with Google</span>
-              </button>
-
               <p className="signup-line fade-up delay-5">
                 Don't have an account?{" "}
                 <Link to="/signup" className="signup-link">
@@ -434,7 +417,7 @@ function LoginPage() {
               </p>
 
               <p className="demo-hint fade-up delay-5">
-                Sign up with any email — no confirmation needed.
+                A confirmation email is sent to every new user — verify it before signing in.
               </p>
             </form>
 
