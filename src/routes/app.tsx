@@ -394,6 +394,7 @@ function AppPage() {
           <div className="nav-links">
             <a onClick={() => smoothScroll("how")}>How it Works</a>
             <a onClick={() => smoothScroll("features")}>Features</a>
+            {history.length > 0 && <a onClick={() => smoothScroll("history")}>History</a>}
             <a onClick={() => setChatOpen(true)}>Dr. LeafRx</a>
           </div>
           <div className="nav-actions">
@@ -952,5 +953,17 @@ const CSS = `
   .stat-pill { min-width:calc(50% - 8px); }
   .footer-grid { grid-template-columns:1fr; }
   .footer-bottom { flex-direction:column; gap:8px; text-align:center; }
-}
+
+/* history cards */
+.history-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:16px; }
+.history-card { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; transition:all .3s cubic-bezier(.34,1.2,.64,1); }
+.history-card:hover { transform:translateY(-4px); border-color:var(--olive); box-shadow:0 12px 32px rgba(107,142,35,.18); }
+.history-img { width:100%; height:160px; object-fit:cover; display:block; background:#0d0d0d; }
+.history-body { padding:14px 16px 16px; }
+.history-name { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; margin-bottom:8px; color:#fff; }
+.history-meta { display:flex; align-items:center; gap:10px; margin-bottom:10px; }
+.history-conf { color:var(--muted); font-size:12px; }
+.history-rx { color:var(--text); font-size:13px; line-height:1.5; margin:0 0 10px; }
+.history-date { color:var(--muted); font-size:11px; letter-spacing:.5px; }
+@keyframes spin { to { transform: rotate(360deg); } }
 `;
