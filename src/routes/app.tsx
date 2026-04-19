@@ -70,7 +70,7 @@ const SEVERITY_COLOR: Record<string, string> = {
 const STEPS = [
   { n: "01", icon: "📷", title: "Capture Leaf", text: "Snap or upload a photo of an affected leaf." },
   { n: "02", icon: "⚙️", title: "Preprocess", text: "Resize, normalize, and enhance for the model." },
-  { n: "03", icon: "🧠", title: "CNN Analysis", text: "Deep convolutional network extracts features." },
+  { n: "03", icon: "🧠", title: "Smart AI Vision", text: "A multimodal AI model studies the leaf the same way a CNN does — pixel by pixel — to spot disease patterns, lesions and color shifts." },
   { n: "04", icon: "🏷️", title: "Classify", text: "Match against 38+ disease classes with confidence." },
   { n: "05", icon: "💊", title: "Get Rx", text: "Receive a tailored treatment prescription." },
 ];
@@ -94,24 +94,36 @@ const METRICS = [
   { label: "Recall", value: 93 },
 ];
 
-const TESTIMONIALS = [
+const SAFETY_TIPS = [
   {
-    stars: 5,
-    name: "Ramesh Patel",
-    role: "Tomato Farmer, Maharashtra",
-    quote: "LeafRx caught early blight a week before I would have noticed. Saved my season.",
+    icon: "🍃",
+    title: "Inspect Weekly",
+    text: "Walk your field once a week and check the underside of leaves — most diseases show there first, before any visible damage on top.",
   },
   {
-    stars: 5,
-    name: "Sunita Devi",
-    role: "Potato Farmer, Punjab",
-    quote: "The prescription was simple and worked. Even my husband uses it now.",
+    icon: "💧",
+    title: "Water at the Roots",
+    text: "Water early morning at the soil line — never on leaves. Wet foliage overnight is the #1 cause of fungal outbreaks.",
   },
   {
-    stars: 4,
-    name: "Arun Kumar",
-    role: "Rice Farmer, Tamil Nadu",
-    quote: "Works on my old phone without internet. That alone makes it priceless.",
+    icon: "🔄",
+    title: "Rotate Your Crops",
+    text: "Never plant the same crop family in the same spot two seasons in a row. Rotation breaks pest and disease cycles naturally.",
+  },
+  {
+    icon: "✂️",
+    title: "Prune & Remove",
+    text: "Cut and BURN infected leaves immediately. Don't compost them — spores survive and re-infect next season.",
+  },
+  {
+    icon: "🌾",
+    title: "Mulch the Soil",
+    text: "A 2-inch mulch layer stops soil-borne spores from splashing onto leaves during rain or irrigation.",
+  },
+  {
+    icon: "🧪",
+    title: "Test, Don't Guess",
+    text: "Scan a leaf with LeafRx before reaching for chemicals. Targeted treatment saves money and protects pollinators.",
   },
 ];
 
