@@ -304,7 +304,7 @@ function LoginPage() {
               <LeafRxLogo size={36} />
             </div>
 
-            <h2 className="card-title">Welcome Back 👋</h2>
+            <h2 className="card-title">Welcome Back</h2>
             <p className="card-subtitle">Login to your LeafRx account</p>
 
             {globalError && (
