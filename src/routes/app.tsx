@@ -308,9 +308,57 @@ function AppPage() {
       setDiagnosing(true);
       if (originRect) spawnParticles(originRect.left + originRect.width / 2, originRect.top + 60);
       try {
+        // Hash the image bytes for deterministic caching
+        const buf = await file.arrayBuffer();
+        const hash = await sha256Hex(buf);
+
+        // If we already diagnosed this exact image, reuse the result for consistency
+        if (userId) {
+          const { data: existing } = await supabase
+            .from("diagnoses")
+            .select("disease_name, severity, confidence, rx")
+            .eq("user_id", userId)
+            .eq("image_hash", hash)
+            .order("created_at", { ascending: false })
+            .limit(1)
+            .maybeSingle();
+          if (existing) {
+            const cached: Diagnosis = {
+              name: existing.disease_name,
+              sev: existing.severity as Diagnosis["sev"],
+              conf: existing.confidence,
+              rx: existing.rx,
+            };
+            setDiagnosis(cached);
+            setTimeout(() => setConfFill(cached.conf), 200);
+            setDiagnosing(false);
+            return;
+          }
+        }
+
         const result = await diagnoseLeaf({ data: { imageDataUrl: url } });
         setDiagnosis(result);
         setTimeout(() => setConfFill(result.conf), 200);
+
+        // Persist: upload image + insert row
+        if (userId) {
+          const { ext } = dataUrlToBlob(url);
+          const path = `${userId}/${hash}.${ext}`;
+          await supabase.storage.from("leaf-images").upload(path, file, {
+            contentType: file.type,
+            upsert: true,
+          });
+          await supabase.from("diagnoses").insert({
+            user_id: userId,
+            image_url: path,
+            image_hash: hash,
+            disease_name: result.name,
+            severity: result.sev,
+            confidence: result.conf,
+            rx: result.rx,
+          });
+          loadHistory(userId);
+        }
       } catch (err) {
         setDiagError(err instanceof Error ? err.message : "Diagnosis failed.");
       } finally {
