@@ -130,6 +130,34 @@ const SAFETY_TIPS = [
 // Tech stack catalog removed per request.
 
 /* ---------------- component ---------------- */
+type HistoryRow = {
+  id: string;
+  image_url: string;
+  disease_name: string;
+  severity: string;
+  confidence: number;
+  rx: string;
+  created_at: string;
+  signed_url?: string;
+};
+
+async function sha256Hex(buf: ArrayBuffer): Promise<string> {
+  const hash = await crypto.subtle.digest("SHA-256", buf);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
+function dataUrlToBlob(dataUrl: string): { blob: Blob; ext: string } {
+  const [meta, b64] = dataUrl.split(",");
+  const mime = meta.match(/data:(.*?);/)?.[1] || "image/jpeg";
+  const ext = mime.split("/")[1]?.split("+")[0] || "jpg";
+  const bytes = atob(b64);
+  const arr = new Uint8Array(bytes.length);
+  for (let i = 0; i < bytes.length; i++) arr[i] = bytes.charCodeAt(i);
+  return { blob: new Blob([arr], { type: mime }), ext };
+}
+
 function AppPage() {
   const navigate = useNavigate();
   const [preview, setPreview] = useState<string | null>(null);
@@ -140,6 +168,8 @@ function AppPage() {
   const [statCount, setStatCount] = useState(0);
   const [barsAnimated, setBarsAnimated] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [history, setHistory] = useState<HistoryRow[]>([]);
+  const [userId, setUserId] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const barsRef = useRef<HTMLDivElement>(null);
@@ -149,12 +179,39 @@ function AppPage() {
   useEffect(() => {
     supabase.auth.getSession().then(({ data }) => {
       if (!data.session) navigate({ to: "/login", replace: true });
+      else setUserId(data.session.user.id);
     });
     const { data: sub } = supabase.auth.onAuthStateChange((_event, session) => {
       if (!session) navigate({ to: "/login", replace: true });
+      else setUserId(session.user.id);
     });
     return () => sub.subscription.unsubscribe();
   }, [navigate]);
+
+  // Load diagnosis history when user available
+  const loadHistory = async (uid: string) => {
+    const { data, error } = await supabase
+      .from("diagnoses")
+      .select("id, image_url, disease_name, severity, confidence, rx, created_at")
+      .eq("user_id", uid)
+      .order("created_at", { ascending: false })
+      .limit(20);
+    if (error || !data) return;
+    // Sign each storage path
+    const rows: HistoryRow[] = await Promise.all(
+      data.map(async (r) => {
+        const { data: signed } = await supabase.storage
+          .from("leaf-images")
+          .createSignedUrl(r.image_url, 3600);
+        return { ...r, signed_url: signed?.signedUrl };
+      }),
+    );
+    setHistory(rows);
+  };
+
+  useEffect(() => {
+    if (userId) loadHistory(userId);
+  }, [userId]);
 
   // Scroll reveal
   useEffect(() => {
