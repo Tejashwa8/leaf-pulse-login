@@ -61,16 +61,19 @@ export const diagnoseLeaf = createServerFn({ method: "POST" })
       },
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
+        temperature: 0,
+        top_p: 0.1,
+        seed: 42,
         messages: [
           {
             role: "system",
             content:
-              "You are LeafRx, an expert agricultural plant pathologist. Analyze the provided leaf image and identify any plant disease. Always respond by calling the report_diagnosis tool. Be honest about uncertainty in the confidence score. If the image is not a leaf, set name='Not a leaf', sev='Low', conf=0, and rx='Please upload a clear photo of a plant leaf.'",
+              "You are LeafRx, an expert agricultural plant pathologist. Analyze the provided leaf image and identify any plant disease. Be deterministic — for the SAME image you MUST always return the SAME diagnosis. Always respond by calling the report_diagnosis tool. Be honest about uncertainty in the confidence score. If the image is not a leaf, set name='Not a leaf', sev='Low', conf=0, and rx='Please upload a clear photo of a plant leaf.'",
           },
           {
             role: "user",
             content: [
-              { type: "text", text: "Diagnose this leaf. Identify the crop, the disease (if any), severity, and prescribe a treatment." },
+              { type: "text", text: "Diagnose this leaf. Identify the crop, the disease (if any), severity, and prescribe a treatment. Be consistent — the same image should always produce the same answer." },
               { type: "image_url", image_url: { url: data.imageDataUrl } },
             ],
           },
