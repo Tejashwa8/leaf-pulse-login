@@ -177,10 +177,18 @@ function LoginPage() {
       return;
     }
     const { error } = await supabase.auth.resetPasswordForEmail(email, {
-      redirectTo: `${window.location.origin}/login`,
+      redirectTo: `${window.location.origin}/reset-password`,
     });
     if (error) pushToast(error.message, "error");
     else pushToast(`Reset link sent to ${email}`, "success");
+  };
+
+  const handleGoogle = async () => {
+    const { error } = await supabase.auth.signInWithOAuth({
+      provider: "google",
+      options: { redirectTo: `${window.location.origin}/app` },
+    });
+    if (error) pushToast(error.message || "Google sign-in unavailable", "error");
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -399,6 +407,23 @@ function LoginPage() {
                 ) : (
                   <span>Login to LeafRx</span>
                 )}
+              </button>
+
+              <div className="oauth-divider fade-up delay-4"><span>or sign in with</span></div>
+
+              <button
+                type="button"
+                className="oauth-btn fade-up delay-5"
+                onClick={handleGoogle}
+                disabled={loading}
+              >
+                <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true">
+                  <path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3c-1.6 4.7-6 8-11.3 8-6.6 0-12-5.4-12-12s5.4-12 12-12c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.2-.1-2.3-.4-3.5z"/>
+                  <path fill="#FF3D00" d="M6.3 14.7l6.6 4.8C14.7 16 19 13 24 13c3 0 5.8 1.1 7.9 3l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.6 8.3 6.3 14.7z"/>
+                  <path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35 26.7 36 24 36c-5.3 0-9.7-3.3-11.3-8L6.1 32.7C9.3 39.4 16 44 24 44z"/>
+                  <path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.3-2.2 4.3-4.1 5.7l6.2 5.2c-.4.4 6.6-4.8 6.6-14.9 0-1.2-.1-2.3-.4-3.5z"/>
+                </svg>
+                <span>Continue with Google</span>
               </button>
 
               <p className="signup-line fade-up delay-5">
@@ -879,6 +904,47 @@ const css = `
     color: var(--beige);
     font-size: 11px;
   }
+
+  /* OAuth */
+  .oauth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0 12px;
+    color: #707070;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .oauth-divider::before, .oauth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .oauth-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #fff;
+    color: #1f1f1f;
+    border: 1px solid #2e2e2e;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .25s cubic-bezier(.34,1.2,.64,1);
+    font-family: inherit;
+  }
+  .oauth-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    background: #f7f7f7;
+  }
+  .oauth-btn:disabled { opacity: .55; cursor: not-allowed; }
 
   /* fade-up stagger */
   .fade-up { animation: fadeUp .55s ease both; }
