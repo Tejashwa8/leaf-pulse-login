@@ -92,8 +92,8 @@ const FEATURES = [
   { icon: "⚡", title: "Instant Results", text: "Sub-second inference on any device." },
   { icon: "📱", title: "Any Phone Works", text: "Optimized TFLite models run offline." },
   { icon: "💊", title: "Treatment Prescription", text: "Actionable Rx with dosages & tips." },
-  { icon: "🌐", title: "Offline Ready", text: "No connection? No problem." },
-  { icon: "📊", title: "Confidence Score", text: "Transparent probabilities per class." },
+  { icon: "💧", title: "Smart Watering", text: "Water early morning at the soil line — never on leaves — to prevent fungal disease." },
+  { icon: "🌱", title: "Healthy Soil", text: "Rotate crops every season and add compost to break disease cycles and boost immunity." },
   { icon: "🌾", title: "Multi-Crop Support", text: "Tomato, potato, corn, grape and more." },
 ];
 
@@ -151,6 +151,7 @@ function AppPage() {
   const [confFill, setConfFill] = useState(0);
   const [statCount, setStatCount] = useState(0);
   const [barsAnimated, setBarsAnimated] = useState(false);
+  const [chatOpen, setChatOpen] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const barsRef = useRef<HTMLDivElement>(null);
@@ -299,9 +300,8 @@ function AppPage() {
           </button>
           <div className="nav-links">
             <a onClick={() => smoothScroll("how")}>How it Works</a>
-            <a onClick={() => smoothScroll("diseases")}>Diseases</a>
             <a onClick={() => smoothScroll("features")}>Features</a>
-            <a onClick={() => smoothScroll("tech")}>Tech</a>
+            <a onClick={() => setChatOpen(true)}>Dr. LeafRx</a>
           </div>
           <div className="nav-actions">
             <button className="btn btn-ghost" onClick={logout}>
@@ -320,7 +320,7 @@ function AppPage() {
         <div className="hero-inner">
           <div className="hero-badge badgePop">
             <span className="pulse-dot" />
-            AI-Powered Plant Health Detection
+            Plant Health Detection · Powered by Dr. LeafRx
           </div>
 
           <div className="hero-logo heroTitle">
@@ -480,41 +480,12 @@ function AppPage() {
         </div>
       </section>
 
-      {/* DISEASES */}
-      <section id="diseases" className="section section-alt">
-        <div className="container">
-          <div className="section-label reveal">COVERAGE</div>
-          <h2 className="section-title reveal">Diseases Detected</h2>
-          <div className="diseases-grid">
-            {DISEASES.map((d, i) => (
-              <div
-                key={d.crop + d.name}
-                className={`disease-card reveal delay-${(i % 5) + 1}`}
-                style={{ "--accent": d.accent } as CSSProperties}
-              >
-                <div className="disease-emoji">{d.emoji}</div>
-                <div className="disease-crop">{d.crop}</div>
-                <div className="disease-name">{d.name}</div>
-                <span
-                  className="sev-badge sev-badge-sm"
-                  style={{
-                    background: SEVERITY_COLOR[d.sev] + "22",
-                    color: SEVERITY_COLOR[d.sev],
-                    borderColor: SEVERITY_COLOR[d.sev] + "55",
-                  }}
-                >
-                  {d.sev}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* DISEASES section removed per request */}
 
       {/* FEATURES */}
       <section id="features" className="section">
         <div className="container">
-          <div className="section-label reveal">CAPABILITIES</div>
+          <div className="section-label reveal">FEATURES & CROP-SAFETY TIPS</div>
           <h2 className="section-title reveal">Built for the Field</h2>
           <div className="features-grid">
             {FEATURES.map((f, i) => (
@@ -591,21 +562,7 @@ function AppPage() {
         </div>
       </section>
 
-      {/* TECH */}
-      <section id="tech" className="section">
-        <div className="container">
-          <div className="section-label reveal">UNDER THE HOOD</div>
-          <h2 className="section-title reveal">Tech Stack</h2>
-          <div className="tech-tags">
-            {TECH.map((t, i) => (
-              <span key={t.name} className={`tech-tag reveal delay-${(i % 5) + 1}`}>
-                <span className="tech-cat">{t.cat}</span>
-                {t.name}
-              </span>
-            ))}
-          </div>
-        </div>
-      </section>
+      {/* TECH STACK section removed per request */}
 
       {/* CTA */}
       <section className="cta">
@@ -620,7 +577,9 @@ function AppPage() {
             >
               🔬 Diagnose Now
             </button>
-            <button className="btn btn-outline btn-lg">📖 Documentation</button>
+            <button className="btn btn-outline btn-lg" onClick={() => setChatOpen(true)}>
+              👨‍⚕️ Ask Dr. LeafRx
+            </button>
           </div>
         </div>
       </section>
@@ -636,9 +595,9 @@ function AppPage() {
           </div>
           <div>
             <h4>Product</h4>
-            <a>Diagnose</a>
-            <a>Diseases</a>
-            <a>Pricing</a>
+            <a onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Diagnose</a>
+            <a onClick={() => smoothScroll("features")}>Features</a>
+            <a onClick={() => setChatOpen(true)}>Dr. LeafRx</a>
           </div>
           <div>
             <h4>Developer</h4>
@@ -646,18 +605,16 @@ function AppPage() {
             <a>Models</a>
             <a>GitHub</a>
           </div>
-          <div>
-            <h4>Support</h4>
-            <a>Help Center</a>
-            <a>Contact</a>
-            <a>Status</a>
-          </div>
         </div>
         <div className="container footer-bottom">
           <span>© {new Date().getFullYear()} LeafRx</span>
           <span>Your Plant's Digital Doctor</span>
         </div>
       </footer>
+
+      {/* Dr. LeafRx chatbot */}
+      {!chatOpen && <DrLeafRxFab onClick={() => setChatOpen(true)} />}
+      <DrLeafRxChat open={chatOpen} onClose={() => setChatOpen(false)} />
     </div>
   );
 }
