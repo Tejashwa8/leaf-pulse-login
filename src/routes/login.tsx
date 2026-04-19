@@ -905,6 +905,47 @@ const css = `
     font-size: 11px;
   }
 
+  /* OAuth */
+  .oauth-divider {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin: 18px 0 12px;
+    color: #707070;
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+  .oauth-divider::before, .oauth-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: var(--border);
+  }
+  .oauth-btn {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 16px;
+    background: #fff;
+    color: #1f1f1f;
+    border: 1px solid #2e2e2e;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 14px;
+    cursor: pointer;
+    transition: all .25s cubic-bezier(.34,1.2,.64,1);
+    font-family: inherit;
+  }
+  .oauth-btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(0,0,0,.4);
+    background: #f7f7f7;
+  }
+  .oauth-btn:disabled { opacity: .55; cursor: not-allowed; }
+
   /* fade-up stagger */
   .fade-up { animation: fadeUp .55s ease both; }
   @keyframes fadeUp {
