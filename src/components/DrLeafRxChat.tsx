@@ -140,19 +140,16 @@ const CSS = `
 .drlx-input button:hover:not(:disabled) { transform:translateY(-1px); box-shadow:0 6px 18px rgba(107,142,35,.4); }
 .drlx-input button:disabled { opacity:.5; cursor:not-allowed; }
 
-.drlx-fab { position:fixed; bottom:24px; right:24px; z-index:9997; background:linear-gradient(135deg,#6B8E23,#4CAF50); color:#fff; border:none; border-radius:50px; padding:14px 20px; font-weight:700; font-size:14px; cursor:pointer; box-shadow:0 12px 32px rgba(76,175,80,.4); display:inline-flex; align-items:center; gap:8px; font-family:'Nunito',sans-serif; transition:all .25s cubic-bezier(.34,1.2,.64,1); animation: drlxFabPulse 2.5s ease-in-out infinite; }
-.drlx-fab:hover { transform:translateY(-3px) scale(1.04); box-shadow:0 16px 40px rgba(76,175,80,.55); }
-.drlx-fab span.drlx-fab-icon { font-size:20px; }
-@keyframes drlxFabPulse { 0%,100%{box-shadow:0 12px 32px rgba(76,175,80,.4);} 50%{box-shadow:0 12px 32px rgba(76,175,80,.4), 0 0 0 12px rgba(76,175,80,0);} }
+.drlx-fab { position:fixed; bottom:24px; right:24px; z-index:9997; background:linear-gradient(135deg,#6B8E23,#4CAF50); color:#fff; border:none; border-radius:50%; width:64px; height:64px; padding:0; cursor:pointer; box-shadow:0 8px 24px rgba(0,0,0,.4); display:flex; align-items:center; justify-content:center; font-size:28px; transition:transform .2s ease, box-shadow .2s ease; }
+.drlx-fab:hover { transform:translateY(-2px) scale(1.05); box-shadow:0 12px 28px rgba(0,0,0,.5); }
 `;
 
 export function DrLeafRxFab({ onClick }: { onClick: () => void }) {
   return (
     <>
       <style>{CSS}</style>
-      <button className="drlx-fab" onClick={onClick} aria-label="Open Dr. LeafRx chat">
-        <span className="drlx-fab-icon">👨‍⚕️</span>
-        <span>Ask Dr. LeafRx</span>
+      <button className="drlx-fab" onClick={onClick} aria-label="Open Dr. LeafRx chat" title="Ask Dr. LeafRx">
+        <span aria-hidden="true">👨‍⚕️</span>
       </button>
     </>
   );
