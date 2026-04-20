@@ -173,6 +173,7 @@ function AppPage() {
   const [historyQuery, setHistoryQuery] = useState("");
   const [historySev, setHistorySev] = useState<"All" | "Severe" | "High" | "Moderate" | "Low">("All");
   const [historySort, setHistorySort] = useState<"newest" | "oldest">("newest");
+  const [activeHistory, setActiveHistory] = useState<HistoryRow | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const barsRef = useRef<HTMLDivElement>(null);
@@ -608,7 +609,12 @@ function AppPage() {
               return (
                 <div className="history-grid">
                   {filtered.map((h) => (
-                    <div key={h.id} className="history-card reveal">
+                    <button
+                      key={h.id}
+                      type="button"
+                      className="history-card reveal"
+                      onClick={() => setActiveHistory(h)}
+                    >
                       {h.signed_url && (
                         <img src={h.signed_url} alt={h.disease_name} className="history-img" loading="lazy" />
                       )}
@@ -636,7 +642,7 @@ function AppPage() {
                           })}
                         </div>
                       </div>
-                    </div>
+                    </button>
                   ))}
                 </div>
               );
@@ -796,19 +802,27 @@ function AppPage() {
         </div>
       </footer>
 
-      {/* Dr. LeafRx chatbot — sees most recent diagnosis as context */}
+      {/* Dr. LeafRx chatbot — sees most recent diagnosis or open scan as context */}
       {(() => {
-        const latest = diagnosis
-          ? { disease_name: diagnosis.name, severity: diagnosis.sev, confidence: diagnosis.conf, rx: diagnosis.rx }
-          : history[0]
-            ? {
-                disease_name: history[0].disease_name,
-                severity: history[0].severity,
-                confidence: history[0].confidence,
-                rx: history[0].rx,
-                created_at: history[0].created_at,
-              }
-            : null;
+        const latest = activeHistory
+          ? {
+              disease_name: activeHistory.disease_name,
+              severity: activeHistory.severity,
+              confidence: activeHistory.confidence,
+              rx: activeHistory.rx,
+              created_at: activeHistory.created_at,
+            }
+          : diagnosis
+            ? { disease_name: diagnosis.name, severity: diagnosis.sev, confidence: diagnosis.conf, rx: diagnosis.rx }
+            : history[0]
+              ? {
+                  disease_name: history[0].disease_name,
+                  severity: history[0].severity,
+                  confidence: history[0].confidence,
+                  rx: history[0].rx,
+                  created_at: history[0].created_at,
+                }
+              : null;
         return (
           <>
             {!chatOpen && <DrLeafRxFab onClick={() => setChatOpen(true)} />}
@@ -816,6 +830,51 @@ function AppPage() {
           </>
         );
       })()}
+
+      {/* HISTORY DETAIL MODAL */}
+      {activeHistory && (
+        <div className="hx-modal-wrap" role="dialog" aria-modal="true" onClick={() => setActiveHistory(null)}>
+          <div className="hx-modal" onClick={(e) => e.stopPropagation()}>
+            <button className="hx-close" onClick={() => setActiveHistory(null)} aria-label="Close">✕</button>
+            {activeHistory.signed_url && (
+              <img src={activeHistory.signed_url} alt={activeHistory.disease_name} className="hx-img" />
+            )}
+            <div className="hx-body">
+              <div className="hx-name">{activeHistory.disease_name}</div>
+              <div className="hx-meta">
+                <span
+                  className="sev-badge sev-badge-sm"
+                  style={{
+                    background: (SEVERITY_COLOR[activeHistory.severity] || "#999") + "22",
+                    color: SEVERITY_COLOR[activeHistory.severity] || "#999",
+                    borderColor: (SEVERITY_COLOR[activeHistory.severity] || "#999") + "55",
+                  }}
+                >
+                  {activeHistory.severity}
+                </span>
+                <span className="history-conf">{activeHistory.confidence}% confident</span>
+                <span className="history-date">
+                  {new Date(activeHistory.created_at).toLocaleDateString(undefined, {
+                    month: "long",
+                    day: "numeric",
+                    year: "numeric",
+                  })}
+                </span>
+              </div>
+              <div className="hx-section-label">PRESCRIBED RX</div>
+              <p className="hx-rx">{activeHistory.rx}</p>
+              <button
+                className="btn btn-primary hx-cta"
+                onClick={() => {
+                  setChatOpen(true);
+                }}
+              >
+                💬 Ask Dr. LeafRx about this scan
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1039,8 +1098,21 @@ const CSS = `
 .history-filters select:hover, .history-filters select:focus { border-color:var(--olive); }
 .history-empty { background:var(--card); border:1px dashed var(--border); border-radius:14px; padding:28px; text-align:center; color:var(--muted); font-size:14px; }
 .history-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:16px; }
-.history-card { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; transition:all .3s cubic-bezier(.34,1.2,.64,1); }
+.history-card { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; transition:all .3s cubic-bezier(.34,1.2,.64,1); padding:0; text-align:left; cursor:pointer; font:inherit; color:inherit; width:100%; }
 .history-card:hover { transform:translateY(-4px); border-color:var(--olive); box-shadow:0 12px 32px rgba(107,142,35,.18); }
+.hx-modal-wrap { position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(8px); z-index:9999; display:flex; align-items:center; justify-content:center; padding:24px; animation:hxFade .2s ease both; }
+@keyframes hxFade { from{opacity:0} to{opacity:1} }
+.hx-modal { background:#1a1a1a; border:1px solid #2a4010; border-radius:20px; max-width:560px; width:100%; max-height:90vh; overflow-y:auto; position:relative; box-shadow:0 24px 60px rgba(0,0,0,.6); animation:hxIn .3s cubic-bezier(.34,1.2,.64,1) both; }
+@keyframes hxIn { from{opacity:0;transform:scale(.95) translateY(20px)} to{opacity:1;transform:none} }
+.hx-close { position:absolute; top:12px; right:12px; background:rgba(0,0,0,.6); border:1px solid #333; color:#fff; width:36px; height:36px; border-radius:50%; cursor:pointer; font-size:16px; z-index:2; transition:all .2s; }
+.hx-close:hover { background:#000; border-color:var(--olive); }
+.hx-img { width:100%; max-height:340px; object-fit:cover; display:block; }
+.hx-body { padding:24px; }
+.hx-name { font-family:'Nunito',sans-serif; font-weight:900; font-size:22px; color:#fff; margin-bottom:12px; }
+.hx-meta { display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-bottom:20px; font-size:13px; color:#9E9E9E; }
+.hx-section-label { font-size:11px; font-weight:700; letter-spacing:1.5px; color:var(--olive); margin-bottom:8px; }
+.hx-rx { color:#E0E0E0; font-size:15px; line-height:1.6; margin-bottom:20px; }
+.hx-cta { width:100%; }
 .history-img { width:100%; height:160px; object-fit:cover; display:block; background:#0d0d0d; }
 .history-body { padding:14px 16px 16px; }
 .history-name { font-family:'Nunito',sans-serif; font-weight:800; font-size:15px; margin-bottom:8px; color:#fff; }
