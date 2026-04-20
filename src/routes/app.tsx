@@ -1022,8 +1022,22 @@ const CSS = `
   .stat-pill { min-width:calc(50% - 8px); }
   .footer-grid { grid-template-columns:1fr; }
   .footer-bottom { flex-direction:column; gap:8px; text-align:center; }
+  .history-toolbar { flex-direction:column; align-items:stretch; }
+  .history-filters { flex-direction:column; }
+}
 
-/* history cards */
+/* history toolbar + cards */
+.history-toolbar { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:24px; }
+.history-search { position:relative; flex:1; min-width:220px; }
+.history-search input { width:100%; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:11px 36px 11px 36px; color:var(--text); font-family:inherit; font-size:14px; outline:none; transition:border-color .2s; }
+.history-search input:focus { border-color:var(--olive); }
+.history-search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; opacity:.7; pointer-events:none; }
+.history-clear { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:var(--muted); cursor:pointer; padding:4px 8px; border-radius:6px; font-size:13px; }
+.history-clear:hover { color:var(--text); background:rgba(255,255,255,.05); }
+.history-filters { display:flex; gap:10px; }
+.history-filters select { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 14px; color:var(--text); font-family:inherit; font-size:13px; outline:none; cursor:pointer; transition:border-color .2s; }
+.history-filters select:hover, .history-filters select:focus { border-color:var(--olive); }
+.history-empty { background:var(--card); border:1px dashed var(--border); border-radius:14px; padding:28px; text-align:center; color:var(--muted); font-size:14px; }
 .history-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:16px; }
 .history-card { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; transition:all .3s cubic-bezier(.34,1.2,.64,1); }
 .history-card:hover { transform:translateY(-4px); border-color:var(--olive); box-shadow:0 12px 32px rgba(107,142,35,.18); }
