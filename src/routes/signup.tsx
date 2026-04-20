@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { LeafRxWordmark } from "@/components/LeafRxLogo";
 
 export const Route = createFileRoute("/signup")({
   component: SignupPage,
@@ -66,10 +67,7 @@ function SignupPage() {
       <style>{css}</style>
       <div className="card">
         <Link to="/" className="brand">
-          <span className="leaf">🌿</span>
-          <span>
-            Leaf<span className="rx">Rx</span>
-          </span>
+          <LeafRxWordmark iconSize={36} fontSize={22} />
         </Link>
 
         {sent ? (
