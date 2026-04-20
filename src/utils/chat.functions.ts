@@ -27,6 +27,11 @@ export const askDrLeafRx = createServerFn({ method: "POST" })
     const apiKey = process.env.LOVABLE_API_KEY;
     if (!apiKey) throw new Error("LOVABLE_API_KEY is not configured");
 
+    const ctx = data.context;
+    const contextLine = ctx
+      ? `\n\nThe farmer's MOST RECENT diagnosis from LeafRx:\n- Disease: ${ctx.disease_name}\n- Severity: ${ctx.severity}\n- Confidence: ${ctx.confidence}%\n- Prescribed Rx: ${ctx.rx}${ctx.created_at ? `\n- Scanned: ${new Date(ctx.created_at).toLocaleDateString()}` : ""}\n\nWhen the farmer asks follow-up questions (e.g. "how long until I see results?", "is it safe to spray now?", "what if it doesn't work?"), use this diagnosis as context. Refer to the disease and Rx by name when relevant.`
+      : "";
+
     const res = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
@@ -39,7 +44,8 @@ export const askDrLeafRx = createServerFn({ method: "POST" })
           {
             role: "system",
             content:
-              "You are Dr. LeafRx, a friendly and knowledgeable plant doctor and agronomist. You help farmers and gardeners diagnose plant issues, give practical treatment advice, prevention tips, watering/fertilizing guidance, soil care, organic remedies, and crop-protection strategies. Keep replies concise (under 180 words), warm, and actionable. Use simple language. When relevant, give step-by-step Rx. If the question is unrelated to plants, agriculture, gardening or crop care, politely steer back to plant topics.",
+              "You are Dr. LeafRx, a friendly and knowledgeable plant doctor and agronomist. You help farmers and gardeners diagnose plant issues, give practical treatment advice, prevention tips, watering/fertilizing guidance, soil care, organic remedies, and crop-protection strategies. Keep replies concise (under 180 words), warm, and actionable. Use simple language. When relevant, give step-by-step Rx. If the question is unrelated to plants, agriculture, gardening or crop care, politely steer back to plant topics." +
+              contextLine,
           },
           ...data.messages,
         ],
