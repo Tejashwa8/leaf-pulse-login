@@ -796,9 +796,26 @@ function AppPage() {
         </div>
       </footer>
 
-      {/* Dr. LeafRx chatbot */}
-      {!chatOpen && <DrLeafRxFab onClick={() => setChatOpen(true)} />}
-      <DrLeafRxChat open={chatOpen} onClose={() => setChatOpen(false)} />
+      {/* Dr. LeafRx chatbot — sees most recent diagnosis as context */}
+      {(() => {
+        const latest = diagnosis
+          ? { disease_name: diagnosis.name, severity: diagnosis.sev, confidence: diagnosis.conf, rx: diagnosis.rx }
+          : history[0]
+            ? {
+                disease_name: history[0].disease_name,
+                severity: history[0].severity,
+                confidence: history[0].confidence,
+                rx: history[0].rx,
+                created_at: history[0].created_at,
+              }
+            : null;
+        return (
+          <>
+            {!chatOpen && <DrLeafRxFab onClick={() => setChatOpen(true)} />}
+            <DrLeafRxChat open={chatOpen} onClose={() => setChatOpen(false)} context={latest} />
+          </>
+        );
+      })()}
     </div>
   );
 }
