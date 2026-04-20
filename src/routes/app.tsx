@@ -170,6 +170,9 @@ function AppPage() {
   const [chatOpen, setChatOpen] = useState(false);
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [historyQuery, setHistoryQuery] = useState("");
+  const [historySev, setHistorySev] = useState<"All" | "Severe" | "High" | "Moderate" | "Low">("All");
+  const [historySort, setHistorySort] = useState<"newest" | "oldest">("newest");
   const fileRef = useRef<HTMLInputElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const barsRef = useRef<HTMLDivElement>(null);
