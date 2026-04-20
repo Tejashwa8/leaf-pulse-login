@@ -28,7 +28,10 @@ export function DrLeafRxChat({ open, onClose, context }: Props) {
     setLoading(true);
     try {
       const { reply } = await askDrLeafRx({
-        data: { messages: next.filter((m) => m.role === "user" || m.role === "assistant").slice(-12) },
+        data: {
+          messages: next.filter((m) => m.role === "user" || m.role === "assistant").slice(-12),
+          context: context ?? null,
+        },
       });
       setMessages((m) => [...m, { role: "assistant", content: reply }]);
     } catch (err) {
