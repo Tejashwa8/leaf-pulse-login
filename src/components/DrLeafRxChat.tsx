@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { askDrLeafRx, type ChatMessage } from "@/utils/chat.functions";
+import { askDrLeafRx, type ChatMessage, type DiagnosisContext } from "@/utils/chat.functions";
 
-type Props = { open: boolean; onClose: () => void };
+type Props = { open: boolean; onClose: () => void; context?: DiagnosisContext | null };
 
-export function DrLeafRxChat({ open, onClose }: Props) {
+export function DrLeafRxChat({ open, onClose, context }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
@@ -28,7 +28,10 @@ export function DrLeafRxChat({ open, onClose }: Props) {
     setLoading(true);
     try {
       const { reply } = await askDrLeafRx({
-        data: { messages: next.filter((m) => m.role === "user" || m.role === "assistant").slice(-12) },
+        data: {
+          messages: next.filter((m) => m.role === "user" || m.role === "assistant").slice(-12),
+          context: context ?? null,
+        },
       });
       setMessages((m) => [...m, { role: "assistant", content: reply }]);
     } catch (err) {
@@ -39,12 +42,19 @@ export function DrLeafRxChat({ open, onClose }: Props) {
     }
   }
 
-  const SUGGESTED = [
-    "How do I treat tomato early blight?",
-    "Best way to prevent fungus on grapes?",
-    "How often should I water pepper plants?",
-    "Natural remedies for aphids?",
-  ];
+  const SUGGESTED = context
+    ? [
+        `How long until I see results from this Rx for ${context.disease_name}?`,
+        `Is it safe to spray now if it just rained?`,
+        `What if the ${context.disease_name} doesn't improve in a week?`,
+        `Any organic alternative to this treatment?`,
+      ]
+    : [
+        "How do I treat tomato early blight?",
+        "Best way to prevent fungus on grapes?",
+        "How often should I water pepper plants?",
+        "Natural remedies for aphids?",
+      ];
 
   if (!open) return null;
 
@@ -54,9 +64,11 @@ export function DrLeafRxChat({ open, onClose }: Props) {
       <div className="drlx-card">
         <div className="drlx-head">
           <div className="drlx-avatar">🌿</div>
-          <div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <div className="drlx-name">Dr. LeafRx</div>
-            <div className="drlx-role">Your plant's digital doctor</div>
+            <div className="drlx-role">
+              {context ? `📋 Reviewing your ${context.disease_name} scan` : "Your plant's digital doctor"}
+            </div>
           </div>
           <button className="drlx-close" onClick={onClose} aria-label="Close chat">✕</button>
         </div>

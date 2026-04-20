@@ -170,6 +170,9 @@ function AppPage() {
   const [chatOpen, setChatOpen] = useState(false);
   const [history, setHistory] = useState<HistoryRow[]>([]);
   const [userId, setUserId] = useState<string | null>(null);
+  const [historyQuery, setHistoryQuery] = useState("");
+  const [historySev, setHistorySev] = useState<"All" | "Severe" | "High" | "Moderate" | "Low">("All");
+  const [historySort, setHistorySort] = useState<"newest" | "oldest">("newest");
   const fileRef = useRef<HTMLInputElement>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const barsRef = useRef<HTMLDivElement>(null);
@@ -556,39 +559,88 @@ function AppPage() {
           <div className="container">
             <div className="section-label reveal">YOUR PAST SCANS</div>
             <h2 className="section-title reveal">Diagnosis History</h2>
-            <div className="history-grid">
-              {history.map((h) => (
-                <div key={h.id} className="history-card reveal">
-                  {h.signed_url && (
-                    <img src={h.signed_url} alt={h.disease_name} className="history-img" loading="lazy" />
-                  )}
-                  <div className="history-body">
-                    <div className="history-name">{h.disease_name}</div>
-                    <div className="history-meta">
-                      <span
-                        className="sev-badge sev-badge-sm"
-                        style={{
-                          background: (SEVERITY_COLOR[h.severity] || "#999") + "22",
-                          color: SEVERITY_COLOR[h.severity] || "#999",
-                          borderColor: (SEVERITY_COLOR[h.severity] || "#999") + "55",
-                        }}
-                      >
-                        {h.severity}
-                      </span>
-                      <span className="history-conf">{h.confidence}% confident</span>
-                    </div>
-                    <p className="history-rx">{h.rx}</p>
-                    <div className="history-date">
-                      {new Date(h.created_at).toLocaleDateString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </div>
-                  </div>
-                </div>
-              ))}
+
+            <div className="history-toolbar reveal">
+              <div className="history-search">
+                <span className="history-search-icon">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Search by disease name…"
+                  value={historyQuery}
+                  onChange={(e) => setHistoryQuery(e.target.value)}
+                />
+                {historyQuery && (
+                  <button className="history-clear" onClick={() => setHistoryQuery("")} aria-label="Clear search">✕</button>
+                )}
+              </div>
+              <div className="history-filters">
+                <select value={historySev} onChange={(e) => setHistorySev(e.target.value as typeof historySev)}>
+                  <option value="All">All severities</option>
+                  <option value="Severe">Severe</option>
+                  <option value="High">High</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="Low">Low</option>
+                </select>
+                <select value={historySort} onChange={(e) => setHistorySort(e.target.value as typeof historySort)}>
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                </select>
+              </div>
             </div>
+
+            {(() => {
+              const q = historyQuery.trim().toLowerCase();
+              const filtered = history
+                .filter((h) => (historySev === "All" ? true : h.severity === historySev))
+                .filter((h) => (q ? h.disease_name.toLowerCase().includes(q) : true))
+                .sort((a, b) => {
+                  const da = new Date(a.created_at).getTime();
+                  const db = new Date(b.created_at).getTime();
+                  return historySort === "newest" ? db - da : da - db;
+                });
+              if (filtered.length === 0) {
+                return (
+                  <div className="history-empty reveal">
+                    No scans match your filters. <button className="reset-link" onClick={() => { setHistoryQuery(""); setHistorySev("All"); }}>Clear filters</button>
+                  </div>
+                );
+              }
+              return (
+                <div className="history-grid">
+                  {filtered.map((h) => (
+                    <div key={h.id} className="history-card reveal">
+                      {h.signed_url && (
+                        <img src={h.signed_url} alt={h.disease_name} className="history-img" loading="lazy" />
+                      )}
+                      <div className="history-body">
+                        <div className="history-name">{h.disease_name}</div>
+                        <div className="history-meta">
+                          <span
+                            className="sev-badge sev-badge-sm"
+                            style={{
+                              background: (SEVERITY_COLOR[h.severity] || "#999") + "22",
+                              color: SEVERITY_COLOR[h.severity] || "#999",
+                              borderColor: (SEVERITY_COLOR[h.severity] || "#999") + "55",
+                            }}
+                          >
+                            {h.severity}
+                          </span>
+                          <span className="history-conf">{h.confidence}% confident</span>
+                        </div>
+                        <p className="history-rx">{h.rx}</p>
+                        <div className="history-date">
+                          {new Date(h.created_at).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         </section>
       )}
@@ -744,9 +796,26 @@ function AppPage() {
         </div>
       </footer>
 
-      {/* Dr. LeafRx chatbot */}
-      {!chatOpen && <DrLeafRxFab onClick={() => setChatOpen(true)} />}
-      <DrLeafRxChat open={chatOpen} onClose={() => setChatOpen(false)} />
+      {/* Dr. LeafRx chatbot — sees most recent diagnosis as context */}
+      {(() => {
+        const latest = diagnosis
+          ? { disease_name: diagnosis.name, severity: diagnosis.sev, confidence: diagnosis.conf, rx: diagnosis.rx }
+          : history[0]
+            ? {
+                disease_name: history[0].disease_name,
+                severity: history[0].severity,
+                confidence: history[0].confidence,
+                rx: history[0].rx,
+                created_at: history[0].created_at,
+              }
+            : null;
+        return (
+          <>
+            {!chatOpen && <DrLeafRxFab onClick={() => setChatOpen(true)} />}
+            <DrLeafRxChat open={chatOpen} onClose={() => setChatOpen(false)} context={latest} />
+          </>
+        );
+      })()}
     </div>
   );
 }
@@ -953,8 +1022,22 @@ const CSS = `
   .stat-pill { min-width:calc(50% - 8px); }
   .footer-grid { grid-template-columns:1fr; }
   .footer-bottom { flex-direction:column; gap:8px; text-align:center; }
+  .history-toolbar { flex-direction:column; align-items:stretch; }
+  .history-filters { flex-direction:column; }
+}
 
-/* history cards */
+/* history toolbar + cards */
+.history-toolbar { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:24px; }
+.history-search { position:relative; flex:1; min-width:220px; }
+.history-search input { width:100%; background:var(--card); border:1px solid var(--border); border-radius:12px; padding:11px 36px 11px 36px; color:var(--text); font-family:inherit; font-size:14px; outline:none; transition:border-color .2s; }
+.history-search input:focus { border-color:var(--olive); }
+.history-search-icon { position:absolute; left:12px; top:50%; transform:translateY(-50%); font-size:14px; opacity:.7; pointer-events:none; }
+.history-clear { position:absolute; right:8px; top:50%; transform:translateY(-50%); background:transparent; border:none; color:var(--muted); cursor:pointer; padding:4px 8px; border-radius:6px; font-size:13px; }
+.history-clear:hover { color:var(--text); background:rgba(255,255,255,.05); }
+.history-filters { display:flex; gap:10px; }
+.history-filters select { background:var(--card); border:1px solid var(--border); border-radius:12px; padding:10px 14px; color:var(--text); font-family:inherit; font-size:13px; outline:none; cursor:pointer; transition:border-color .2s; }
+.history-filters select:hover, .history-filters select:focus { border-color:var(--olive); }
+.history-empty { background:var(--card); border:1px dashed var(--border); border-radius:14px; padding:28px; text-align:center; color:var(--muted); font-size:14px; }
 .history-grid { display:grid; grid-template-columns:repeat(auto-fill, minmax(260px,1fr)); gap:16px; }
 .history-card { background:var(--card); border:1px solid var(--border); border-radius:16px; overflow:hidden; transition:all .3s cubic-bezier(.34,1.2,.64,1); }
 .history-card:hover { transform:translateY(-4px); border-color:var(--olive); box-shadow:0 12px 32px rgba(107,142,35,.18); }
