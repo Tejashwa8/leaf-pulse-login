@@ -559,39 +559,88 @@ function AppPage() {
           <div className="container">
             <div className="section-label reveal">YOUR PAST SCANS</div>
             <h2 className="section-title reveal">Diagnosis History</h2>
-            <div className="history-grid">
-              {history.map((h) => (
-                <div key={h.id} className="history-card reveal">
-                  {h.signed_url && (
-                    <img src={h.signed_url} alt={h.disease_name} className="history-img" loading="lazy" />
-                  )}
-                  <div className="history-body">
-                    <div className="history-name">{h.disease_name}</div>
-                    <div className="history-meta">
-                      <span
-                        className="sev-badge sev-badge-sm"
-                        style={{
-                          background: (SEVERITY_COLOR[h.severity] || "#999") + "22",
-                          color: SEVERITY_COLOR[h.severity] || "#999",
-                          borderColor: (SEVERITY_COLOR[h.severity] || "#999") + "55",
-                        }}
-                      >
-                        {h.severity}
-                      </span>
-                      <span className="history-conf">{h.confidence}% confident</span>
-                    </div>
-                    <p className="history-rx">{h.rx}</p>
-                    <div className="history-date">
-                      {new Date(h.created_at).toLocaleDateString(undefined, {
-                        month: "short",
-                        day: "numeric",
-                        year: "numeric",
-                      })}
-                    </div>
-                  </div>
-                </div>
-              ))}
+
+            <div className="history-toolbar reveal">
+              <div className="history-search">
+                <span className="history-search-icon">🔍</span>
+                <input
+                  type="text"
+                  placeholder="Search by disease name…"
+                  value={historyQuery}
+                  onChange={(e) => setHistoryQuery(e.target.value)}
+                />
+                {historyQuery && (
+                  <button className="history-clear" onClick={() => setHistoryQuery("")} aria-label="Clear search">✕</button>
+                )}
+              </div>
+              <div className="history-filters">
+                <select value={historySev} onChange={(e) => setHistorySev(e.target.value as typeof historySev)}>
+                  <option value="All">All severities</option>
+                  <option value="Severe">Severe</option>
+                  <option value="High">High</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="Low">Low</option>
+                </select>
+                <select value={historySort} onChange={(e) => setHistorySort(e.target.value as typeof historySort)}>
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                </select>
+              </div>
             </div>
+
+            {(() => {
+              const q = historyQuery.trim().toLowerCase();
+              const filtered = history
+                .filter((h) => (historySev === "All" ? true : h.severity === historySev))
+                .filter((h) => (q ? h.disease_name.toLowerCase().includes(q) : true))
+                .sort((a, b) => {
+                  const da = new Date(a.created_at).getTime();
+                  const db = new Date(b.created_at).getTime();
+                  return historySort === "newest" ? db - da : da - db;
+                });
+              if (filtered.length === 0) {
+                return (
+                  <div className="history-empty reveal">
+                    No scans match your filters. <button className="reset-link" onClick={() => { setHistoryQuery(""); setHistorySev("All"); }}>Clear filters</button>
+                  </div>
+                );
+              }
+              return (
+                <div className="history-grid">
+                  {filtered.map((h) => (
+                    <div key={h.id} className="history-card reveal">
+                      {h.signed_url && (
+                        <img src={h.signed_url} alt={h.disease_name} className="history-img" loading="lazy" />
+                      )}
+                      <div className="history-body">
+                        <div className="history-name">{h.disease_name}</div>
+                        <div className="history-meta">
+                          <span
+                            className="sev-badge sev-badge-sm"
+                            style={{
+                              background: (SEVERITY_COLOR[h.severity] || "#999") + "22",
+                              color: SEVERITY_COLOR[h.severity] || "#999",
+                              borderColor: (SEVERITY_COLOR[h.severity] || "#999") + "55",
+                            }}
+                          >
+                            {h.severity}
+                          </span>
+                          <span className="history-conf">{h.confidence}% confident</span>
+                        </div>
+                        <p className="history-rx">{h.rx}</p>
+                        <div className="history-date">
+                          {new Date(h.created_at).toLocaleDateString(undefined, {
+                            month: "short",
+                            day: "numeric",
+                            year: "numeric",
+                          })}
+                        </div>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              );
+            })()}
           </div>
         </section>
       )}
