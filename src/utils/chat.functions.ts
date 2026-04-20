@@ -1,9 +1,16 @@
 import { createServerFn } from "@tanstack/react-start";
 
 export type ChatMessage = { role: "user" | "assistant"; content: string };
+export type DiagnosisContext = {
+  disease_name: string;
+  severity: string;
+  confidence: number;
+  rx: string;
+  created_at?: string;
+};
 
 export const askDrLeafRx = createServerFn({ method: "POST" })
-  .inputValidator((input: { messages: ChatMessage[] }) => {
+  .inputValidator((input: { messages: ChatMessage[]; context?: DiagnosisContext | null }) => {
     if (!Array.isArray(input?.messages) || input.messages.length === 0) {
       throw new Error("No messages provided");
     }
