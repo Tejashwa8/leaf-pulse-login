@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { LeafRxLogo, LeafRxWordmark } from "@/components/LeafRxLogo";
 
 export const Route = createFileRoute("/login")({
   component: LoginPage,
@@ -29,63 +30,7 @@ export const Route = createFileRoute("/login")({
   }),
 });
 
-/* LeafRx logo — leaf + midrib veins + stethoscope arc + Rx */
-function LeafRxLogo({ size = 44 }: { size?: number }) {
-  return (
-    <svg
-      width={size}
-      height={size}
-      viewBox="0 0 64 64"
-      fill="none"
-      xmlns="http://www.w3.org/2000/svg"
-      aria-label="LeafRx logo"
-    >
-      <defs>
-        <linearGradient id="leafGrad" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stopColor="#7fa328" />
-          <stop offset="100%" stopColor="#4CAF50" />
-        </linearGradient>
-      </defs>
-      {/* Leaf */}
-      <path
-        d="M52 8C28 8 10 22 10 42c0 8 4 14 10 14 18 0 36-16 36-40 0-3-1-6-4-8z"
-        fill="url(#leafGrad)"
-        opacity="0.95"
-      />
-      {/* Midrib */}
-      <path
-        d="M50 12C36 22 24 36 16 54"
-        stroke="#0d1f06"
-        strokeWidth="1.6"
-        strokeLinecap="round"
-      />
-      {/* Veins */}
-      <path d="M44 18C40 22 38 26 36 30" stroke="#0d1f06" strokeWidth="1" opacity=".55" />
-      <path d="M38 24C34 28 32 32 30 36" stroke="#0d1f06" strokeWidth="1" opacity=".55" />
-      <path d="M32 30C28 34 26 38 24 42" stroke="#0d1f06" strokeWidth="1" opacity=".55" />
-      {/* Stethoscope arc */}
-      <path
-        d="M14 46c0 6 5 11 11 11s11-5 11-11"
-        stroke="#FAF3E0"
-        strokeWidth="2.2"
-        strokeLinecap="round"
-        fill="none"
-      />
-      <circle cx="38" cy="46" r="3" fill="#FAF3E0" />
-      {/* Rx */}
-      <text
-        x="44"
-        y="58"
-        fontFamily="Poppins, sans-serif"
-        fontSize="12"
-        fontWeight="800"
-        fill="#7fa328"
-      >
-        Rx
-      </text>
-    </svg>
-  );
-}
+/* Canonical LeafRxLogo imported from @/components/LeafRxLogo */
 
 type Toast = { id: number; message: string; type: "success" | "error" | "info" };
 
@@ -244,8 +189,7 @@ function LoginPage() {
           <div className="brand-inner">
             <div className="brand-top">
               <div className="brand-logo-row">
-                <LeafRxLogo size={48} />
-                <span className="brand-wordmark">LeafRx</span>
+                <LeafRxWordmark iconSize={48} fontSize={28} />
               </div>
 
               <h1 className="hero-title">
