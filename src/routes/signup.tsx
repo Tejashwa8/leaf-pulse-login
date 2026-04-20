@@ -1,6 +1,7 @@
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { LeafRxWordmark } from "@/components/LeafRxLogo";
 
 export const Route = createFileRoute("/signup")({
   component: SignupPage,
