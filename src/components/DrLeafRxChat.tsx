@@ -1,9 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { askDrLeafRx, type ChatMessage } from "@/utils/chat.functions";
+import { askDrLeafRx, type ChatMessage, type DiagnosisContext } from "@/utils/chat.functions";
 
-type Props = { open: boolean; onClose: () => void };
+type Props = { open: boolean; onClose: () => void; context?: DiagnosisContext | null };
 
-export function DrLeafRxChat({ open, onClose }: Props) {
+export function DrLeafRxChat({ open, onClose, context }: Props) {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
