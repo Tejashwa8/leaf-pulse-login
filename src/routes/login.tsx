@@ -248,8 +248,6 @@ function LoginPage() {
                 <span className="brand-wordmark">LeafRx</span>
               </div>
 
-              <div className="hero-badge">🌱 AI Plant Health · v2.0</div>
-
               <h1 className="hero-title">
                 Your Plant's <br />
                 <span className="hero-title-accent">Digital Doctor</span>
@@ -261,10 +259,6 @@ function LoginPage() {
               </p>
 
               <div className="feature-pills">
-                <div className="pill pill-1">
-                  <span className="pill-icon">🔬</span>
-                  <span>Deep Learning</span>
-                </div>
                 <div className="pill pill-2">
                   <span className="pill-icon">💊</span>
                   <span>Instant Prescription</span>

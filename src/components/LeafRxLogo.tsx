@@ -70,7 +70,7 @@ export function LeafRxLogo({ size = 44, className }: { size?: number; className?
 export function LeafRxWordmark({
   iconSize = 36,
   fontSize = 22,
-  gap = 10,
+  gap = 2,
 }: {
   iconSize?: number;
   fontSize?: number;
