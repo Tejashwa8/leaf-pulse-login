@@ -174,10 +174,89 @@ function AppPage() {
   const [historySev, setHistorySev] = useState<"All" | "Severe" | "High" | "Moderate" | "Low">("All");
   const [historySort, setHistorySort] = useState<"newest" | "oldest">("newest");
   const [activeHistory, setActiveHistory] = useState<HistoryRow | null>(null);
+  const [historyMenuOpen, setHistoryMenuOpen] = useState(false);
+  const [historyAllOpen, setHistoryAllOpen] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const barsRef = useRef<HTMLDivElement>(null);
   const countedRef = useRef(false);
+
+  // Close history dropdown on outside click
+  useEffect(() => {
+    if (!historyMenuOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (!t.closest(".hx-dropdown-wrap")) setHistoryMenuOpen(false);
+    };
+    document.addEventListener("click", onDoc);
+    return () => document.removeEventListener("click", onDoc);
+  }, [historyMenuOpen]);
+
+  // Camera lifecycle
+  useEffect(() => {
+    if (!cameraOpen) return;
+    let cancelled = false;
+    setCameraError(null);
+    (async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 1280 } },
+          audio: false,
+        });
+        if (cancelled) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play().catch(() => {});
+        }
+      } catch (err) {
+        setCameraError(
+          err instanceof Error && err.name === "NotAllowedError"
+            ? "Camera permission denied. Allow camera access or use Upload instead."
+            : "Could not start camera. Try Upload instead.",
+        );
+      }
+    })();
+    return () => {
+      cancelled = true;
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    };
+  }, [cameraOpen]);
+
+  function captureFromCamera() {
+    const video = videoRef.current;
+    if (!video || !video.videoWidth) return;
+    const size = Math.min(video.videoWidth, video.videoHeight);
+    const sx = (video.videoWidth - size) / 2;
+    const sy = (video.videoHeight - size) / 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(video, sx, sy, size, size, 0, 0, 1024, 1024);
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `camera-${Date.now()}.jpg`, { type: "image/jpeg" });
+        setCameraOpen(false);
+        handleFile(file);
+        // scroll to upload area for visual feedback
+        setTimeout(() => document.getElementById("hero")?.scrollIntoView({ behavior: "smooth" }), 100);
+      },
+      "image/jpeg",
+      0.92,
+    );
+  }
 
   // Auth gate — push back to /login if no session
   useEffect(() => {
