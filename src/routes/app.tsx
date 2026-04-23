@@ -477,7 +477,75 @@ function AppPage() {
           <div className="nav-links">
             <a onClick={() => smoothScroll("how")}>How it Works</a>
             <a onClick={() => smoothScroll("features")}>Features</a>
-            
+            <div className="hx-dropdown-wrap">
+              <a
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setHistoryMenuOpen((v) => !v);
+                }}
+                className={historyMenuOpen ? "hx-trigger active" : "hx-trigger"}
+              >
+                History {history.length > 0 && <span className="hx-count">{history.length}</span>}
+                <span className="hx-caret">▾</span>
+              </a>
+              {historyMenuOpen && (
+                <div className="hx-dropdown" onClick={(e) => e.stopPropagation()}>
+                  <div className="hx-dd-head">Recent scans</div>
+                  {history.length === 0 ? (
+                    <div className="hx-dd-empty">No scans yet. Upload a leaf to get started.</div>
+                  ) : (
+                    <>
+                      {history.slice(0, 5).map((h) => (
+                        <button
+                          key={h.id}
+                          className="hx-dd-item"
+                          onClick={() => {
+                            setActiveHistory(h);
+                            setHistoryMenuOpen(false);
+                          }}
+                        >
+                          {h.signed_url ? (
+                            <img src={h.signed_url} alt="" className="hx-dd-thumb" />
+                          ) : (
+                            <div className="hx-dd-thumb hx-dd-thumb-fallback">🌿</div>
+                          )}
+                          <div className="hx-dd-meta">
+                            <div className="hx-dd-name">{h.disease_name}</div>
+                            <div className="hx-dd-sub">
+                              <span
+                                className="sev-badge sev-badge-sm"
+                                style={{
+                                  background: (SEVERITY_COLOR[h.severity] || "#999") + "22",
+                                  color: SEVERITY_COLOR[h.severity] || "#999",
+                                  borderColor: (SEVERITY_COLOR[h.severity] || "#999") + "55",
+                                }}
+                              >
+                                {h.severity}
+                              </span>
+                              <span className="hx-dd-date">
+                                {new Date(h.created_at).toLocaleDateString(undefined, {
+                                  month: "short",
+                                  day: "numeric",
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                      <button
+                        className="hx-dd-viewall"
+                        onClick={() => {
+                          setHistoryMenuOpen(false);
+                          setHistoryAllOpen(true);
+                        }}
+                      >
+                        View all scans →
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
             <a onClick={() => setChatOpen(true)}>Dr. LeafRx</a>
           </div>
           <div className="nav-actions">
