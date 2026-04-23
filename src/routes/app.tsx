@@ -174,10 +174,89 @@ function AppPage() {
   const [historySev, setHistorySev] = useState<"All" | "Severe" | "High" | "Moderate" | "Low">("All");
   const [historySort, setHistorySort] = useState<"newest" | "oldest">("newest");
   const [activeHistory, setActiveHistory] = useState<HistoryRow | null>(null);
+  const [historyMenuOpen, setHistoryMenuOpen] = useState(false);
+  const [historyAllOpen, setHistoryAllOpen] = useState(false);
+  const [cameraOpen, setCameraOpen] = useState(false);
+  const [cameraError, setCameraError] = useState<string | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+  const cameraRef = useRef<HTMLInputElement>(null);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
   const statsRef = useRef<HTMLDivElement>(null);
   const barsRef = useRef<HTMLDivElement>(null);
   const countedRef = useRef(false);
+
+  // Close history dropdown on outside click
+  useEffect(() => {
+    if (!historyMenuOpen) return;
+    const onDoc = (e: MouseEvent) => {
+      const t = e.target as HTMLElement;
+      if (!t.closest(".hx-dropdown-wrap")) setHistoryMenuOpen(false);
+    };
+    document.addEventListener("click", onDoc);
+    return () => document.removeEventListener("click", onDoc);
+  }, [historyMenuOpen]);
+
+  // Camera lifecycle
+  useEffect(() => {
+    if (!cameraOpen) return;
+    let cancelled = false;
+    setCameraError(null);
+    (async () => {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({
+          video: { facingMode: { ideal: "environment" }, width: { ideal: 1280 }, height: { ideal: 1280 } },
+          audio: false,
+        });
+        if (cancelled) {
+          stream.getTracks().forEach((t) => t.stop());
+          return;
+        }
+        streamRef.current = stream;
+        if (videoRef.current) {
+          videoRef.current.srcObject = stream;
+          await videoRef.current.play().catch(() => {});
+        }
+      } catch (err) {
+        setCameraError(
+          err instanceof Error && err.name === "NotAllowedError"
+            ? "Camera permission denied. Allow camera access or use Upload instead."
+            : "Could not start camera. Try Upload instead.",
+        );
+      }
+    })();
+    return () => {
+      cancelled = true;
+      streamRef.current?.getTracks().forEach((t) => t.stop());
+      streamRef.current = null;
+    };
+  }, [cameraOpen]);
+
+  function captureFromCamera() {
+    const video = videoRef.current;
+    if (!video || !video.videoWidth) return;
+    const size = Math.min(video.videoWidth, video.videoHeight);
+    const sx = (video.videoWidth - size) / 2;
+    const sy = (video.videoHeight - size) / 2;
+    const canvas = document.createElement("canvas");
+    canvas.width = 1024;
+    canvas.height = 1024;
+    const ctx = canvas.getContext("2d");
+    if (!ctx) return;
+    ctx.drawImage(video, sx, sy, size, size, 0, 0, 1024, 1024);
+    canvas.toBlob(
+      (blob) => {
+        if (!blob) return;
+        const file = new File([blob], `camera-${Date.now()}.jpg`, { type: "image/jpeg" });
+        setCameraOpen(false);
+        handleFile(file);
+        // scroll to upload area for visual feedback
+        setTimeout(() => document.getElementById("hero")?.scrollIntoView({ behavior: "smooth" }), 100);
+      },
+      "image/jpeg",
+      0.92,
+    );
+  }
 
   // Auth gate — push back to /login if no session
   useEffect(() => {
@@ -398,7 +477,75 @@ function AppPage() {
           <div className="nav-links">
             <a onClick={() => smoothScroll("how")}>How it Works</a>
             <a onClick={() => smoothScroll("features")}>Features</a>
-            
+            <div className="hx-dropdown-wrap">
+              <a
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setHistoryMenuOpen((v) => !v);
+                }}
+                className={historyMenuOpen ? "hx-trigger active" : "hx-trigger"}
+              >
+                History {history.length > 0 && <span className="hx-count">{history.length}</span>}
+                <span className="hx-caret">▾</span>
+              </a>
+              {historyMenuOpen && (
+                <div className="hx-dropdown" onClick={(e) => e.stopPropagation()}>
+                  <div className="hx-dd-head">Recent scans</div>
+                  {history.length === 0 ? (
+                    <div className="hx-dd-empty">No scans yet. Upload a leaf to get started.</div>
+                  ) : (
+                    <>
+                      {history.slice(0, 5).map((h) => (
+                        <button
+                          key={h.id}
+                          className="hx-dd-item"
+                          onClick={() => {
+                            setActiveHistory(h);
+                            setHistoryMenuOpen(false);
+                          }}
+                        >
+                          {h.signed_url ? (
+                            <img src={h.signed_url} alt="" className="hx-dd-thumb" />
+                          ) : (
+                            <div className="hx-dd-thumb hx-dd-thumb-fallback">🌿</div>
+                          )}
+                          <div className="hx-dd-meta">
+                            <div className="hx-dd-name">{h.disease_name}</div>
+                            <div className="hx-dd-sub">
+                              <span
+                                className="sev-badge sev-badge-sm"
+                                style={{
+                                  background: (SEVERITY_COLOR[h.severity] || "#999") + "22",
+                                  color: SEVERITY_COLOR[h.severity] || "#999",
+                                  borderColor: (SEVERITY_COLOR[h.severity] || "#999") + "55",
+                                }}
+                              >
+                                {h.severity}
+                              </span>
+                              <span className="hx-dd-date">
+                                {new Date(h.created_at).toLocaleDateString(undefined, {
+                                  month: "short",
+                                  day: "numeric",
+                                })}
+                              </span>
+                            </div>
+                          </div>
+                        </button>
+                      ))}
+                      <button
+                        className="hx-dd-viewall"
+                        onClick={() => {
+                          setHistoryMenuOpen(false);
+                          setHistoryAllOpen(true);
+                        }}
+                      >
+                        View all scans →
+                      </button>
+                    </>
+                  )}
+                </div>
+              )}
+            </div>
             <a onClick={() => setChatOpen(true)}>Dr. LeafRx</a>
           </div>
           <div className="nav-actions">
@@ -527,7 +674,10 @@ function AppPage() {
 
           <div className="hero-ctas fadeSlideIn">
             <button className="btn btn-primary btn-lg" onClick={() => fileRef.current?.click()}>
-              🔬 Diagnose a Leaf
+              🔬 Upload Leaf
+            </button>
+            <button className="btn btn-primary btn-lg" onClick={() => setCameraOpen(true)}>
+              📷 Scan with Camera
             </button>
             <button className="btn btn-outline btn-lg" onClick={() => smoothScroll("how")}>
               How It Works
@@ -778,6 +928,144 @@ function AppPage() {
           </div>
         </div>
       )}
+
+      {/* HISTORY — VIEW ALL MODAL */}
+      {historyAllOpen && (
+        <div className="hx-modal-wrap" role="dialog" aria-modal="true" onClick={() => setHistoryAllOpen(false)}>
+          <div className="hx-modal hx-modal-wide" onClick={(e) => e.stopPropagation()}>
+            <button className="hx-close" onClick={() => setHistoryAllOpen(false)} aria-label="Close">✕</button>
+            <div className="hx-all-head">
+              <div className="hx-all-title">All diagnoses</div>
+              <div className="hx-all-toolbar">
+                <input
+                  className="hx-all-search"
+                  placeholder="Search disease…"
+                  value={historyQuery}
+                  onChange={(e) => setHistoryQuery(e.target.value)}
+                />
+                <select
+                  className="hx-all-select"
+                  value={historySev}
+                  onChange={(e) => setHistorySev(e.target.value as typeof historySev)}
+                >
+                  <option value="All">All severities</option>
+                  <option value="Severe">Severe</option>
+                  <option value="High">High</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="Low">Low</option>
+                </select>
+                <select
+                  className="hx-all-select"
+                  value={historySort}
+                  onChange={(e) => setHistorySort(e.target.value as typeof historySort)}
+                >
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                </select>
+              </div>
+            </div>
+            <div className="hx-all-grid">
+              {(() => {
+                const q = historyQuery.trim().toLowerCase();
+                const filtered = history
+                  .filter((h) => (historySev === "All" ? true : h.severity === historySev))
+                  .filter((h) => (q ? h.disease_name.toLowerCase().includes(q) : true))
+                  .sort((a, b) =>
+                    historySort === "newest"
+                      ? +new Date(b.created_at) - +new Date(a.created_at)
+                      : +new Date(a.created_at) - +new Date(b.created_at),
+                  );
+                if (filtered.length === 0) {
+                  return <div className="hx-dd-empty" style={{ gridColumn: "1/-1" }}>No matching scans.</div>;
+                }
+                return filtered.map((h) => (
+                  <button
+                    key={h.id}
+                    className="hx-card"
+                    onClick={() => {
+                      setActiveHistory(h);
+                      setHistoryAllOpen(false);
+                    }}
+                  >
+                    {h.signed_url ? (
+                      <img src={h.signed_url} alt="" className="hx-card-img" />
+                    ) : (
+                      <div className="hx-card-img hx-dd-thumb-fallback">🌿</div>
+                    )}
+                    <div className="hx-card-body">
+                      <div className="hx-dd-name">{h.disease_name}</div>
+                      <div className="hx-dd-sub">
+                        <span
+                          className="sev-badge sev-badge-sm"
+                          style={{
+                            background: (SEVERITY_COLOR[h.severity] || "#999") + "22",
+                            color: SEVERITY_COLOR[h.severity] || "#999",
+                            borderColor: (SEVERITY_COLOR[h.severity] || "#999") + "55",
+                          }}
+                        >
+                          {h.severity}
+                        </span>
+                        <span className="hx-dd-date">{h.confidence}%</span>
+                        <span className="hx-dd-date">
+                          {new Date(h.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                ));
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CAMERA SCANNER */}
+      {cameraOpen && (
+        <div className="cam-wrap" role="dialog" aria-modal="true">
+          <div className="cam-shell">
+            <button className="hx-close cam-close" onClick={() => setCameraOpen(false)} aria-label="Close camera">✕</button>
+            <div className="cam-stage">
+              {cameraError ? (
+                <div className="cam-error">
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>📷</div>
+                  <div style={{ marginBottom: 12 }}>{cameraError}</div>
+                  <button className="btn btn-outline" onClick={() => cameraRef.current?.click()}>
+                    Use phone camera roll
+                  </button>
+                  <input
+                    ref={cameraRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    hidden
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) {
+                        setCameraOpen(false);
+                        handleFile(f);
+                      }
+                    }}
+                  />
+                </div>
+              ) : (
+                <>
+                  <video ref={videoRef} className="cam-video" playsInline muted />
+                  <div className="cam-frame" />
+                  <div className="cam-hint">Center the leaf inside the frame</div>
+                </>
+              )}
+            </div>
+            {!cameraError && (
+              <div className="cam-controls">
+                <button className="cam-shutter" onClick={captureFromCamera} aria-label="Capture">
+                  <span />
+                </button>
+                <div className="cam-tip">Hold steady · good light · single leaf</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
@@ -1025,4 +1313,58 @@ const CSS = `
 .history-rx { color:var(--text); font-size:13px; line-height:1.5; margin:0 0 10px; }
 .history-date { color:var(--muted); font-size:11px; letter-spacing:.5px; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* History dropdown in navbar */
+.hx-dropdown-wrap { position:relative; display:inline-block; }
+.hx-trigger { display:inline-flex; align-items:center; gap:6px; user-select:none; }
+.hx-trigger.active { color:var(--green); }
+.hx-count { background:var(--olive); color:#fff; font-size:10px; font-weight:700; padding:1px 7px; border-radius:10px; line-height:1.5; }
+.hx-caret { font-size:10px; opacity:.7; }
+.hx-dropdown { position:absolute; top:calc(100% + 12px); right:0; width:340px; background:#1a1a1a; border:1px solid #2a4010; border-radius:14px; box-shadow:0 18px 48px rgba(0,0,0,.55); padding:8px; z-index:60; animation:hxIn .2s cubic-bezier(.34,1.2,.64,1) both; }
+.hx-dd-head { font-size:11px; font-weight:700; letter-spacing:1.5px; color:var(--olive); padding:8px 10px 6px; }
+.hx-dd-empty { padding:18px 12px; text-align:center; color:var(--muted); font-size:13px; }
+.hx-dd-item { width:100%; display:flex; gap:12px; align-items:center; background:transparent; border:none; padding:10px; border-radius:10px; cursor:pointer; transition:background .15s; text-align:left; }
+.hx-dd-item:hover { background:rgba(107,142,35,.12); }
+.hx-dd-thumb { width:46px; height:46px; border-radius:10px; object-fit:cover; flex-shrink:0; background:#0d0d0d; }
+.hx-dd-thumb-fallback { display:flex; align-items:center; justify-content:center; font-size:22px; }
+.hx-dd-meta { flex:1; min-width:0; }
+.hx-dd-name { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:4px; }
+.hx-dd-sub { display:flex; align-items:center; gap:8px; font-size:11px; color:var(--muted); }
+.hx-dd-date { color:var(--muted); font-size:11px; }
+.hx-dd-viewall { width:100%; margin-top:6px; padding:10px; background:linear-gradient(135deg,var(--olive),var(--olive-h)); border:none; border-radius:10px; color:#fff; font-weight:700; font-size:13px; cursor:pointer; transition:filter .2s; }
+.hx-dd-viewall:hover { filter:brightness(1.1); }
+
+/* View-all modal */
+.hx-modal-wide { max-width:980px; }
+.hx-all-head { padding:24px 24px 16px; border-bottom:1px solid var(--border); }
+.hx-all-title { font-family:'Nunito',sans-serif; font-weight:900; font-size:22px; color:#fff; margin-bottom:14px; }
+.hx-all-toolbar { display:flex; gap:10px; flex-wrap:wrap; }
+.hx-all-search { flex:1; min-width:180px; background:#0d0d0d; border:1px solid var(--border); border-radius:10px; padding:10px 14px; color:var(--text); font-family:inherit; font-size:13px; outline:none; transition:border-color .2s; }
+.hx-all-search:focus { border-color:var(--olive); }
+.hx-all-select { background:#0d0d0d; border:1px solid var(--border); border-radius:10px; padding:10px 14px; color:var(--text); font-family:inherit; font-size:13px; outline:none; cursor:pointer; }
+.hx-all-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; padding:20px 24px 24px; }
+.hx-card { background:#1E1E1E; border:1px solid var(--border); border-radius:14px; overflow:hidden; cursor:pointer; padding:0; text-align:left; font:inherit; color:inherit; transition:all .25s cubic-bezier(.34,1.2,.64,1); }
+.hx-card:hover { transform:translateY(-3px); border-color:var(--olive); box-shadow:0 10px 28px rgba(107,142,35,.18); }
+.hx-card-img { width:100%; height:130px; object-fit:cover; display:block; background:#0d0d0d; }
+.hx-card-body { padding:12px 14px 14px; }
+
+/* Camera scanner */
+.cam-wrap { position:fixed; inset:0; background:#000; z-index:10000; display:flex; align-items:center; justify-content:center; animation:hxFade .25s ease both; }
+.cam-shell { position:relative; width:100%; height:100%; max-width:640px; max-height:100vh; display:flex; flex-direction:column; }
+.cam-close { z-index:5; }
+.cam-stage { position:relative; flex:1; overflow:hidden; background:#000; display:flex; align-items:center; justify-content:center; }
+.cam-video { width:100%; height:100%; object-fit:cover; }
+.cam-frame { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:min(78vw,420px); aspect-ratio:1/1; border:2px solid rgba(76,175,80,.85); border-radius:24px; box-shadow:0 0 0 9999px rgba(0,0,0,.45); pointer-events:none; }
+.cam-frame::before, .cam-frame::after { content:""; position:absolute; width:28px; height:28px; border:3px solid var(--green); }
+.cam-frame::before { top:-3px; left:-3px; border-right:none; border-bottom:none; border-top-left-radius:24px; }
+.cam-frame::after { bottom:-3px; right:-3px; border-left:none; border-top:none; border-bottom-right-radius:24px; }
+.cam-hint { position:absolute; bottom:24px; left:50%; transform:translateX(-50%); color:#fff; font-size:13px; background:rgba(0,0,0,.55); padding:8px 16px; border-radius:20px; backdrop-filter:blur(6px); }
+.cam-error { color:#fff; text-align:center; padding:32px; max-width:360px; }
+.cam-controls { padding:22px 16px 28px; background:#000; display:flex; flex-direction:column; align-items:center; gap:10px; }
+.cam-shutter { width:72px; height:72px; border-radius:50%; border:4px solid #fff; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .15s; }
+.cam-shutter:hover { transform:scale(1.05); }
+.cam-shutter:active { transform:scale(.92); }
+.cam-shutter span { width:54px; height:54px; border-radius:50%; background:#fff; display:block; transition:background .2s; }
+.cam-shutter:hover span { background:var(--green); }
+.cam-tip { color:var(--muted); font-size:12px; }
 `;
