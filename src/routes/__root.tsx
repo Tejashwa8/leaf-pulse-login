@@ -28,21 +28,43 @@ export const Route = createRootRoute({
   head: () => ({
     meta: [
       { charSet: "utf-8" },
-      { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "Lovable App" },
-      { name: "description", content: "Lovable Generated Project" },
-      { name: "author", content: "Lovable" },
-      { property: "og:title", content: "Lovable App" },
-      { property: "og:description", content: "Lovable Generated Project" },
+      { name: "viewport", content: "width=device-width, initial-scale=1, viewport-fit=cover" },
+      { title: "LeafRx — Your Plant's Digital Doctor" },
+      { name: "description", content: "AI-powered plant disease detection. Snap a leaf, get an instant diagnosis and treatment prescription." },
+      { name: "author", content: "LeafRx" },
+      { name: "theme-color", content: "#1a2e1a" },
+      { name: "application-name", content: "LeafRx" },
+      // iOS — install as standalone app
+      { name: "apple-mobile-web-app-capable", content: "yes" },
+      { name: "mobile-web-app-capable", content: "yes" },
+      { name: "apple-mobile-web-app-status-bar-style", content: "black-translucent" },
+      { name: "apple-mobile-web-app-title", content: "LeafRx" },
+      // Windows tiles
+      { name: "msapplication-TileColor", content: "#1a2e1a" },
+      { name: "msapplication-config", content: "/browserconfig.xml" },
+      // Open Graph / Twitter
+      { property: "og:title", content: "LeafRx — Your Plant's Digital Doctor" },
+      { property: "og:description", content: "AI-powered plant disease detection for farmers and gardeners." },
       { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary" },
-      { name: "twitter:site", content: "@Lovable" },
+      { property: "og:image", content: "/icons/icon-512.png" },
+      { name: "twitter:card", content: "summary_large_image" },
+      { name: "twitter:image", content: "/icons/icon-512.png" },
     ],
     links: [
-      {
-        rel: "stylesheet",
-        href: appCss,
-      },
+      { rel: "stylesheet", href: appCss },
+      // PWA manifest
+      { rel: "manifest", href: "/manifest.json" },
+      // Favicons
+      { rel: "icon", href: "/favicon.ico", sizes: "any" },
+      { rel: "icon", type: "image/png", sizes: "32x32", href: "/icons/favicon-32.png" },
+      { rel: "icon", type: "image/png", sizes: "16x16", href: "/icons/favicon-16.png" },
+      // iOS touch icons (iPhone, iPad)
+      { rel: "apple-touch-icon", sizes: "180x180", href: "/icons/apple-icon-180.png" },
+      { rel: "apple-touch-icon", sizes: "167x167", href: "/icons/apple-icon-167.png" },
+      { rel: "apple-touch-icon", sizes: "152x152", href: "/icons/apple-icon-152.png" },
+      { rel: "apple-touch-icon", sizes: "120x120", href: "/icons/apple-icon-120.png" },
+      // macOS Safari pinned tab / mask
+      { rel: "mask-icon", href: "/icons/icon-512.png", color: "#1a2e1a" },
     ],
   }),
   shellComponent: RootShell,
