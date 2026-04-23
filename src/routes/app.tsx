@@ -1313,4 +1313,58 @@ const CSS = `
 .history-rx { color:var(--text); font-size:13px; line-height:1.5; margin:0 0 10px; }
 .history-date { color:var(--muted); font-size:11px; letter-spacing:.5px; }
 @keyframes spin { to { transform: rotate(360deg); } }
+
+/* History dropdown in navbar */
+.hx-dropdown-wrap { position:relative; display:inline-block; }
+.hx-trigger { display:inline-flex; align-items:center; gap:6px; user-select:none; }
+.hx-trigger.active { color:var(--green); }
+.hx-count { background:var(--olive); color:#fff; font-size:10px; font-weight:700; padding:1px 7px; border-radius:10px; line-height:1.5; }
+.hx-caret { font-size:10px; opacity:.7; }
+.hx-dropdown { position:absolute; top:calc(100% + 12px); right:0; width:340px; background:#1a1a1a; border:1px solid #2a4010; border-radius:14px; box-shadow:0 18px 48px rgba(0,0,0,.55); padding:8px; z-index:60; animation:hxIn .2s cubic-bezier(.34,1.2,.64,1) both; }
+.hx-dd-head { font-size:11px; font-weight:700; letter-spacing:1.5px; color:var(--olive); padding:8px 10px 6px; }
+.hx-dd-empty { padding:18px 12px; text-align:center; color:var(--muted); font-size:13px; }
+.hx-dd-item { width:100%; display:flex; gap:12px; align-items:center; background:transparent; border:none; padding:10px; border-radius:10px; cursor:pointer; transition:background .15s; text-align:left; }
+.hx-dd-item:hover { background:rgba(107,142,35,.12); }
+.hx-dd-thumb { width:46px; height:46px; border-radius:10px; object-fit:cover; flex-shrink:0; background:#0d0d0d; }
+.hx-dd-thumb-fallback { display:flex; align-items:center; justify-content:center; font-size:22px; }
+.hx-dd-meta { flex:1; min-width:0; }
+.hx-dd-name { font-family:'Nunito',sans-serif; font-weight:800; font-size:13px; color:#fff; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; margin-bottom:4px; }
+.hx-dd-sub { display:flex; align-items:center; gap:8px; font-size:11px; color:var(--muted); }
+.hx-dd-date { color:var(--muted); font-size:11px; }
+.hx-dd-viewall { width:100%; margin-top:6px; padding:10px; background:linear-gradient(135deg,var(--olive),var(--olive-h)); border:none; border-radius:10px; color:#fff; font-weight:700; font-size:13px; cursor:pointer; transition:filter .2s; }
+.hx-dd-viewall:hover { filter:brightness(1.1); }
+
+/* View-all modal */
+.hx-modal-wide { max-width:980px; }
+.hx-all-head { padding:24px 24px 16px; border-bottom:1px solid var(--border); }
+.hx-all-title { font-family:'Nunito',sans-serif; font-weight:900; font-size:22px; color:#fff; margin-bottom:14px; }
+.hx-all-toolbar { display:flex; gap:10px; flex-wrap:wrap; }
+.hx-all-search { flex:1; min-width:180px; background:#0d0d0d; border:1px solid var(--border); border-radius:10px; padding:10px 14px; color:var(--text); font-family:inherit; font-size:13px; outline:none; transition:border-color .2s; }
+.hx-all-search:focus { border-color:var(--olive); }
+.hx-all-select { background:#0d0d0d; border:1px solid var(--border); border-radius:10px; padding:10px 14px; color:var(--text); font-family:inherit; font-size:13px; outline:none; cursor:pointer; }
+.hx-all-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(220px,1fr)); gap:14px; padding:20px 24px 24px; }
+.hx-card { background:#1E1E1E; border:1px solid var(--border); border-radius:14px; overflow:hidden; cursor:pointer; padding:0; text-align:left; font:inherit; color:inherit; transition:all .25s cubic-bezier(.34,1.2,.64,1); }
+.hx-card:hover { transform:translateY(-3px); border-color:var(--olive); box-shadow:0 10px 28px rgba(107,142,35,.18); }
+.hx-card-img { width:100%; height:130px; object-fit:cover; display:block; background:#0d0d0d; }
+.hx-card-body { padding:12px 14px 14px; }
+
+/* Camera scanner */
+.cam-wrap { position:fixed; inset:0; background:#000; z-index:10000; display:flex; align-items:center; justify-content:center; animation:hxFade .25s ease both; }
+.cam-shell { position:relative; width:100%; height:100%; max-width:640px; max-height:100vh; display:flex; flex-direction:column; }
+.cam-close { z-index:5; }
+.cam-stage { position:relative; flex:1; overflow:hidden; background:#000; display:flex; align-items:center; justify-content:center; }
+.cam-video { width:100%; height:100%; object-fit:cover; }
+.cam-frame { position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:min(78vw,420px); aspect-ratio:1/1; border:2px solid rgba(76,175,80,.85); border-radius:24px; box-shadow:0 0 0 9999px rgba(0,0,0,.45); pointer-events:none; }
+.cam-frame::before, .cam-frame::after { content:""; position:absolute; width:28px; height:28px; border:3px solid var(--green); }
+.cam-frame::before { top:-3px; left:-3px; border-right:none; border-bottom:none; border-top-left-radius:24px; }
+.cam-frame::after { bottom:-3px; right:-3px; border-left:none; border-top:none; border-bottom-right-radius:24px; }
+.cam-hint { position:absolute; bottom:24px; left:50%; transform:translateX(-50%); color:#fff; font-size:13px; background:rgba(0,0,0,.55); padding:8px 16px; border-radius:20px; backdrop-filter:blur(6px); }
+.cam-error { color:#fff; text-align:center; padding:32px; max-width:360px; }
+.cam-controls { padding:22px 16px 28px; background:#000; display:flex; flex-direction:column; align-items:center; gap:10px; }
+.cam-shutter { width:72px; height:72px; border-radius:50%; border:4px solid #fff; background:transparent; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:transform .15s; }
+.cam-shutter:hover { transform:scale(1.05); }
+.cam-shutter:active { transform:scale(.92); }
+.cam-shutter span { width:54px; height:54px; border-radius:50%; background:#fff; display:block; transition:background .2s; }
+.cam-shutter:hover span { background:var(--green); }
+.cam-tip { color:var(--muted); font-size:12px; }
 `;
