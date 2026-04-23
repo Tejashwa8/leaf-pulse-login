@@ -674,7 +674,10 @@ function AppPage() {
 
           <div className="hero-ctas fadeSlideIn">
             <button className="btn btn-primary btn-lg" onClick={() => fileRef.current?.click()}>
-              🔬 Diagnose a Leaf
+              🔬 Upload Leaf
+            </button>
+            <button className="btn btn-primary btn-lg" onClick={() => setCameraOpen(true)}>
+              📷 Scan with Camera
             </button>
             <button className="btn btn-outline btn-lg" onClick={() => smoothScroll("how")}>
               How It Works
