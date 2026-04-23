@@ -928,6 +928,144 @@ function AppPage() {
           </div>
         </div>
       )}
+
+      {/* HISTORY — VIEW ALL MODAL */}
+      {historyAllOpen && (
+        <div className="hx-modal-wrap" role="dialog" aria-modal="true" onClick={() => setHistoryAllOpen(false)}>
+          <div className="hx-modal hx-modal-wide" onClick={(e) => e.stopPropagation()}>
+            <button className="hx-close" onClick={() => setHistoryAllOpen(false)} aria-label="Close">✕</button>
+            <div className="hx-all-head">
+              <div className="hx-all-title">All diagnoses</div>
+              <div className="hx-all-toolbar">
+                <input
+                  className="hx-all-search"
+                  placeholder="Search disease…"
+                  value={historyQuery}
+                  onChange={(e) => setHistoryQuery(e.target.value)}
+                />
+                <select
+                  className="hx-all-select"
+                  value={historySev}
+                  onChange={(e) => setHistorySev(e.target.value as typeof historySev)}
+                >
+                  <option value="All">All severities</option>
+                  <option value="Severe">Severe</option>
+                  <option value="High">High</option>
+                  <option value="Moderate">Moderate</option>
+                  <option value="Low">Low</option>
+                </select>
+                <select
+                  className="hx-all-select"
+                  value={historySort}
+                  onChange={(e) => setHistorySort(e.target.value as typeof historySort)}
+                >
+                  <option value="newest">Newest first</option>
+                  <option value="oldest">Oldest first</option>
+                </select>
+              </div>
+            </div>
+            <div className="hx-all-grid">
+              {(() => {
+                const q = historyQuery.trim().toLowerCase();
+                const filtered = history
+                  .filter((h) => (historySev === "All" ? true : h.severity === historySev))
+                  .filter((h) => (q ? h.disease_name.toLowerCase().includes(q) : true))
+                  .sort((a, b) =>
+                    historySort === "newest"
+                      ? +new Date(b.created_at) - +new Date(a.created_at)
+                      : +new Date(a.created_at) - +new Date(b.created_at),
+                  );
+                if (filtered.length === 0) {
+                  return <div className="hx-dd-empty" style={{ gridColumn: "1/-1" }}>No matching scans.</div>;
+                }
+                return filtered.map((h) => (
+                  <button
+                    key={h.id}
+                    className="hx-card"
+                    onClick={() => {
+                      setActiveHistory(h);
+                      setHistoryAllOpen(false);
+                    }}
+                  >
+                    {h.signed_url ? (
+                      <img src={h.signed_url} alt="" className="hx-card-img" />
+                    ) : (
+                      <div className="hx-card-img hx-dd-thumb-fallback">🌿</div>
+                    )}
+                    <div className="hx-card-body">
+                      <div className="hx-dd-name">{h.disease_name}</div>
+                      <div className="hx-dd-sub">
+                        <span
+                          className="sev-badge sev-badge-sm"
+                          style={{
+                            background: (SEVERITY_COLOR[h.severity] || "#999") + "22",
+                            color: SEVERITY_COLOR[h.severity] || "#999",
+                            borderColor: (SEVERITY_COLOR[h.severity] || "#999") + "55",
+                          }}
+                        >
+                          {h.severity}
+                        </span>
+                        <span className="hx-dd-date">{h.confidence}%</span>
+                        <span className="hx-dd-date">
+                          {new Date(h.created_at).toLocaleDateString(undefined, { month: "short", day: "numeric" })}
+                        </span>
+                      </div>
+                    </div>
+                  </button>
+                ));
+              })()}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* CAMERA SCANNER */}
+      {cameraOpen && (
+        <div className="cam-wrap" role="dialog" aria-modal="true">
+          <div className="cam-shell">
+            <button className="hx-close cam-close" onClick={() => setCameraOpen(false)} aria-label="Close camera">✕</button>
+            <div className="cam-stage">
+              {cameraError ? (
+                <div className="cam-error">
+                  <div style={{ fontSize: 32, marginBottom: 8 }}>📷</div>
+                  <div style={{ marginBottom: 12 }}>{cameraError}</div>
+                  <button className="btn btn-outline" onClick={() => cameraRef.current?.click()}>
+                    Use phone camera roll
+                  </button>
+                  <input
+                    ref={cameraRef}
+                    type="file"
+                    accept="image/*"
+                    capture="environment"
+                    hidden
+                    onChange={(e) => {
+                      const f = e.target.files?.[0];
+                      if (f) {
+                        setCameraOpen(false);
+                        handleFile(f);
+                      }
+                    }}
+                  />
+                </div>
+              ) : (
+                <>
+                  <video ref={videoRef} className="cam-video" playsInline muted />
+                  <div className="cam-frame" />
+                  <div className="cam-hint">Center the leaf inside the frame</div>
+                </>
+              )}
+            </div>
+            {!cameraError && (
+              <div className="cam-controls">
+                <button className="cam-shutter" onClick={captureFromCamera} aria-label="Capture">
+                  <span />
+                </button>
+                <div className="cam-tip">Hold steady · good light · single leaf</div>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </div>
   );
 }
