@@ -53,8 +53,11 @@ export function InstallPrompt() {
       setOpen(false);
       setShowIosHint(false);
     };
-    // Allow any UI (e.g., navbar button) to force-open the banner
+    // Allow any UI (e.g., navbar button) to force-open the banner — bypass the dismiss cooldown.
     const onForceOpen = () => {
+      try {
+        localStorage.removeItem(DISMISS_KEY);
+      } catch {}
       if (isIOS()) setShowIosHint(true);
       setOpen(true);
     };

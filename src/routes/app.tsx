@@ -782,10 +782,10 @@ function AppPage() {
 
           <div className="hero-ctas fadeSlideIn">
             <button className="btn btn-primary btn-lg" onClick={() => fileRef.current?.click()}>
-              🔬 Upload Leaf
+              Upload Leaf
             </button>
             <button className="btn btn-primary btn-lg" onClick={() => setCameraOpen(true)}>
-              📷 Scan with Camera
+              Scan with Camera
             </button>
             <button className="btn btn-outline btn-lg" onClick={() => smoothScroll("how")}>
               How It Works
@@ -926,10 +926,10 @@ function AppPage() {
               className="btn btn-primary btn-lg"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
-              🔬 Diagnose Now
+              Diagnose Now
             </button>
             <button className="btn btn-outline btn-lg" onClick={() => setChatOpen(true)}>
-              👨‍⚕️ Ask Dr. LeafRx
+              Ask Dr. LeafRx
             </button>
           </div>
         </div>
