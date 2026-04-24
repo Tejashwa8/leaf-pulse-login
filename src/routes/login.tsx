@@ -684,9 +684,10 @@ const css = `
     position: relative;
     display: flex; align-items: center;
     background: var(--surface-2);
-    border: 1px solid var(--border);
+    border: 1px solid transparent;
     border-radius: 12px;
     transition: all .25s ease;
+    outline: none;
   }
   .input-wrap .input-icon {
     padding-left: 14px;
@@ -703,12 +704,22 @@ const css = `
     font-size: 14.5px;
   }
   .input-wrap input::placeholder { color: #6e6e6e; }
+  /* Kill browser autofill white/yellow background */
+  .input-wrap input:-webkit-autofill,
+  .input-wrap input:-webkit-autofill:hover,
+  .input-wrap input:-webkit-autofill:focus {
+    -webkit-text-fill-color: var(--text);
+    -webkit-box-shadow: 0 0 0 1000px var(--surface-2) inset;
+    box-shadow: 0 0 0 1000px var(--surface-2) inset;
+    caret-color: var(--text);
+    transition: background-color 5000s ease-in-out 0s;
+  }
   .input-wrap:focus-within {
     border-color: var(--olive);
     background: #1e2a10;
-    box-shadow: 0 0 0 3px rgba(107,142,35,.15), 0 0 16px rgba(107,142,35,.1);
+    box-shadow: 0 0 16px rgba(107,142,35,.18);
   }
-  .input-wrap.is-error { border-color: var(--error); box-shadow: 0 0 0 3px rgba(239,83,80,.12); }
+  .input-wrap.is-error { border-color: var(--error); }
   .input-wrap.is-valid { border-color: var(--green); }
 
   .toggle-pass {
