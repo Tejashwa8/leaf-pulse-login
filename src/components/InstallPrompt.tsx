@@ -42,38 +42,41 @@ export function InstallPrompt() {
       setInstalled(true);
       return;
     }
-    if (recentlyDismissed()) return;
 
     const onBIP = (e: Event) => {
       e.preventDefault();
       setBip(e as BIPEvent);
-      setOpen(true);
+      if (!recentlyDismissed()) setOpen(true);
     };
     const onInstalled = () => {
       setInstalled(true);
       setOpen(false);
       setShowIosHint(false);
     };
+    // Allow any UI (e.g., navbar button) to force-open the banner
+    const onForceOpen = () => {
+      if (isIOS()) setShowIosHint(true);
+      setOpen(true);
+    };
 
     window.addEventListener("beforeinstallprompt", onBIP);
     window.addEventListener("appinstalled", onInstalled);
+    window.addEventListener("leafrx:open-install", onForceOpen);
 
-    // iOS has no beforeinstallprompt — show after a short delay
-    if (isIOS() && !isStandalone()) {
-      const t = setTimeout(() => {
+    // iOS has no beforeinstallprompt — show after a short delay (only if not dismissed)
+    let iosTimer: ReturnType<typeof setTimeout> | null = null;
+    if (isIOS() && !isStandalone() && !recentlyDismissed()) {
+      iosTimer = setTimeout(() => {
         setShowIosHint(true);
         setOpen(true);
       }, 2500);
-      return () => {
-        clearTimeout(t);
-        window.removeEventListener("beforeinstallprompt", onBIP);
-        window.removeEventListener("appinstalled", onInstalled);
-      };
     }
 
     return () => {
+      if (iosTimer) clearTimeout(iosTimer);
       window.removeEventListener("beforeinstallprompt", onBIP);
       window.removeEventListener("appinstalled", onInstalled);
+      window.removeEventListener("leafrx:open-install", onForceOpen);
     };
   }, []);
 
@@ -97,7 +100,10 @@ export function InstallPrompt() {
     setBip(null);
   }
 
-  if (installed || (!bip && !showIosHint) || !open) return null;
+  if (installed || !open) return null;
+
+  // Desktop / unsupported browser fallback when user clicks "Install" but no bip event yet
+  const showDesktopHint = !bip && !showIosHint;
 
   return (
     <>
@@ -114,6 +120,11 @@ export function InstallPrompt() {
               Tap <span className="ipx-share">⬆︎</span> <strong>Share</strong>, then{" "}
               <strong>Add to Home Screen</strong> to install.
             </div>
+          ) : showDesktopHint ? (
+            <div className="ipx-text">
+              In Chrome/Edge, click the <strong>install icon</strong> in the address bar, or open the
+              browser menu → <strong>Install LeafRx</strong>.
+            </div>
           ) : (
             <div className="ipx-text">
               Get the full app experience — works offline-friendly, fullscreen, and one-tap from your
@@ -126,7 +137,7 @@ export function InstallPrompt() {
             Install
           </button>
         )}
-        {showIosHint && (
+        {(showIosHint || showDesktopHint) && (
           <button className="ipx-cta ipx-cta-ghost" onClick={dismiss}>
             Got it
           </button>
