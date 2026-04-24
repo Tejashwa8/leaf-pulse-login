@@ -178,6 +178,8 @@ function AppPage() {
   const [historyAllOpen, setHistoryAllOpen] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [confirmClear, setConfirmClear] = useState(false);
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -462,6 +464,24 @@ function AppPage() {
   async function logout() {
     await supabase.auth.signOut();
     navigate({ to: "/login" });
+  }
+
+  async function clearHistory() {
+    if (!userId) return;
+    // Delete all rows for this user; storage objects are kept (cheap) and re-used on hash match.
+    const { error } = await supabase.from("diagnoses").delete().eq("user_id", userId);
+    if (!error) {
+      setHistory([]);
+      setActiveHistory(null);
+    }
+    setConfirmClear(false);
+  }
+
+  function openInstall() {
+    if (typeof window !== "undefined") {
+      window.dispatchEvent(new CustomEvent("leafrx:open-install"));
+    }
+    setMobileMenuOpen(false);
   }
 
   return (
