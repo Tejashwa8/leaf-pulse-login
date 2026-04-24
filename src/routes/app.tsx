@@ -1502,12 +1502,42 @@ const CSS = `
 
 /* responsive */
 @media (max-width: 860px) {
-  .nav-links { display:none; }
   .btn-logout-desktop { display:none; }
   .nav-burger { display:flex; }
   .footer-grid { grid-template-columns:1fr 1fr; }
   .btn-install { padding:8px 12px; font-size:13px; }
-  .nav-inner { padding:12px 16px; gap:10px; }
+  .nav-inner { padding:12px 14px; gap:8px; flex-wrap:wrap; }
+  .nav-brand { order:1; }
+  .nav-actions { order:2; margin-left:auto; }
+  /* Show full nav as a horizontally scrollable strip beneath the brand */
+  .nav-links {
+    order:3;
+    flex-basis:100%;
+    display:flex;
+    gap:6px;
+    overflow-x:auto;
+    overflow-y:visible;
+    -webkit-overflow-scrolling:touch;
+    scrollbar-width:none;
+    padding:6px 2px 8px;
+    margin:0 -4px;
+    border-top:1px solid var(--border);
+    margin-top:6px;
+    padding-top:10px;
+  }
+  .nav-links::-webkit-scrollbar { display:none; }
+  .nav-links > a, .nav-links > .hx-dropdown-wrap > a {
+    flex-shrink:0;
+    padding:7px 12px;
+    border-radius:999px;
+    background:rgba(255,255,255,.04);
+    border:1px solid var(--border);
+    font-size:13px;
+    white-space:nowrap;
+    color:var(--text);
+  }
+  .nav-links > a:hover, .nav-links > .hx-dropdown-wrap > a:hover { background:rgba(107,142,35,.12); border-color:var(--olive); color:var(--green); }
+  .hx-dropdown { right:auto; left:0; min-width:260px; }
   .install-card { flex-direction:column; text-align:center; padding:32px 24px; gap:20px; }
   .install-desc { margin-left:auto; margin-right:auto; }
   .install-features { align-items:flex-start; max-width:320px; margin-left:auto; margin-right:auto; }
@@ -1520,7 +1550,7 @@ const CSS = `
   .footer-bottom { flex-direction:column; gap:8px; text-align:center; }
   .history-toolbar { flex-direction:column; align-items:stretch; }
   .history-filters { flex-direction:column; }
-  .nav-inner { padding:10px 14px; }
+  .nav-inner { padding:10px 12px; }
   .btn-install { padding:7px 10px; font-size:12px; border-radius:20px; }
   .nav-actions { gap:6px; }
   .install-section { padding:40px 0; }
