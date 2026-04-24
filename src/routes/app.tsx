@@ -497,6 +497,7 @@ function AppPage() {
           <div className="nav-links">
             <a onClick={() => smoothScroll("how")}>How it Works</a>
             <a onClick={() => smoothScroll("features")}>Features</a>
+            <a onClick={() => smoothScroll("install")}>Install</a>
             <div className="hx-dropdown-wrap">
               <a
                 onClick={(e) => {
@@ -782,10 +783,10 @@ function AppPage() {
 
           <div className="hero-ctas fadeSlideIn">
             <button className="btn btn-primary btn-lg" onClick={() => fileRef.current?.click()}>
-              🔬 Upload Leaf
+              Upload Leaf
             </button>
             <button className="btn btn-primary btn-lg" onClick={() => setCameraOpen(true)}>
-              📷 Scan with Camera
+              Scan with Camera
             </button>
             <button className="btn btn-outline btn-lg" onClick={() => smoothScroll("how")}>
               How It Works
@@ -915,6 +916,41 @@ function AppPage() {
 
       {/* TECH STACK section removed per request */}
 
+      {/* INSTALL LEAFRX BANNER SECTION */}
+      <section id="install" className="install-section">
+        <div className="container install-inner">
+          <div className="install-card reveal">
+            <div className="install-left">
+              <LeafRxLogo size={88} className="install-logo" />
+            </div>
+            <div className="install-body">
+              <div className="install-eyebrow">GET THE APP</div>
+              <h2 className="install-title">Install LeafRx on your device</h2>
+              <p className="install-desc">
+                One tap from your home screen — no app store needed. Works fullscreen on Android,
+                iOS, Windows and Mac. Your scans and history sync automatically when you sign in.
+              </p>
+              <ul className="install-features">
+                <li><span>📱</span> Native-like fullscreen experience</li>
+                <li><span>⚡</span> Faster load — opens in &lt; 1s</li>
+                <li><span>🔒</span> Secure — your account follows you across devices</li>
+              </ul>
+              <div className="install-actions">
+                <button className="btn btn-primary btn-lg" onClick={openInstall}>
+                  ⬇ Install LeafRx
+                </button>
+                <button
+                  className="btn btn-outline btn-lg"
+                  onClick={() => smoothScroll("how")}
+                >
+                  Learn more
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="cta">
         <div className="cta-glow" />
@@ -926,10 +962,10 @@ function AppPage() {
               className="btn btn-primary btn-lg"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
-              🔬 Diagnose Now
+              Diagnose Now
             </button>
             <button className="btn btn-outline btn-lg" onClick={() => setChatOpen(true)}>
-              👨‍⚕️ Ask Dr. LeafRx
+              Ask Dr. LeafRx
             </button>
           </div>
         </div>
@@ -1439,6 +1475,22 @@ const CSS = `
 .mobile-link-danger:hover { background:rgba(239,83,80,.1); color:#ef5350; }
 .mobile-pill { margin-left:auto; background:var(--olive); color:#fff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; }
 
+/* INSTALL SECTION */
+.install-section { padding:64px 0; background:linear-gradient(180deg, transparent, rgba(45,110,45,.06), transparent); }
+.install-inner { display:flex; justify-content:center; }
+.install-card { display:flex; gap:32px; align-items:center; max-width:920px; width:100%; background:linear-gradient(135deg, #1a2e1a 0%, #1e3310 100%); border:1px solid rgba(92,200,92,.25); border-radius:24px; padding:36px 40px; box-shadow:0 24px 60px rgba(0,0,0,.45), inset 0 1px 0 rgba(255,255,255,.04); position:relative; overflow:hidden; }
+.install-card::before { content:""; position:absolute; top:-50%; right:-20%; width:400px; height:400px; background:radial-gradient(circle, rgba(92,200,92,.15), transparent 65%); pointer-events:none; }
+.install-left { flex-shrink:0; position:relative; z-index:1; }
+.install-logo { box-shadow:0 12px 32px rgba(0,0,0,.5), 0 0 0 4px rgba(92,200,92,.18); border-radius:50%; }
+.install-body { flex:1; min-width:0; position:relative; z-index:1; }
+.install-eyebrow { color:#5cc85c; font-size:11px; font-weight:800; letter-spacing:2px; margin-bottom:8px; }
+.install-title { font-family:'Nunito',sans-serif; font-weight:900; font-size:clamp(22px,3vw,30px); color:#fff; margin:0 0 12px; line-height:1.15; }
+.install-desc { color:#b8c5b0; font-size:14.5px; line-height:1.6; margin:0 0 18px; max-width:560px; }
+.install-features { list-style:none; padding:0; margin:0 0 22px; display:flex; flex-direction:column; gap:8px; }
+.install-features li { display:flex; align-items:center; gap:10px; color:#cfd6c4; font-size:13.5px; }
+.install-features li span { font-size:16px; width:22px; text-align:center; }
+.install-actions { display:flex; gap:10px; flex-wrap:wrap; }
+
 /* responsive */
 @media (max-width: 860px) {
   .nav-links { display:none; }
@@ -1446,6 +1498,11 @@ const CSS = `
   .nav-burger { display:flex; }
   .footer-grid { grid-template-columns:1fr 1fr; }
   .btn-install { padding:8px 12px; font-size:13px; }
+  .nav-inner { padding:12px 16px; gap:10px; }
+  .install-card { flex-direction:column; text-align:center; padding:32px 24px; gap:20px; }
+  .install-desc { margin-left:auto; margin-right:auto; }
+  .install-features { align-items:flex-start; max-width:320px; margin-left:auto; margin-right:auto; }
+  .install-actions { justify-content:center; }
 }
 @media (max-width: 600px) {
   .hero-title { font-size:28px; }
@@ -1454,7 +1511,20 @@ const CSS = `
   .footer-bottom { flex-direction:column; gap:8px; text-align:center; }
   .history-toolbar { flex-direction:column; align-items:stretch; }
   .history-filters { flex-direction:column; }
+  .nav-inner { padding:10px 14px; }
+  .btn-install { padding:7px 10px; font-size:12px; border-radius:20px; }
+  .nav-actions { gap:6px; }
+  .install-section { padding:40px 0; }
+  .install-card { padding:24px 18px; border-radius:18px; }
+  .install-title { font-size:20px; }
+  .install-desc { font-size:13.5px; }
 }
+@media (max-width: 380px) {
+  /* On the smallest phones, hide the Install button text label and show only the icon to keep the bar tidy */
+  .btn-install { font-size:0; padding:8px 10px; }
+  .btn-install::before { content:"⬇"; font-size:14px; }
+}
+
 
 /* history toolbar + cards */
 .history-toolbar { display:flex; flex-wrap:wrap; gap:12px; align-items:center; margin-bottom:24px; }
