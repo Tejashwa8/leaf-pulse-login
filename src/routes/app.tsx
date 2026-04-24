@@ -1401,10 +1401,51 @@ const CSS = `
   100% { box-shadow:0 0 0 0 rgba(76,175,80,0); }
 }
 
+/* nav burger (hidden on desktop) */
+.nav-burger { display:none; flex-direction:column; gap:4px; background:transparent; border:1px solid var(--border); border-radius:10px; padding:9px 10px; cursor:pointer; }
+.nav-burger span { display:block; width:18px; height:2px; background:var(--text); border-radius:2px; transition:all .2s; }
+.nav-burger:hover { border-color:var(--olive); }
+.nav-burger:hover span { background:var(--green); }
+
+/* install + danger buttons */
+.btn-install { background:linear-gradient(135deg, #1a2e1a, #2d6e2d); color:#fff; border:1px solid rgba(92,200,92,.4); display:inline-flex; align-items:center; gap:6px; }
+.btn-install:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(45,110,45,.45); border-color:#5cc85c; }
+.btn-danger { background:linear-gradient(135deg,#b3261e,#ef5350); color:#fff; }
+.btn-danger:hover { transform:translateY(-2px); box-shadow:0 8px 24px rgba(239,83,80,.4); }
+
+/* history dropdown — clear-all + heading row */
+.hx-dd-head-row { display:flex; align-items:center; justify-content:space-between; padding-right:6px; }
+.hx-dd-clear { background:transparent; border:none; color:#ef5350; font-size:11px; font-weight:700; letter-spacing:.5px; padding:6px 10px; border-radius:8px; cursor:pointer; transition:all .2s; }
+.hx-dd-clear:hover { background:rgba(239,83,80,.1); }
+.hx-all-clear { background:rgba(239,83,80,.08); border:1px solid rgba(239,83,80,.35); color:#ef5350; border-radius:10px; padding:10px 14px; font-family:inherit; font-size:13px; font-weight:700; cursor:pointer; transition:all .2s; }
+.hx-all-clear:hover { background:rgba(239,83,80,.18); border-color:#ef5350; }
+
+/* clear-history confirm modal */
+.hx-confirm { max-width:440px; padding:32px 28px; text-align:center; }
+.hx-confirm-icon { font-size:48px; margin-bottom:12px; }
+.hx-confirm-title { font-family:'Nunito',sans-serif; font-weight:900; font-size:22px; color:#fff; margin-bottom:10px; }
+.hx-confirm-text { color:var(--muted); font-size:14px; line-height:1.55; margin:0 0 24px; }
+.hx-confirm-text strong { color:#fff; }
+.hx-confirm-actions { display:flex; gap:10px; justify-content:center; }
+
+/* mobile menu drawer */
+.mobile-menu { position:fixed; inset:0; background:rgba(0,0,0,.6); backdrop-filter:blur(4px); z-index:90; animation:hxFade .2s ease both; }
+.mobile-menu-panel { position:absolute; top:0; right:0; bottom:0; width:min(86vw,320px); background:#161616; border-left:1px solid var(--border); box-shadow:-12px 0 36px rgba(0,0,0,.5); padding:80px 16px 24px; display:flex; flex-direction:column; gap:6px; animation:slideInRight .3s cubic-bezier(.34,1.2,.64,1) both; overflow-y:auto; }
+@keyframes slideInRight { from { transform:translateX(100%); } to { transform:translateX(0); } }
+.mobile-link { display:flex; align-items:center; gap:12px; background:transparent; border:none; color:var(--text); padding:14px 16px; border-radius:12px; font:inherit; font-size:15px; font-weight:600; text-align:left; cursor:pointer; transition:all .2s; width:100%; }
+.mobile-link:hover { background:rgba(107,142,35,.12); color:var(--green); }
+.mobile-link span:first-child { font-size:18px; width:24px; text-align:center; }
+.mobile-link-danger { color:#ef5350; }
+.mobile-link-danger:hover { background:rgba(239,83,80,.1); color:#ef5350; }
+.mobile-pill { margin-left:auto; background:var(--olive); color:#fff; font-size:11px; font-weight:700; padding:2px 8px; border-radius:10px; }
+
 /* responsive */
 @media (max-width: 860px) {
   .nav-links { display:none; }
+  .btn-logout-desktop { display:none; }
+  .nav-burger { display:flex; }
   .footer-grid { grid-template-columns:1fr 1fr; }
+  .btn-install { padding:8px 12px; font-size:13px; }
 }
 @media (max-width: 600px) {
   .hero-title { font-size:28px; }
