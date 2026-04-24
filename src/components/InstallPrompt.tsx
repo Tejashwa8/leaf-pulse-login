@@ -42,38 +42,41 @@ export function InstallPrompt() {
       setInstalled(true);
       return;
     }
-    if (recentlyDismissed()) return;
 
     const onBIP = (e: Event) => {
       e.preventDefault();
       setBip(e as BIPEvent);
-      setOpen(true);
+      if (!recentlyDismissed()) setOpen(true);
     };
     const onInstalled = () => {
       setInstalled(true);
       setOpen(false);
       setShowIosHint(false);
     };
+    // Allow any UI (e.g., navbar button) to force-open the banner
+    const onForceOpen = () => {
+      if (isIOS()) setShowIosHint(true);
+      setOpen(true);
+    };
 
     window.addEventListener("beforeinstallprompt", onBIP);
     window.addEventListener("appinstalled", onInstalled);
+    window.addEventListener("leafrx:open-install", onForceOpen);
 
-    // iOS has no beforeinstallprompt — show after a short delay
-    if (isIOS() && !isStandalone()) {
-      const t = setTimeout(() => {
+    // iOS has no beforeinstallprompt — show after a short delay (only if not dismissed)
+    let iosTimer: ReturnType<typeof setTimeout> | null = null;
+    if (isIOS() && !isStandalone() && !recentlyDismissed()) {
+      iosTimer = setTimeout(() => {
         setShowIosHint(true);
         setOpen(true);
       }, 2500);
-      return () => {
-        clearTimeout(t);
-        window.removeEventListener("beforeinstallprompt", onBIP);
-        window.removeEventListener("appinstalled", onInstalled);
-      };
     }
 
     return () => {
+      if (iosTimer) clearTimeout(iosTimer);
       window.removeEventListener("beforeinstallprompt", onBIP);
       window.removeEventListener("appinstalled", onInstalled);
+      window.removeEventListener("leafrx:open-install", onForceOpen);
     };
   }, []);
 
