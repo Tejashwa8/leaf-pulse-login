@@ -45,11 +45,13 @@ export const Route = createRootRoute({
       { name: "msapplication-config", content: "/browserconfig.xml" },
       // Open Graph / Twitter
       { property: "og:title", content: "LeafRx — Your Plant's Digital Doctor" },
-      { property: "og:description", content: "AI-powered plant disease detection for farmers and gardeners." },
+      { property: "og:description", content: "AI-powered plant disease detection. Snap a leaf, get an instant diagnosis and treatment prescription." },
       { property: "og:type", content: "website" },
       { property: "og:image", content: "/icons/icon-512.png" },
       { name: "twitter:card", content: "summary_large_image" },
       { name: "twitter:image", content: "/icons/icon-512.png" },
+      { name: "twitter:title", content: "LeafRx — Your Plant's Digital Doctor" },
+      { name: "twitter:description", content: "AI-powered plant disease detection. Snap a leaf, get an instant diagnosis and treatment prescription." },
     ],
     links: [
       { rel: "stylesheet", href: appCss },
