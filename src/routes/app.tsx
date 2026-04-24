@@ -613,7 +613,7 @@ function AppPage() {
                   smoothScroll("how");
                 }}
               >
-                <span>📋</span> How it Works
+                How it Works
               </button>
               <button
                 className="mobile-link"
@@ -622,7 +622,16 @@ function AppPage() {
                   smoothScroll("features");
                 }}
               >
-                <span>⭐</span> Features
+                Features
+              </button>
+              <button
+                className="mobile-link"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  smoothScroll("install");
+                }}
+              >
+                Install
               </button>
               <button
                 className="mobile-link"
@@ -631,7 +640,7 @@ function AppPage() {
                   setHistoryAllOpen(true);
                 }}
               >
-                <span>🕘</span> History
+                History
                 {history.length > 0 && <span className="mobile-pill">{history.length}</span>}
               </button>
               <button
@@ -641,10 +650,10 @@ function AppPage() {
                   setChatOpen(true);
                 }}
               >
-                <span>👨‍⚕️</span> Dr. LeafRx
+                Dr. LeafRx
               </button>
               <button className="mobile-link" onClick={openInstall}>
-                <span>⬇</span> Install LeafRx
+                Install LeafRx
               </button>
               {history.length > 0 && (
                 <button
@@ -654,11 +663,11 @@ function AppPage() {
                     setConfirmClear(true);
                   }}
                 >
-                  <span>🗑️</span> Clear history
+                  Clear history
                 </button>
               )}
               <button className="mobile-link mobile-link-danger" onClick={logout}>
-                <span>↪</span> Logout
+                Logout
               </button>
             </div>
           </div>
