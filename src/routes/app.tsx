@@ -1070,6 +1070,14 @@ function AppPage() {
                   <option value="newest">Newest first</option>
                   <option value="oldest">Oldest first</option>
                 </select>
+                {history.length > 0 && (
+                  <button
+                    className="hx-all-clear"
+                    onClick={() => setConfirmClear(true)}
+                  >
+                    🗑️ Clear all
+                  </button>
+                )}
               </div>
             </div>
             <div className="hx-all-grid">
@@ -1171,6 +1179,28 @@ function AppPage() {
                 <div className="cam-tip">Hold steady · good light · single leaf</div>
               </div>
             )}
+          </div>
+        </div>
+      )}
+
+      {/* CONFIRM CLEAR HISTORY */}
+      {confirmClear && (
+        <div className="hx-modal-wrap" role="dialog" aria-modal="true" onClick={() => setConfirmClear(false)}>
+          <div className="hx-modal hx-confirm" onClick={(e) => e.stopPropagation()}>
+            <div className="hx-confirm-icon">🗑️</div>
+            <div className="hx-confirm-title">Clear all diagnoses?</div>
+            <p className="hx-confirm-text">
+              This will permanently delete all <strong>{history.length}</strong> scan
+              {history.length === 1 ? "" : "s"} from your history. This action cannot be undone.
+            </p>
+            <div className="hx-confirm-actions">
+              <button className="btn btn-ghost" onClick={() => setConfirmClear(false)}>
+                Cancel
+              </button>
+              <button className="btn btn-danger" onClick={clearHistory}>
+                Yes, clear history
+              </button>
+            </div>
           </div>
         </div>
       )}
