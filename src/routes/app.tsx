@@ -915,6 +915,41 @@ function AppPage() {
 
       {/* TECH STACK section removed per request */}
 
+      {/* INSTALL LEAFRX BANNER SECTION */}
+      <section id="install" className="install-section">
+        <div className="container install-inner">
+          <div className="install-card reveal">
+            <div className="install-left">
+              <LeafRxLogo size={88} className="install-logo" />
+            </div>
+            <div className="install-body">
+              <div className="install-eyebrow">GET THE APP</div>
+              <h2 className="install-title">Install LeafRx on your device</h2>
+              <p className="install-desc">
+                One tap from your home screen — no app store needed. Works fullscreen on Android,
+                iOS, Windows and Mac. Your scans and history sync automatically when you sign in.
+              </p>
+              <ul className="install-features">
+                <li><span>📱</span> Native-like fullscreen experience</li>
+                <li><span>⚡</span> Faster load — opens in &lt; 1s</li>
+                <li><span>🔒</span> Secure — your account follows you across devices</li>
+              </ul>
+              <div className="install-actions">
+                <button className="btn btn-primary btn-lg" onClick={openInstall}>
+                  ⬇ Install LeafRx
+                </button>
+                <button
+                  className="btn btn-outline btn-lg"
+                  onClick={() => smoothScroll("how")}
+                >
+                  Learn more
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* CTA */}
       <section className="cta">
         <div className="cta-glow" />
