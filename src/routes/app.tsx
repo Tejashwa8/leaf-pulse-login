@@ -510,7 +510,20 @@ function AppPage() {
               </a>
               {historyMenuOpen && (
                 <div className="hx-dropdown" onClick={(e) => e.stopPropagation()}>
-                  <div className="hx-dd-head">Recent scans</div>
+                  <div className="hx-dd-head-row">
+                    <div className="hx-dd-head">Recent scans</div>
+                    {history.length > 0 && (
+                      <button
+                        className="hx-dd-clear"
+                        onClick={() => {
+                          setHistoryMenuOpen(false);
+                          setConfirmClear(true);
+                        }}
+                      >
+                        Clear all
+                      </button>
+                    )}
+                  </div>
                   {history.length === 0 ? (
                     <div className="hx-dd-empty">No scans yet. Upload a leaf to get started.</div>
                   ) : (
@@ -569,11 +582,86 @@ function AppPage() {
             <a onClick={() => setChatOpen(true)}>Dr. LeafRx</a>
           </div>
           <div className="nav-actions">
-            <button className="btn btn-ghost" onClick={logout}>
+            <button className="btn btn-install" onClick={openInstall} title="Install LeafRx as an app">
+              ⬇ Install
+            </button>
+            <button className="btn btn-ghost btn-logout-desktop" onClick={logout}>
               Logout
+            </button>
+            <button
+              className="nav-burger"
+              onClick={() => setMobileMenuOpen((v) => !v)}
+              aria-label="Open menu"
+              aria-expanded={mobileMenuOpen}
+            >
+              <span />
+              <span />
+              <span />
             </button>
           </div>
         </div>
+
+        {/* MOBILE MENU */}
+        {mobileMenuOpen && (
+          <div className="mobile-menu" onClick={() => setMobileMenuOpen(false)}>
+            <div className="mobile-menu-panel" onClick={(e) => e.stopPropagation()}>
+              <button
+                className="mobile-link"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  smoothScroll("how");
+                }}
+              >
+                <span>📋</span> How it Works
+              </button>
+              <button
+                className="mobile-link"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  smoothScroll("features");
+                }}
+              >
+                <span>⭐</span> Features
+              </button>
+              <button
+                className="mobile-link"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setHistoryAllOpen(true);
+                }}
+              >
+                <span>🕘</span> History
+                {history.length > 0 && <span className="mobile-pill">{history.length}</span>}
+              </button>
+              <button
+                className="mobile-link"
+                onClick={() => {
+                  setMobileMenuOpen(false);
+                  setChatOpen(true);
+                }}
+              >
+                <span>👨‍⚕️</span> Dr. LeafRx
+              </button>
+              <button className="mobile-link" onClick={openInstall}>
+                <span>⬇</span> Install LeafRx
+              </button>
+              {history.length > 0 && (
+                <button
+                  className="mobile-link mobile-link-danger"
+                  onClick={() => {
+                    setMobileMenuOpen(false);
+                    setConfirmClear(true);
+                  }}
+                >
+                  <span>🗑️</span> Clear history
+                </button>
+              )}
+              <button className="mobile-link mobile-link-danger" onClick={logout}>
+                <span>↪</span> Logout
+              </button>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* HERO */}
