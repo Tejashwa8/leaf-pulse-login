@@ -525,7 +525,6 @@ function AppPage() {
           <div className="nav-links">
             <a onClick={() => smoothScroll("how")}>{t("nav_how")}</a>
             <a onClick={() => smoothScroll("features")}>{t("nav_features")}</a>
-            <a onClick={() => smoothScroll("install")}>{t("nav_install")}</a>
             <div className="hx-dropdown-wrap">
               <a
                 onClick={(e) => {
