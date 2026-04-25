@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { LeafRxLogo, LeafRxWordmark } from "@/components/LeafRxLogo";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useLang } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { diagnoseLeaf, type Diagnosis } from "@/utils/diagnose.functions";
 import { DrLeafRxChat, DrLeafRxFab } from "@/components/DrLeafRxChat";
@@ -178,8 +180,9 @@ function AppPage() {
   const [historyAllOpen, setHistoryAllOpen] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [installState, setInstallState] = useState<"available" | "installed" | "unsupported">("unsupported");
+  const [, , t] = useLang();
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -477,11 +480,36 @@ function AppPage() {
     setConfirmClear(false);
   }
 
+  // Detect install eligibility (browser-backed checks)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const isStandalone =
+      window.matchMedia?.("(display-mode: standalone)").matches ||
+      (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+    if (isStandalone) {
+      setInstallState("installed");
+      return;
+    }
+    const ua = navigator.userAgent;
+    const isIOS = /iPhone|iPad|iPod/i.test(ua) && !/CriOS|FxiOS|EdgiOS/i.test(ua);
+    // iOS Safari supports manual Add-to-Home-Screen even without beforeinstallprompt
+    if (isIOS) setInstallState("available");
+
+    const onBIP = () => setInstallState("available");
+    const onInstalled = () => setInstallState("installed");
+    window.addEventListener("beforeinstallprompt", onBIP);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onBIP);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
   function openInstall() {
+    if (installState !== "available") return;
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("leafrx:open-install"));
     }
-    setMobileMenuOpen(false);
   }
 
   return (
@@ -495,9 +523,9 @@ function AppPage() {
             <LeafRxWordmark iconSize={36} fontSize={22} />
           </button>
           <div className="nav-links">
-            <a onClick={() => smoothScroll("how")}>How it Works</a>
-            <a onClick={() => smoothScroll("features")}>Features</a>
-            <a onClick={() => smoothScroll("install")}>Install</a>
+            <a onClick={() => smoothScroll("how")}>{t("nav_how")}</a>
+            <a onClick={() => smoothScroll("features")}>{t("nav_features")}</a>
+            <a onClick={() => smoothScroll("install")}>{t("nav_install")}</a>
             <div className="hx-dropdown-wrap">
               <a
                 onClick={(e) => {
@@ -506,13 +534,13 @@ function AppPage() {
                 }}
                 className={historyMenuOpen ? "hx-trigger active" : "hx-trigger"}
               >
-                History {history.length > 0 && <span className="hx-count">{history.length}</span>}
+                {t("nav_history")} {history.length > 0 && <span className="hx-count">{history.length}</span>}
                 <span className="hx-caret">▾</span>
               </a>
               {historyMenuOpen && (
                 <div className="hx-dropdown" onClick={(e) => e.stopPropagation()}>
                   <div className="hx-dd-head-row">
-                    <div className="hx-dd-head">Recent scans</div>
+                    <div className="hx-dd-head">{t("recent_scans")}</div>
                     {history.length > 0 && (
                       <button
                         className="hx-dd-clear"
@@ -521,12 +549,12 @@ function AppPage() {
                           setConfirmClear(true);
                         }}
                       >
-                        Clear all
+                        {t("clear_all")}
                       </button>
                     )}
                   </div>
                   {history.length === 0 ? (
-                    <div className="hx-dd-empty">No scans yet. Upload a leaf to get started.</div>
+                    <div className="hx-dd-empty">{t("no_scans")}</div>
                   ) : (
                     <>
                       {history.slice(0, 5).map((h) => (
@@ -573,105 +601,27 @@ function AppPage() {
                           setHistoryAllOpen(true);
                         }}
                       >
-                        View all scans →
+                        {t("view_all")}
                       </button>
                     </>
                   )}
                 </div>
               )}
             </div>
-            <a onClick={() => setChatOpen(true)}>Dr. LeafRx</a>
+            <a onClick={() => setChatOpen(true)}>{t("nav_doctor")}</a>
+            {history.length > 0 && (
+              <a className="nav-clear-link" onClick={() => setConfirmClear(true)}>
+                {t("nav_clear")}
+              </a>
+            )}
+            <a className="nav-logout-link" onClick={logout}>
+              {t("nav_logout")}
+            </a>
           </div>
           <div className="nav-actions">
-            <button className="btn btn-install" onClick={openInstall} title="Install LeafRx as an app">
-              ⬇ Install
-            </button>
-            <button className="btn btn-ghost btn-logout-desktop" onClick={logout}>
-              Logout
-            </button>
-            <button
-              className="nav-burger"
-              onClick={() => setMobileMenuOpen((v) => !v)}
-              aria-label="Open menu"
-              aria-expanded={mobileMenuOpen}
-            >
-              <span />
-              <span />
-              <span />
-            </button>
+            <LanguageSwitcher />
           </div>
         </div>
-
-        {/* MOBILE MENU */}
-        {mobileMenuOpen && (
-          <div className="mobile-menu" onClick={() => setMobileMenuOpen(false)}>
-            <div className="mobile-menu-panel" onClick={(e) => e.stopPropagation()}>
-              <button
-                className="mobile-link"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  smoothScroll("how");
-                }}
-              >
-                How it Works
-              </button>
-              <button
-                className="mobile-link"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  smoothScroll("features");
-                }}
-              >
-                Features
-              </button>
-              <button
-                className="mobile-link"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  smoothScroll("install");
-                }}
-              >
-                Install
-              </button>
-              <button
-                className="mobile-link"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setHistoryAllOpen(true);
-                }}
-              >
-                History
-                {history.length > 0 && <span className="mobile-pill">{history.length}</span>}
-              </button>
-              <button
-                className="mobile-link"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setChatOpen(true);
-                }}
-              >
-                Dr. LeafRx
-              </button>
-              <button className="mobile-link" onClick={openInstall}>
-                Install LeafRx
-              </button>
-              {history.length > 0 && (
-                <button
-                  className="mobile-link mobile-link-danger"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setConfirmClear(true);
-                  }}
-                >
-                  Clear history
-                </button>
-              )}
-              <button className="mobile-link mobile-link-danger" onClick={logout}>
-                Logout
-              </button>
-            </div>
-          </div>
-        )}
       </nav>
 
       {/* HERO */}
@@ -680,7 +630,7 @@ function AppPage() {
         <div className="hero-inner">
           <div className="hero-badge badgePop">
             <span className="pulse-dot" />
-            Plant Health Detection · Powered by Dr. LeafRx
+            {t("hero_badge")}
           </div>
 
           <div className="hero-logo heroTitle">
@@ -688,9 +638,9 @@ function AppPage() {
           </div>
 
           <h1 className="hero-title heroTitle">
-            Your Plant's <br />
-            <span className="grad-green">Digital</span>{" "}
-            <span className="grad-olive">Doctor</span>
+            {t("hero_title_1")} <br />
+            <span className="grad-green">{t("hero_title_2")}</span>{" "}
+            <span className="grad-olive">{t("hero_title_3")}</span>
           </h1>
 
           <div className="tagline-wrap fadeSlideIn">
@@ -701,10 +651,7 @@ function AppPage() {
             </div>
           </div>
 
-          <p className="hero-sub fadeSlideIn">
-            Upload a leaf, and our deep-learning model returns a disease classification, severity,
-            and a tailored treatment prescription — in under a second.
-          </p>
+          <p className="hero-sub fadeSlideIn">{t("hero_sub")}</p>
 
           {/* UPLOAD BOX */}
           <div className="upload-wrap fadeSlideIn">
@@ -732,8 +679,8 @@ function AppPage() {
                 }}
               >
                 <div className="upload-icon">🌿</div>
-                <div className="upload-title">Drop a leaf image here or click to upload</div>
-                <div className="upload-sub">PNG, JPG up to 10MB · processed locally</div>
+                <div className="upload-title">{t("upload_drop")}</div>
+                <div className="upload-sub">{t("upload_sub")}</div>
               </button>
             ) : (
               <div className="upload-box upload-result">
@@ -792,13 +739,13 @@ function AppPage() {
 
           <div className="hero-ctas fadeSlideIn">
             <button className="btn btn-primary btn-lg" onClick={() => fileRef.current?.click()}>
-              Upload Leaf
+              {t("cta_upload")}
             </button>
             <button className="btn btn-primary btn-lg" onClick={() => setCameraOpen(true)}>
-              Scan with Camera
+              {t("cta_camera")}
             </button>
             <button className="btn btn-outline btn-lg" onClick={() => smoothScroll("how")}>
-              How It Works
+              {t("cta_how")}
             </button>
           </div>
 
@@ -825,8 +772,8 @@ function AppPage() {
       {/* HOW IT WORKS */}
       <section id="how" className="section section-tight">
         <div className="container">
-          <div className="section-label reveal">PROCESS</div>
-          <h2 className="section-title reveal">How LeafRx Works</h2>
+          <div className="section-label reveal">{t("process")}</div>
+          <h2 className="section-title reveal">{t("how_title")}</h2>
           <div className="steps-grid">
             {STEPS.map((s, i) => (
               <div
@@ -848,8 +795,8 @@ function AppPage() {
       {/* FEATURES */}
       <section id="features" className="section">
         <div className="container">
-          <div className="section-label reveal">FEATURES & CROP-SAFETY TIPS</div>
-          <h2 className="section-title reveal">Built for the Field</h2>
+          <div className="section-label reveal">{t("features_label")}</div>
+          <h2 className="section-title reveal">{t("features_title")}</h2>
           <div className="features-grid">
             {FEATURES.map((f, i) => (
               <div key={f.title} className={`step-card reveal delay-${(i % 5) + 1}`}>
@@ -882,8 +829,8 @@ function AppPage() {
       {/* MODEL ACCURACY */}
       <section className="section">
         <div className="container">
-          <div className="section-label reveal">PERFORMANCE</div>
-          <h2 className="section-title reveal">Model Accuracy</h2>
+          <div className="section-label reveal">{t("performance")}</div>
+          <h2 className="section-title reveal">{t("perf_title")}</h2>
           <div className="bars" ref={barsRef}>
             {METRICS.map((m, i) => (
               <div key={m.label} className="progress-row reveal">
@@ -909,14 +856,14 @@ function AppPage() {
       {/* CROP-SAFETY TIPS (replaces testimonials) */}
       <section className="section section-alt">
         <div className="container">
-          <div className="section-label reveal">PROTECT YOUR HARVEST</div>
-          <h2 className="section-title reveal">How to Keep Crops Disease-Free</h2>
+          <div className="section-label reveal">{t("protect_label")}</div>
+          <h2 className="section-title reveal">{t("protect_title")}</h2>
           <div className="testimonials-grid">
-            {SAFETY_TIPS.map((t, i) => (
-              <div key={t.title} className={`step-card reveal delay-${(i % 5) + 1}`}>
-                <div className="step-icon">{t.icon}</div>
-                <div className="step-title">{t.title}</div>
-                <p className="step-text">{t.text}</p>
+            {SAFETY_TIPS.map((tip, i) => (
+              <div key={tip.title} className={`step-card reveal delay-${(i % 5) + 1}`}>
+                <div className="step-icon">{tip.icon}</div>
+                <div className="step-title">{tip.title}</div>
+                <p className="step-text">{tip.text}</p>
               </div>
             ))}
           </div>
@@ -933,26 +880,39 @@ function AppPage() {
               <LeafRxLogo size={88} className="install-logo" />
             </div>
             <div className="install-body">
-              <div className="install-eyebrow">GET THE APP</div>
-              <h2 className="install-title">Install LeafRx on your device</h2>
-              <p className="install-desc">
-                One tap from your home screen — no app store needed. Works fullscreen on Android,
-                iOS, Windows and Mac. Your scans and history sync automatically when you sign in.
-              </p>
+              <div className="install-eyebrow">{t("install_eyebrow")}</div>
+              <h2 className="install-title">{t("install_title")}</h2>
+              <p className="install-desc">{t("install_desc")}</p>
               <ul className="install-features">
-                <li><span>📱</span> Native-like fullscreen experience</li>
-                <li><span>⚡</span> Faster load — opens in &lt; 1s</li>
-                <li><span>🔒</span> Secure — your account follows you across devices</li>
+                <li><span>📱</span> {t("install_f1")}</li>
+                <li><span>⚡</span> {t("install_f2")}</li>
+                <li><span>🔒</span> {t("install_f3")}</li>
               </ul>
               <div className="install-actions">
-                <button className="btn btn-primary btn-lg" onClick={openInstall}>
-                  ⬇ Install LeafRx
+                <button
+                  className={`btn btn-primary btn-lg btn-install-cta${installState !== "available" ? " is-disabled" : ""}`}
+                  onClick={openInstall}
+                  disabled={installState !== "available"}
+                  title={
+                    installState === "installed"
+                      ? t("install_unavailable")
+                      : installState === "unsupported"
+                        ? t("install_unsupported")
+                        : t("install_btn")
+                  }
+                >
+                  <span className="btn-install-icon" aria-hidden>⬇</span>
+                  {installState === "installed"
+                    ? t("install_unavailable")
+                    : installState === "unsupported"
+                      ? t("install_unsupported")
+                      : t("install_btn")}
                 </button>
                 <button
                   className="btn btn-outline btn-lg"
                   onClick={() => smoothScroll("how")}
                 >
-                  Learn more
+                  {t("learn_more")}
                 </button>
               </div>
             </div>
@@ -965,16 +925,16 @@ function AppPage() {
         <div className="cta-glow" />
         <div className="container cta-inner">
           <div className="cta-emoji">🌿</div>
-          <h2 className="section-title">Ready to protect your crop?</h2>
+          <h2 className="section-title">{t("ready_title")}</h2>
           <div className="hero-ctas">
             <button
               className="btn btn-primary btn-lg"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
-              Diagnose Now
+              {t("diagnose_now")}
             </button>
             <button className="btn btn-outline btn-lg" onClick={() => setChatOpen(true)}>
-              Ask Dr. LeafRx
+              {t("ask_doctor")}
             </button>
           </div>
         </div>
@@ -1500,12 +1460,27 @@ const CSS = `
 .install-features li span { font-size:16px; width:22px; text-align:center; }
 .install-actions { display:flex; gap:10px; flex-wrap:wrap; }
 
+/* install CTA — pulsing call-to-action with disabled state */
+.btn-install-cta { display:inline-flex; align-items:center; gap:10px; position:relative; overflow:hidden; }
+.btn-install-cta:not(.is-disabled) { animation: installPulse 2.4s ease-in-out infinite; }
+.btn-install-cta .btn-install-icon { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,.18); font-size:14px; transition:transform .3s; }
+.btn-install-cta:not(.is-disabled):hover .btn-install-icon { transform:translateY(2px) scale(1.1); }
+.btn-install-cta.is-disabled { background:#2a2a2a; color:#777; cursor:not-allowed; opacity:.7; animation:none; box-shadow:none; }
+.btn-install-cta.is-disabled:hover { transform:none; box-shadow:none; }
+@keyframes installPulse {
+  0%,100% { box-shadow:0 8px 24px rgba(107,142,35,.25), 0 0 0 0 rgba(92,200,92,.45); }
+  50% { box-shadow:0 12px 32px rgba(107,142,35,.4), 0 0 0 12px rgba(92,200,92,0); }
+}
+
+/* nav action links — Logout & Clear */
+.nav-logout-link { color:#ef5350 !important; }
+.nav-logout-link:hover { color:#ff7a78 !important; }
+.nav-clear-link { color:#ef9a9a !important; }
+.nav-clear-link:hover { color:#ef5350 !important; }
+
 /* responsive */
 @media (max-width: 860px) {
-  .btn-logout-desktop { display:none; }
-  .nav-burger { display:flex; }
   .footer-grid { grid-template-columns:1fr 1fr; }
-  .btn-install { padding:8px 12px; font-size:13px; }
   .nav-inner { padding:12px 14px; gap:8px; flex-wrap:wrap; }
   .nav-brand { order:1; }
   .nav-actions { order:2; margin-left:auto; }
@@ -1537,11 +1512,14 @@ const CSS = `
     color:var(--text);
   }
   .nav-links > a:hover, .nav-links > .hx-dropdown-wrap > a:hover { background:rgba(107,142,35,.12); border-color:var(--olive); color:var(--green); }
+  .nav-links > a.nav-logout-link { background:rgba(239,83,80,.1); border-color:rgba(239,83,80,.35); }
+  .nav-links > a.nav-clear-link { background:rgba(239,83,80,.06); border-color:rgba(239,83,80,.25); }
   .hx-dropdown { right:auto; left:0; min-width:260px; }
   .install-card { flex-direction:column; text-align:center; padding:32px 24px; gap:20px; }
   .install-desc { margin-left:auto; margin-right:auto; }
   .install-features { align-items:flex-start; max-width:320px; margin-left:auto; margin-right:auto; }
   .install-actions { justify-content:center; }
+  .btn-install-cta { width:100%; justify-content:center; }
 }
 @media (max-width: 600px) {
   .hero-title { font-size:28px; }
@@ -1551,17 +1529,11 @@ const CSS = `
   .history-toolbar { flex-direction:column; align-items:stretch; }
   .history-filters { flex-direction:column; }
   .nav-inner { padding:10px 12px; }
-  .btn-install { padding:7px 10px; font-size:12px; border-radius:20px; }
   .nav-actions { gap:6px; }
   .install-section { padding:40px 0; }
   .install-card { padding:24px 18px; border-radius:18px; }
   .install-title { font-size:20px; }
   .install-desc { font-size:13.5px; }
-}
-@media (max-width: 380px) {
-  /* On the smallest phones, hide the Install button text label and show only the icon to keep the bar tidy */
-  .btn-install { font-size:0; padding:8px 10px; }
-  .btn-install::before { content:"⬇"; font-size:14px; }
 }
 
 
