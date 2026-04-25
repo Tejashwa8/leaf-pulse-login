@@ -772,8 +772,8 @@ function AppPage() {
       {/* HOW IT WORKS */}
       <section id="how" className="section section-tight">
         <div className="container">
-          <div className="section-label reveal">PROCESS</div>
-          <h2 className="section-title reveal">How LeafRx Works</h2>
+          <div className="section-label reveal">{t("process")}</div>
+          <h2 className="section-title reveal">{t("how_title")}</h2>
           <div className="steps-grid">
             {STEPS.map((s, i) => (
               <div
