@@ -1460,12 +1460,27 @@ const CSS = `
 .install-features li span { font-size:16px; width:22px; text-align:center; }
 .install-actions { display:flex; gap:10px; flex-wrap:wrap; }
 
+/* install CTA — pulsing call-to-action with disabled state */
+.btn-install-cta { display:inline-flex; align-items:center; gap:10px; position:relative; overflow:hidden; }
+.btn-install-cta:not(.is-disabled) { animation: installPulse 2.4s ease-in-out infinite; }
+.btn-install-cta .btn-install-icon { display:inline-flex; align-items:center; justify-content:center; width:24px; height:24px; border-radius:50%; background:rgba(255,255,255,.18); font-size:14px; transition:transform .3s; }
+.btn-install-cta:not(.is-disabled):hover .btn-install-icon { transform:translateY(2px) scale(1.1); }
+.btn-install-cta.is-disabled { background:#2a2a2a; color:#777; cursor:not-allowed; opacity:.7; animation:none; box-shadow:none; }
+.btn-install-cta.is-disabled:hover { transform:none; box-shadow:none; }
+@keyframes installPulse {
+  0%,100% { box-shadow:0 8px 24px rgba(107,142,35,.25), 0 0 0 0 rgba(92,200,92,.45); }
+  50% { box-shadow:0 12px 32px rgba(107,142,35,.4), 0 0 0 12px rgba(92,200,92,0); }
+}
+
+/* nav action links — Logout & Clear */
+.nav-logout-link { color:#ef5350 !important; }
+.nav-logout-link:hover { color:#ff7a78 !important; }
+.nav-clear-link { color:#ef9a9a !important; }
+.nav-clear-link:hover { color:#ef5350 !important; }
+
 /* responsive */
 @media (max-width: 860px) {
-  .btn-logout-desktop { display:none; }
-  .nav-burger { display:flex; }
   .footer-grid { grid-template-columns:1fr 1fr; }
-  .btn-install { padding:8px 12px; font-size:13px; }
   .nav-inner { padding:12px 14px; gap:8px; flex-wrap:wrap; }
   .nav-brand { order:1; }
   .nav-actions { order:2; margin-left:auto; }
@@ -1497,11 +1512,14 @@ const CSS = `
     color:var(--text);
   }
   .nav-links > a:hover, .nav-links > .hx-dropdown-wrap > a:hover { background:rgba(107,142,35,.12); border-color:var(--olive); color:var(--green); }
+  .nav-links > a.nav-logout-link { background:rgba(239,83,80,.1); border-color:rgba(239,83,80,.35); }
+  .nav-links > a.nav-clear-link { background:rgba(239,83,80,.06); border-color:rgba(239,83,80,.25); }
   .hx-dropdown { right:auto; left:0; min-width:260px; }
   .install-card { flex-direction:column; text-align:center; padding:32px 24px; gap:20px; }
   .install-desc { margin-left:auto; margin-right:auto; }
   .install-features { align-items:flex-start; max-width:320px; margin-left:auto; margin-right:auto; }
   .install-actions { justify-content:center; }
+  .btn-install-cta { width:100%; justify-content:center; }
 }
 @media (max-width: 600px) {
   .hero-title { font-size:28px; }
@@ -1511,17 +1529,11 @@ const CSS = `
   .history-toolbar { flex-direction:column; align-items:stretch; }
   .history-filters { flex-direction:column; }
   .nav-inner { padding:10px 12px; }
-  .btn-install { padding:7px 10px; font-size:12px; border-radius:20px; }
   .nav-actions { gap:6px; }
   .install-section { padding:40px 0; }
   .install-card { padding:24px 18px; border-radius:18px; }
   .install-title { font-size:20px; }
   .install-desc { font-size:13.5px; }
-}
-@media (max-width: 380px) {
-  /* On the smallest phones, hide the Install button text label and show only the icon to keep the bar tidy */
-  .btn-install { font-size:0; padding:8px 10px; }
-  .btn-install::before { content:"⬇"; font-size:14px; }
 }
 
 
