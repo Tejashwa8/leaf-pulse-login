@@ -630,7 +630,7 @@ function AppPage() {
         <div className="hero-inner">
           <div className="hero-badge badgePop">
             <span className="pulse-dot" />
-            Plant Health Detection · Powered by Dr. LeafRx
+            {t("hero_badge")}
           </div>
 
           <div className="hero-logo heroTitle">
@@ -638,9 +638,9 @@ function AppPage() {
           </div>
 
           <h1 className="hero-title heroTitle">
-            Your Plant's <br />
-            <span className="grad-green">Digital</span>{" "}
-            <span className="grad-olive">Doctor</span>
+            {t("hero_title_1")} <br />
+            <span className="grad-green">{t("hero_title_2")}</span>{" "}
+            <span className="grad-olive">{t("hero_title_3")}</span>
           </h1>
 
           <div className="tagline-wrap fadeSlideIn">
@@ -651,10 +651,7 @@ function AppPage() {
             </div>
           </div>
 
-          <p className="hero-sub fadeSlideIn">
-            Upload a leaf, and our deep-learning model returns a disease classification, severity,
-            and a tailored treatment prescription — in under a second.
-          </p>
+          <p className="hero-sub fadeSlideIn">{t("hero_sub")}</p>
 
           {/* UPLOAD BOX */}
           <div className="upload-wrap fadeSlideIn">
