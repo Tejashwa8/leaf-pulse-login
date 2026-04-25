@@ -523,9 +523,9 @@ function AppPage() {
             <LeafRxWordmark iconSize={36} fontSize={22} />
           </button>
           <div className="nav-links">
-            <a onClick={() => smoothScroll("how")}>How it Works</a>
-            <a onClick={() => smoothScroll("features")}>Features</a>
-            <a onClick={() => smoothScroll("install")}>Install</a>
+            <a onClick={() => smoothScroll("how")}>{t("nav_how")}</a>
+            <a onClick={() => smoothScroll("features")}>{t("nav_features")}</a>
+            <a onClick={() => smoothScroll("install")}>{t("nav_install")}</a>
             <div className="hx-dropdown-wrap">
               <a
                 onClick={(e) => {
@@ -534,13 +534,13 @@ function AppPage() {
                 }}
                 className={historyMenuOpen ? "hx-trigger active" : "hx-trigger"}
               >
-                History {history.length > 0 && <span className="hx-count">{history.length}</span>}
+                {t("nav_history")} {history.length > 0 && <span className="hx-count">{history.length}</span>}
                 <span className="hx-caret">▾</span>
               </a>
               {historyMenuOpen && (
                 <div className="hx-dropdown" onClick={(e) => e.stopPropagation()}>
                   <div className="hx-dd-head-row">
-                    <div className="hx-dd-head">Recent scans</div>
+                    <div className="hx-dd-head">{t("recent_scans")}</div>
                     {history.length > 0 && (
                       <button
                         className="hx-dd-clear"
@@ -549,12 +549,12 @@ function AppPage() {
                           setConfirmClear(true);
                         }}
                       >
-                        Clear all
+                        {t("clear_all")}
                       </button>
                     )}
                   </div>
                   {history.length === 0 ? (
-                    <div className="hx-dd-empty">No scans yet. Upload a leaf to get started.</div>
+                    <div className="hx-dd-empty">{t("no_scans")}</div>
                   ) : (
                     <>
                       {history.slice(0, 5).map((h) => (
@@ -601,105 +601,27 @@ function AppPage() {
                           setHistoryAllOpen(true);
                         }}
                       >
-                        View all scans →
+                        {t("view_all")}
                       </button>
                     </>
                   )}
                 </div>
               )}
             </div>
-            <a onClick={() => setChatOpen(true)}>Dr. LeafRx</a>
+            <a onClick={() => setChatOpen(true)}>{t("nav_doctor")}</a>
+            {history.length > 0 && (
+              <a className="nav-clear-link" onClick={() => setConfirmClear(true)}>
+                {t("nav_clear")}
+              </a>
+            )}
+            <a className="nav-logout-link" onClick={logout}>
+              {t("nav_logout")}
+            </a>
           </div>
           <div className="nav-actions">
-            <button className="btn btn-install" onClick={openInstall} title="Install LeafRx as an app">
-              ⬇ Install
-            </button>
-            <button className="btn btn-ghost btn-logout-desktop" onClick={logout}>
-              Logout
-            </button>
-            <button
-              className="nav-burger"
-              onClick={() => setMobileMenuOpen((v) => !v)}
-              aria-label="Open menu"
-              aria-expanded={mobileMenuOpen}
-            >
-              <span />
-              <span />
-              <span />
-            </button>
+            <LanguageSwitcher />
           </div>
         </div>
-
-        {/* MOBILE MENU */}
-        {mobileMenuOpen && (
-          <div className="mobile-menu" onClick={() => setMobileMenuOpen(false)}>
-            <div className="mobile-menu-panel" onClick={(e) => e.stopPropagation()}>
-              <button
-                className="mobile-link"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  smoothScroll("how");
-                }}
-              >
-                How it Works
-              </button>
-              <button
-                className="mobile-link"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  smoothScroll("features");
-                }}
-              >
-                Features
-              </button>
-              <button
-                className="mobile-link"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  smoothScroll("install");
-                }}
-              >
-                Install
-              </button>
-              <button
-                className="mobile-link"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setHistoryAllOpen(true);
-                }}
-              >
-                History
-                {history.length > 0 && <span className="mobile-pill">{history.length}</span>}
-              </button>
-              <button
-                className="mobile-link"
-                onClick={() => {
-                  setMobileMenuOpen(false);
-                  setChatOpen(true);
-                }}
-              >
-                Dr. LeafRx
-              </button>
-              <button className="mobile-link" onClick={openInstall}>
-                Install LeafRx
-              </button>
-              {history.length > 0 && (
-                <button
-                  className="mobile-link mobile-link-danger"
-                  onClick={() => {
-                    setMobileMenuOpen(false);
-                    setConfirmClear(true);
-                  }}
-                >
-                  Clear history
-                </button>
-              )}
-              <button className="mobile-link mobile-link-danger" onClick={logout}>
-                Logout
-              </button>
-            </div>
-          </div>
-        )}
       </nav>
 
       {/* HERO */}
