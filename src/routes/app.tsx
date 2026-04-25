@@ -1,6 +1,8 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useRef, useState } from "react";
 import { LeafRxLogo, LeafRxWordmark } from "@/components/LeafRxLogo";
+import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { useLang } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { diagnoseLeaf, type Diagnosis } from "@/utils/diagnose.functions";
 import { DrLeafRxChat, DrLeafRxFab } from "@/components/DrLeafRxChat";
