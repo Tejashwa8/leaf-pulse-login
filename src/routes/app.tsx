@@ -883,26 +883,39 @@ function AppPage() {
               <LeafRxLogo size={88} className="install-logo" />
             </div>
             <div className="install-body">
-              <div className="install-eyebrow">GET THE APP</div>
-              <h2 className="install-title">Install LeafRx on your device</h2>
-              <p className="install-desc">
-                One tap from your home screen — no app store needed. Works fullscreen on Android,
-                iOS, Windows and Mac. Your scans and history sync automatically when you sign in.
-              </p>
+              <div className="install-eyebrow">{t("install_eyebrow")}</div>
+              <h2 className="install-title">{t("install_title")}</h2>
+              <p className="install-desc">{t("install_desc")}</p>
               <ul className="install-features">
-                <li><span>📱</span> Native-like fullscreen experience</li>
-                <li><span>⚡</span> Faster load — opens in &lt; 1s</li>
-                <li><span>🔒</span> Secure — your account follows you across devices</li>
+                <li><span>📱</span> {t("install_f1")}</li>
+                <li><span>⚡</span> {t("install_f2")}</li>
+                <li><span>🔒</span> {t("install_f3")}</li>
               </ul>
               <div className="install-actions">
-                <button className="btn btn-primary btn-lg" onClick={openInstall}>
-                  ⬇ Install LeafRx
+                <button
+                  className={`btn btn-primary btn-lg btn-install-cta${installState !== "available" ? " is-disabled" : ""}`}
+                  onClick={openInstall}
+                  disabled={installState !== "available"}
+                  title={
+                    installState === "installed"
+                      ? t("install_unavailable")
+                      : installState === "unsupported"
+                        ? t("install_unsupported")
+                        : t("install_btn")
+                  }
+                >
+                  <span className="btn-install-icon" aria-hidden>⬇</span>
+                  {installState === "installed"
+                    ? t("install_unavailable")
+                    : installState === "unsupported"
+                      ? t("install_unsupported")
+                      : t("install_btn")}
                 </button>
                 <button
                   className="btn btn-outline btn-lg"
                   onClick={() => smoothScroll("how")}
                 >
-                  Learn more
+                  {t("learn_more")}
                 </button>
               </div>
             </div>
