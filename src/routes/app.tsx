@@ -925,16 +925,16 @@ function AppPage() {
         <div className="cta-glow" />
         <div className="container cta-inner">
           <div className="cta-emoji">🌿</div>
-          <h2 className="section-title">Ready to protect your crop?</h2>
+          <h2 className="section-title">{t("ready_title")}</h2>
           <div className="hero-ctas">
             <button
               className="btn btn-primary btn-lg"
               onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}
             >
-              Diagnose Now
+              {t("diagnose_now")}
             </button>
             <button className="btn btn-outline btn-lg" onClick={() => setChatOpen(true)}>
-              Ask Dr. LeafRx
+              {t("ask_doctor")}
             </button>
           </div>
         </div>
