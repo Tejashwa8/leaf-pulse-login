@@ -679,8 +679,8 @@ function AppPage() {
                 }}
               >
                 <div className="upload-icon">🌿</div>
-                <div className="upload-title">Drop a leaf image here or click to upload</div>
-                <div className="upload-sub">PNG, JPG up to 10MB · processed locally</div>
+                <div className="upload-title">{t("upload_drop")}</div>
+                <div className="upload-sub">{t("upload_sub")}</div>
               </button>
             ) : (
               <div className="upload-box upload-result">
