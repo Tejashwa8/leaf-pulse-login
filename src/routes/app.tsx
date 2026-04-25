@@ -856,14 +856,14 @@ function AppPage() {
       {/* CROP-SAFETY TIPS (replaces testimonials) */}
       <section className="section section-alt">
         <div className="container">
-          <div className="section-label reveal">PROTECT YOUR HARVEST</div>
-          <h2 className="section-title reveal">How to Keep Crops Disease-Free</h2>
+          <div className="section-label reveal">{t("protect_label")}</div>
+          <h2 className="section-title reveal">{t("protect_title")}</h2>
           <div className="testimonials-grid">
-            {SAFETY_TIPS.map((t, i) => (
-              <div key={t.title} className={`step-card reveal delay-${(i % 5) + 1}`}>
-                <div className="step-icon">{t.icon}</div>
-                <div className="step-title">{t.title}</div>
-                <p className="step-text">{t.text}</p>
+            {SAFETY_TIPS.map((tip, i) => (
+              <div key={tip.title} className={`step-card reveal delay-${(i % 5) + 1}`}>
+                <div className="step-icon">{tip.icon}</div>
+                <div className="step-title">{tip.title}</div>
+                <p className="step-text">{tip.text}</p>
               </div>
             ))}
           </div>
