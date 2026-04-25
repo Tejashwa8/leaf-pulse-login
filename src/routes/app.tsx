@@ -829,8 +829,8 @@ function AppPage() {
       {/* MODEL ACCURACY */}
       <section className="section">
         <div className="container">
-          <div className="section-label reveal">PERFORMANCE</div>
-          <h2 className="section-title reveal">Model Accuracy</h2>
+          <div className="section-label reveal">{t("performance")}</div>
+          <h2 className="section-title reveal">{t("perf_title")}</h2>
           <div className="bars" ref={barsRef}>
             {METRICS.map((m, i) => (
               <div key={m.label} className="progress-row reveal">
