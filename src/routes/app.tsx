@@ -480,11 +480,36 @@ function AppPage() {
     setConfirmClear(false);
   }
 
+  // Detect install eligibility (browser-backed checks)
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    const isStandalone =
+      window.matchMedia?.("(display-mode: standalone)").matches ||
+      (window.navigator as Navigator & { standalone?: boolean }).standalone === true;
+    if (isStandalone) {
+      setInstallState("installed");
+      return;
+    }
+    const ua = navigator.userAgent;
+    const isIOS = /iPhone|iPad|iPod/i.test(ua) && !/CriOS|FxiOS|EdgiOS/i.test(ua);
+    // iOS Safari supports manual Add-to-Home-Screen even without beforeinstallprompt
+    if (isIOS) setInstallState("available");
+
+    const onBIP = () => setInstallState("available");
+    const onInstalled = () => setInstallState("installed");
+    window.addEventListener("beforeinstallprompt", onBIP);
+    window.addEventListener("appinstalled", onInstalled);
+    return () => {
+      window.removeEventListener("beforeinstallprompt", onBIP);
+      window.removeEventListener("appinstalled", onInstalled);
+    };
+  }, []);
+
   function openInstall() {
+    if (installState !== "available") return;
     if (typeof window !== "undefined") {
       window.dispatchEvent(new CustomEvent("leafrx:open-install"));
     }
-    setMobileMenuOpen(false);
   }
 
   return (
