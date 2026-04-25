@@ -525,7 +525,6 @@ function AppPage() {
           <div className="nav-links">
             <a onClick={() => smoothScroll("how")}>{t("nav_how")}</a>
             <a onClick={() => smoothScroll("features")}>{t("nav_features")}</a>
-            <a onClick={() => smoothScroll("install")}>{t("nav_install")}</a>
             <div className="hx-dropdown-wrap">
               <a
                 onClick={(e) => {
@@ -872,53 +871,7 @@ function AppPage() {
 
       {/* TECH STACK section removed per request */}
 
-      {/* INSTALL LEAFRX BANNER SECTION */}
-      <section id="install" className="install-section">
-        <div className="container install-inner">
-          <div className="install-card reveal">
-            <div className="install-left">
-              <LeafRxLogo size={88} className="install-logo" />
-            </div>
-            <div className="install-body">
-              <div className="install-eyebrow">{t("install_eyebrow")}</div>
-              <h2 className="install-title">{t("install_title")}</h2>
-              <p className="install-desc">{t("install_desc")}</p>
-              <ul className="install-features">
-                <li><span>📱</span> {t("install_f1")}</li>
-                <li><span>⚡</span> {t("install_f2")}</li>
-                <li><span>🔒</span> {t("install_f3")}</li>
-              </ul>
-              <div className="install-actions">
-                <button
-                  className={`btn btn-primary btn-lg btn-install-cta${installState !== "available" ? " is-disabled" : ""}`}
-                  onClick={openInstall}
-                  disabled={installState !== "available"}
-                  title={
-                    installState === "installed"
-                      ? t("install_unavailable")
-                      : installState === "unsupported"
-                        ? t("install_unsupported")
-                        : t("install_btn")
-                  }
-                >
-                  <span className="btn-install-icon" aria-hidden>⬇</span>
-                  {installState === "installed"
-                    ? t("install_unavailable")
-                    : installState === "unsupported"
-                      ? t("install_unsupported")
-                      : t("install_btn")}
-                </button>
-                <button
-                  className="btn btn-outline btn-lg"
-                  onClick={() => smoothScroll("how")}
-                >
-                  {t("learn_more")}
-                </button>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {/* INSTALL section removed per request */}
 
       {/* CTA */}
       <section className="cta">
