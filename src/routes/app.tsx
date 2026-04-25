@@ -180,8 +180,9 @@ function AppPage() {
   const [historyAllOpen, setHistoryAllOpen] = useState(false);
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [installState, setInstallState] = useState<"available" | "installed" | "unsupported">("unsupported");
+  const [, , t] = useLang();
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
