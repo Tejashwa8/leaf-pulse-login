@@ -795,8 +795,8 @@ function AppPage() {
       {/* FEATURES */}
       <section id="features" className="section">
         <div className="container">
-          <div className="section-label reveal">FEATURES & CROP-SAFETY TIPS</div>
-          <h2 className="section-title reveal">Built for the Field</h2>
+          <div className="section-label reveal">{t("features_label")}</div>
+          <h2 className="section-title reveal">{t("features_title")}</h2>
           <div className="features-grid">
             {FEATURES.map((f, i) => (
               <div key={f.title} className={`step-card reveal delay-${(i % 5) + 1}`}>
