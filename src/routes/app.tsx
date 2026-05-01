@@ -525,6 +525,17 @@ function AppPage() {
           <div className="nav-links">
             <a onClick={() => smoothScroll("how")}>{t("nav_how")}</a>
             <a onClick={() => smoothScroll("features")}>{t("nav_features")}</a>
+            {installState === "available" && (
+              <a
+                className="nav-install-cta"
+                onClick={openInstall}
+                aria-label="Install LeafRx"
+              >
+                <span className="nav-install-dot" />
+                <span className="nav-install-icon" aria-hidden>⬇</span>
+                {t("nav_install") || "Install App"}
+              </a>
+            )}
             <div className="hx-dropdown-wrap">
               <a
                 onClick={(e) => {
@@ -1580,4 +1591,93 @@ const CSS = `
 .cam-shutter span { width:54px; height:54px; border-radius:50%; background:#fff; display:block; transition:background .2s; }
 .cam-shutter:hover span { background:var(--green); }
 .cam-tip { color:var(--muted); font-size:12px; }
+
+/* Smooth scroll site-wide */
+html { scroll-behavior:smooth; }
+
+/* Install CTA in navbar (animated, clearer call-to-action) */
+.nav-install-cta {
+  position:relative;
+  display:inline-flex !important;
+  align-items:center;
+  gap:7px;
+  padding:7px 14px !important;
+  border-radius:999px !important;
+  background:linear-gradient(135deg,#6B8E23,#7fa328) !important;
+  border:1px solid rgba(127,163,40,.6) !important;
+  color:#fff !important;
+  font-weight:700;
+  font-size:13px;
+  cursor:pointer;
+  box-shadow:0 6px 18px rgba(107,142,35,.35);
+  animation:navInstallPulse 2.2s ease-in-out infinite;
+  overflow:hidden;
+}
+.nav-install-cta:hover { filter:brightness(1.1); transform:translateY(-1px); }
+.nav-install-icon { display:inline-flex; font-size:13px; transform:translateY(1px); animation:navInstallBounce 1.6s ease-in-out infinite; }
+.nav-install-dot { width:7px; height:7px; border-radius:50%; background:#c9ff7a; box-shadow:0 0 0 0 rgba(201,255,122,.7); animation:navInstallDot 1.8s ease-out infinite; }
+@keyframes navInstallPulse {
+  0%,100% { box-shadow:0 6px 18px rgba(107,142,35,.35), 0 0 0 0 rgba(127,163,40,.45); }
+  50%     { box-shadow:0 8px 22px rgba(107,142,35,.5),  0 0 0 8px rgba(127,163,40,0); }
+}
+@keyframes navInstallDot {
+  0%   { box-shadow:0 0 0 0 rgba(201,255,122,.75); }
+  70%  { box-shadow:0 0 0 8px rgba(201,255,122,0); }
+  100% { box-shadow:0 0 0 0 rgba(201,255,122,0); }
+}
+@keyframes navInstallBounce {
+  0%,100% { transform:translateY(1px); }
+  50%     { transform:translateY(-2px); }
+}
+
+/* Mobile-friendly history rows (full-width list on small screens) */
+@media (max-width: 720px) {
+  .hx-modal { border-radius:16px; max-height:94vh; scroll-behavior:smooth; -webkit-overflow-scrolling:touch; }
+  .hx-modal-wrap { padding:10px; }
+  .hx-all-head { padding:18px 16px 12px; }
+  .hx-all-grid {
+    display:flex;
+    flex-direction:column;
+    gap:10px;
+    padding:14px 14px 18px;
+    max-height:none;
+    overflow-x:hidden;
+    scroll-behavior:smooth;
+  }
+  .hx-card {
+    display:flex;
+    flex-direction:row;
+    align-items:center;
+    gap:12px;
+    width:100%;
+    padding:10px;
+    border-radius:14px;
+    animation:hxRowIn .35s cubic-bezier(.34,1.2,.64,1) both;
+  }
+  .hx-card-img {
+    width:72px;
+    height:72px;
+    border-radius:12px;
+    flex-shrink:0;
+    height:72px !important;
+  }
+  .hx-card-body { padding:0; flex:1; min-width:0; }
+  .hx-card .hx-dd-name { font-size:14px; white-space:normal; }
+  .hx-card .hx-dd-sub { flex-wrap:wrap; gap:6px 10px; }
+
+  /* Single-scan modal also full-width */
+  .hx-img { max-height:240px; }
+  .hx-body { padding:18px; }
+
+  /* Install CTA — bigger, more obvious on phones */
+  .nav-install-cta {
+    padding:9px 16px !important;
+    font-size:13.5px;
+    box-shadow:0 8px 22px rgba(107,142,35,.45);
+  }
+}
+@keyframes hxRowIn {
+  from { opacity:0; transform:translateY(8px); }
+  to   { opacity:1; transform:translateY(0); }
+}
 `;
