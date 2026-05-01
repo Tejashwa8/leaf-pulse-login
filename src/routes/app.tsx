@@ -525,6 +525,17 @@ function AppPage() {
           <div className="nav-links">
             <a onClick={() => smoothScroll("how")}>{t("nav_how")}</a>
             <a onClick={() => smoothScroll("features")}>{t("nav_features")}</a>
+            {installState === "available" && (
+              <a
+                className="nav-install-cta"
+                onClick={openInstall}
+                aria-label="Install LeafRx"
+              >
+                <span className="nav-install-dot" />
+                <span className="nav-install-icon" aria-hidden>⬇</span>
+                {t("nav_install") || "Install App"}
+              </a>
+            )}
             <div className="hx-dropdown-wrap">
               <a
                 onClick={(e) => {
