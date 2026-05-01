@@ -101,6 +101,13 @@ const CSS = `
 .lang-check { color:#5cc85c; font-weight:900; }
 @media (max-width:600px) {
   .lang-trigger { padding:6px 10px; font-size:12px; }
-  .lang-menu { right:auto; left:0; }
+  .lang-menu {
+    position:fixed;
+    top:auto;
+    left:12px;
+    right:12px;
+    min-width:0;
+    max-height:60vh;
+  }
 }
 `;
