@@ -1478,7 +1478,17 @@ const CSS = `
   .nav-links > a:hover, .nav-links > .hx-dropdown-wrap > a:hover { background:rgba(107,142,35,.12); border-color:var(--olive); color:var(--green); }
   .nav-links > a.nav-logout-link { background:rgba(239,83,80,.1); border-color:rgba(239,83,80,.35); }
   .nav-links > a.nav-clear-link { background:rgba(239,83,80,.06); border-color:rgba(239,83,80,.25); }
-  .hx-dropdown { right:auto; left:0; min-width:260px; }
+  .hx-dropdown {
+    position:fixed;
+    left:12px;
+    right:12px;
+    top:auto;
+    width:auto;
+    min-width:0;
+    max-width:none;
+    margin-top:8px;
+  }
+  .hx-dropdown .hx-dd-name { white-space:normal; }
   .install-card { flex-direction:column; text-align:center; padding:32px 24px; gap:20px; }
   .install-desc { margin-left:auto; margin-right:auto; }
   .install-features { align-items:flex-start; max-width:320px; margin-left:auto; margin-right:auto; }
