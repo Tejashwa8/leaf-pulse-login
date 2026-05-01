@@ -108,6 +108,9 @@ const CSS = `
     right:12px;
     min-width:0;
     max-height:60vh;
+    overscroll-behavior:contain;
+    scrollbar-width:none;
   }
+  .lang-menu::-webkit-scrollbar { width:0; height:0; display:none; }
 }
 `;

@@ -1554,7 +1554,15 @@ const CSS = `
 .hx-trigger.active { color:var(--green); }
 .hx-count { background:var(--olive); color:#fff; font-size:10px; font-weight:700; padding:1px 7px; border-radius:10px; line-height:1.5; }
 .hx-caret { font-size:10px; opacity:.7; }
-.hx-dropdown { position:absolute; top:calc(100% + 12px); right:0; width:340px; background:#1a1a1a; border:1px solid #2a4010; border-radius:14px; box-shadow:0 18px 48px rgba(0,0,0,.55); padding:8px; z-index:60; animation:hxIn .2s cubic-bezier(.34,1.2,.64,1) both; }
+.hx-dropdown { position:absolute; top:calc(100% + 12px); right:0; width:340px; max-height:70vh; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; background:#1a1a1a; border:1px solid #2a4010; border-radius:14px; box-shadow:0 18px 48px rgba(0,0,0,.55); padding:8px; z-index:60; animation:hxIn .2s cubic-bezier(.34,1.2,.64,1) both; scrollbar-width:thin; scrollbar-color:#3a3a3a transparent; }
+.hx-dropdown::-webkit-scrollbar { width:6px; }
+.hx-dropdown::-webkit-scrollbar-track { background:transparent; }
+.hx-dropdown::-webkit-scrollbar-thumb { background:#3a3a3a; border-radius:3px; }
+.hx-dropdown::-webkit-scrollbar-thumb:hover { background:#4a4a4a; }
+@media (max-width:720px) {
+  .hx-dropdown { max-height:65vh; scrollbar-width:none; }
+  .hx-dropdown::-webkit-scrollbar { width:0; height:0; display:none; }
+}
 .hx-dd-head { font-size:11px; font-weight:700; letter-spacing:1.5px; color:var(--olive); padding:8px 10px 6px; }
 .hx-dd-empty { padding:18px 12px; text-align:center; color:var(--muted); font-size:13px; }
 .hx-dd-item { width:100%; display:flex; gap:12px; align-items:center; background:transparent; border:none; padding:10px; border-radius:10px; cursor:pointer; transition:background .15s; text-align:left; }
