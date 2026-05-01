@@ -76,12 +76,17 @@ const CSS = `
 .lang-caret { font-size:10px; opacity:.7; }
 .lang-menu {
   position:absolute; top:calc(100% + 8px); right:0;
-  min-width:200px; max-height:340px; overflow-y:auto;
+  min-width:200px; max-height:340px; overflow-y:auto; overflow-x:hidden;
   background:#1a1a1a; border:1px solid #2a2a2a; border-radius:14px;
   box-shadow:0 18px 40px rgba(0,0,0,.55);
   z-index:120; padding:6px;
   animation:langIn .18s cubic-bezier(.34,1.2,.64,1) both;
+  scrollbar-width:thin;
+  scrollbar-color:#3a3a3a transparent;
 }
+.lang-menu::-webkit-scrollbar { width:6px; }
+.lang-menu::-webkit-scrollbar-track { background:transparent; }
+.lang-menu::-webkit-scrollbar-thumb { background:#3a3a3a; border-radius:3px; }
 @keyframes langIn { from{opacity:0; transform:translateY(-6px) scale(.96);} to{opacity:1; transform:none;} }
 .lang-item {
   display:flex; align-items:center; gap:10px;
