@@ -1012,14 +1012,31 @@ function AppPage() {
               </div>
               <div className="hx-section-label">PRESCRIBED RX</div>
               <p className="hx-rx">{activeHistory.rx}</p>
-              <button
-                className="btn btn-primary hx-cta"
-                onClick={() => {
-                  setChatOpen(true);
-                }}
-              >
-                💬 Ask Dr. LeafRx about this scan
-              </button>
+              <div className="hx-actions" data-i18n-skip>
+                <button
+                  className="btn btn-primary hx-cta"
+                  onClick={() =>
+                    exportDiagnosisPdf({
+                      diseaseName: activeHistory.disease_name,
+                      severity: activeHistory.severity,
+                      confidence: activeHistory.confidence,
+                      rx: activeHistory.rx,
+                      createdAt: activeHistory.created_at,
+                      imageUrl: activeHistory.signed_url,
+                    })
+                  }
+                >
+                  ⬇ Export as PDF
+                </button>
+                <button
+                  className="btn btn-outline hx-cta"
+                  onClick={() => {
+                    setChatOpen(true);
+                  }}
+                >
+                  💬 Ask Dr. LeafRx about this scan
+                </button>
+              </div>
             </div>
           </div>
         </div>
