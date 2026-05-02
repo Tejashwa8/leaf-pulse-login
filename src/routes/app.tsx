@@ -1485,7 +1485,7 @@ const CSS = `
     top:auto;
     width:auto;
     min-width:0;
-    max-width:none;
+    max-width:calc(100vw - 24px);
     margin-top:8px;
   }
   .hx-dropdown .hx-dd-name { white-space:normal; }
