@@ -42,7 +42,7 @@ const en: Dict = {
   hero_title_1: "Your Plant's",
   hero_title_2: "Digital",
   hero_title_3: "Doctor",
-  hero_sub: "Upload a leaf, and our deep-learning model returns a disease classification, severity, and a tailored treatment prescription — in under a second.",
+  hero_sub: "Upload a leaf image to instantly detect disease, check severity, and get treatment suggestions.",
   upload_drop: "Drop a leaf image here or click to upload",
   upload_sub: "PNG, JPG up to 10MB · processed locally",
   cta_upload: "Upload Leaf",

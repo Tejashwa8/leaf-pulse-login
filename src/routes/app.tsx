@@ -536,6 +536,17 @@ function AppPage() {
                 {t("nav_install") || "Install App"}
               </a>
             )}
+            <a onClick={() => setChatOpen(true)}>{t("nav_doctor")}</a>
+            {history.length > 0 && (
+              <a className="nav-clear-link" onClick={() => setConfirmClear(true)}>
+                {t("nav_clear")}
+              </a>
+            )}
+            <a className="nav-logout-link" onClick={logout}>
+              {t("nav_logout")}
+            </a>
+          </div>
+          <div className="nav-actions">
             <div className="hx-dropdown-wrap">
               <a
                 onClick={(e) => {
@@ -618,17 +629,6 @@ function AppPage() {
                 </div>
               )}
             </div>
-            <a onClick={() => setChatOpen(true)}>{t("nav_doctor")}</a>
-            {history.length > 0 && (
-              <a className="nav-clear-link" onClick={() => setConfirmClear(true)}>
-                {t("nav_clear")}
-              </a>
-            )}
-            <a className="nav-logout-link" onClick={logout}>
-              {t("nav_logout")}
-            </a>
-          </div>
-          <div className="nav-actions">
             <LanguageSwitcher />
           </div>
         </div>
