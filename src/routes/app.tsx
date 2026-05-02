@@ -1514,6 +1514,8 @@ const CSS = `
   .nav-links > a:hover, .nav-links > .hx-dropdown-wrap > a:hover { background:rgba(107,142,35,.12); border-color:var(--olive); color:var(--green); }
   .nav-links > a.nav-logout-link { background:rgba(239,83,80,.1); border-color:rgba(239,83,80,.35); }
   .nav-links > a.nav-clear-link { background:rgba(239,83,80,.06); border-color:rgba(239,83,80,.25); }
+  /* Anchor history dropdown to the right edge (under language button)
+     and match navbar's horizontal padding so there's no empty gutter. */
   .hx-dropdown {
     position:fixed;
     left:12px;
