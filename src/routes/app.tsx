@@ -6,6 +6,8 @@ import { useLang } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { diagnoseLeaf, type Diagnosis } from "@/utils/diagnose.functions";
 import { DrLeafRxChat, DrLeafRxFab } from "@/components/DrLeafRxChat";
+import { exportDiagnosisPdf } from "@/utils/exportPdf";
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 
 export const Route = createFileRoute("/app")({
   component: AppPage,
