@@ -1612,6 +1612,7 @@ const CSS = `
 
 /* Smooth scroll site-wide */
 html { scroll-behavior:smooth; }
+html, body { overflow-x:hidden; max-width:100%; }
 
 /* Install CTA in navbar (animated, clearer call-to-action) */
 .nav-install-cta {
