@@ -6,6 +6,8 @@ import { useLang } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { diagnoseLeaf, type Diagnosis } from "@/utils/diagnose.functions";
 import { DrLeafRxChat, DrLeafRxFab } from "@/components/DrLeafRxChat";
+import { exportDiagnosisPdf } from "@/utils/exportPdf";
+import { useAutoTranslate } from "@/hooks/useAutoTranslate";
 
 export const Route = createFileRoute("/app")({
   component: AppPage,
@@ -183,6 +185,7 @@ function AppPage() {
   const [confirmClear, setConfirmClear] = useState(false);
   const [installState, setInstallState] = useState<"available" | "installed" | "unsupported">("unsupported");
   const [, , t] = useLang();
+  useAutoTranslate();
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
@@ -738,9 +741,25 @@ function AppPage() {
                     <div className="rx-line">
                       <strong>Rx:</strong> {diagnosis.rx}
                     </div>
-                    <button className="reset-link" onClick={reset}>
-                      ↩ Try another leaf
-                    </button>
+                    <div className="result-actions" data-i18n-skip>
+                      <button
+                        className="btn btn-primary btn-export"
+                        onClick={() =>
+                          exportDiagnosisPdf({
+                            diseaseName: diagnosis.name,
+                            severity: diagnosis.sev,
+                            confidence: diagnosis.conf,
+                            rx: diagnosis.rx,
+                            imageUrl: preview || undefined,
+                          })
+                        }
+                      >
+                        ⬇ Export as PDF
+                      </button>
+                      <button className="reset-link" onClick={reset}>
+                        ↩ Try another leaf
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
@@ -993,14 +1012,31 @@ function AppPage() {
               </div>
               <div className="hx-section-label">PRESCRIBED RX</div>
               <p className="hx-rx">{activeHistory.rx}</p>
-              <button
-                className="btn btn-primary hx-cta"
-                onClick={() => {
-                  setChatOpen(true);
-                }}
-              >
-                💬 Ask Dr. LeafRx about this scan
-              </button>
+              <div className="hx-actions" data-i18n-skip>
+                <button
+                  className="btn btn-primary hx-cta"
+                  onClick={() =>
+                    exportDiagnosisPdf({
+                      diseaseName: activeHistory.disease_name,
+                      severity: activeHistory.severity,
+                      confidence: activeHistory.confidence,
+                      rx: activeHistory.rx,
+                      createdAt: activeHistory.created_at,
+                      imageUrl: activeHistory.signed_url,
+                    })
+                  }
+                >
+                  ⬇ Export as PDF
+                </button>
+                <button
+                  className="btn btn-outline hx-cta"
+                  onClick={() => {
+                    setChatOpen(true);
+                  }}
+                >
+                  💬 Ask Dr. LeafRx about this scan
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -1478,6 +1514,8 @@ const CSS = `
   .nav-links > a:hover, .nav-links > .hx-dropdown-wrap > a:hover { background:rgba(107,142,35,.12); border-color:var(--olive); color:var(--green); }
   .nav-links > a.nav-logout-link { background:rgba(239,83,80,.1); border-color:rgba(239,83,80,.35); }
   .nav-links > a.nav-clear-link { background:rgba(239,83,80,.06); border-color:rgba(239,83,80,.25); }
+  /* Anchor history dropdown to the right edge (under language button)
+     and match navbar's horizontal padding so there's no empty gutter. */
   .hx-dropdown {
     position:fixed;
     left:12px;
@@ -1575,6 +1613,16 @@ const CSS = `
 .hx-dd-date { color:var(--muted); font-size:11px; }
 .hx-dd-viewall { width:100%; margin-top:6px; padding:10px; background:linear-gradient(135deg,var(--olive),var(--olive-h)); border:none; border-radius:10px; color:#fff; font-weight:700; font-size:13px; cursor:pointer; transition:filter .2s; }
 .hx-dd-viewall:hover { filter:brightness(1.1); }
+
+/* Action button rows for diagnosis result + history modal */
+.result-actions { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px; }
+.btn-export { display:inline-flex; align-items:center; gap:6px; padding:10px 16px; font-size:13px; }
+.hx-actions { display:flex; flex-direction:column; gap:10px; }
+.hx-actions .hx-cta { width:100%; }
+@media (max-width:520px) {
+  .result-actions { flex-direction:column; align-items:stretch; }
+  .result-actions .btn-export { width:100%; justify-content:center; }
+}
 
 /* View-all modal */
 .hx-modal-wide { max-width:980px; }
