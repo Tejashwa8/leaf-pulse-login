@@ -18,7 +18,7 @@ export function LanguageSwitcher({ compact = false }: { compact?: boolean }) {
   const current = LANGUAGES.find((l) => l.code === lang) || LANGUAGES[0];
 
   return (
-    <div className="lang-switch" ref={ref}>
+    <div className="lang-switch" ref={ref} data-i18n-skip>
       <style>{CSS}</style>
       <button
         className="lang-trigger"
