@@ -1614,6 +1614,16 @@ const CSS = `
 .hx-dd-viewall { width:100%; margin-top:6px; padding:10px; background:linear-gradient(135deg,var(--olive),var(--olive-h)); border:none; border-radius:10px; color:#fff; font-weight:700; font-size:13px; cursor:pointer; transition:filter .2s; }
 .hx-dd-viewall:hover { filter:brightness(1.1); }
 
+/* Action button rows for diagnosis result + history modal */
+.result-actions { display:flex; gap:10px; align-items:center; flex-wrap:wrap; margin-top:14px; }
+.btn-export { display:inline-flex; align-items:center; gap:6px; padding:10px 16px; font-size:13px; }
+.hx-actions { display:flex; flex-direction:column; gap:10px; }
+.hx-actions .hx-cta { width:100%; }
+@media (max-width:520px) {
+  .result-actions { flex-direction:column; align-items:stretch; }
+  .result-actions .btn-export { width:100%; justify-content:center; }
+}
+
 /* View-all modal */
 .hx-modal-wide { max-width:980px; }
 .hx-all-head { padding:24px 24px 16px; border-bottom:1px solid var(--border); }
