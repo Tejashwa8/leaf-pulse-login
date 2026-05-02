@@ -185,6 +185,7 @@ function AppPage() {
   const [confirmClear, setConfirmClear] = useState(false);
   const [installState, setInstallState] = useState<"available" | "installed" | "unsupported">("unsupported");
   const [, , t] = useLang();
+  useAutoTranslate();
   const fileRef = useRef<HTMLInputElement>(null);
   const cameraRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
