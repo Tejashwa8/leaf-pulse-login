@@ -741,9 +741,25 @@ function AppPage() {
                     <div className="rx-line">
                       <strong>Rx:</strong> {diagnosis.rx}
                     </div>
-                    <button className="reset-link" onClick={reset}>
-                      ↩ Try another leaf
-                    </button>
+                    <div className="result-actions" data-i18n-skip>
+                      <button
+                        className="btn btn-primary btn-export"
+                        onClick={() =>
+                          exportDiagnosisPdf({
+                            diseaseName: diagnosis.name,
+                            severity: diagnosis.sev,
+                            confidence: diagnosis.conf,
+                            rx: diagnosis.rx,
+                            imageUrl: preview || undefined,
+                          })
+                        }
+                      >
+                        ⬇ Export as PDF
+                      </button>
+                      <button className="reset-link" onClick={reset}>
+                        ↩ Try another leaf
+                      </button>
+                    </div>
                   </div>
                 )}
               </div>
