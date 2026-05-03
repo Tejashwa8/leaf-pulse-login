@@ -188,6 +188,8 @@ function AppPage() {
   const [, , t] = useLang();
   useAutoTranslate();
   const fileRef = useRef<HTMLInputElement>(null);
+  const hxTriggerRef = useRef<HTMLAnchorElement>(null);
+  const [hxPos, setHxPos] = useState<{ top: number; right: number; left?: number; width?: number }>({ top: 0, right: 12 });
   const cameraRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
