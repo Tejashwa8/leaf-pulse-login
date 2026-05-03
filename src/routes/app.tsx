@@ -87,8 +87,8 @@ const FEATURES = [
   { icon: "📱", title: "Any Phone Works", text: "Optimized TFLite models run offline." },
   { icon: "💊", title: "Treatment Prescription", text: "Actionable Rx with dosages & tips." },
   { icon: "💧", title: "Smart Watering", text: "Water early morning at the soil line — never on leaves — to prevent fungal disease." },
-  { icon: "🌱", title: "Healthy Soil", text: "Rotate crops every season and add compost to break disease cycles and boost immunity." },
-  { icon: "🌾", title: "Multi-Crop Support", text: "Tomato, potato, corn, grape and more." },
+  { icon: "🌱", title: "Healthy Soil", text: "Rotate plants every season and add compost to break disease cycles and boost immunity." },
+  { icon: "🌾", title: "Multi-Plant Support", text: "Tomato, potato, corn, grape and more." },
 ];
 
 const METRICS = [
