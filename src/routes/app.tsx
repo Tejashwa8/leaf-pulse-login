@@ -112,8 +112,8 @@ const SAFETY_TIPS = [
   },
   {
     icon: "🔄",
-    title: "Rotate Your Crops",
-    text: "Never plant the same crop family in the same spot two seasons in a row. Rotation breaks pest and disease cycles naturally.",
+    title: "Rotate Your Plants",
+    text: "Never plant the same plant family in the same spot two seasons in a row. Rotation breaks pest and disease cycles naturally.",
   },
   {
     icon: "✂️",
