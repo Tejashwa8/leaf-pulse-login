@@ -1261,7 +1261,6 @@ const CSS = `
   background:var(--bg); color:var(--text);
   font-family:'Open Sans',system-ui,sans-serif;
   min-height:100vh;
-  animation: pageFadeIn .7s ease both;
 }
 .leafrx-site h1,.leafrx-site h2,.leafrx-site h3,.leafrx-site h4 { font-family:'Nunito','Poppins',sans-serif; }
 .leafrx-site ::-webkit-scrollbar { width:5px; }
