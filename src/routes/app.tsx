@@ -882,7 +882,7 @@ function AppPage() {
             { v: statCount.toLocaleString(), l: "Training Images" },
             { v: "38", l: "Disease Classes" },
             { v: "96.4%", l: "Accuracy" },
-            { v: "8+", l: "Crops Supported" },
+            { v: "8+", l: "Plants Supported" },
           ].map((s) => (
             <div key={s.l} className="stat-block reveal">
               <strong>{s.v}</strong>
