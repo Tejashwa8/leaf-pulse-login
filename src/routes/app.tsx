@@ -1334,6 +1334,26 @@ function AppPage() {
           </div>
         </div>
       )}
+
+      {/* Mobile bottom nav */}
+      <nav className="bottom-nav" data-i18n-skip>
+        <button onClick={() => smoothScroll("hero")}>
+          <span className="bn-icon">🏠</span>
+          <span>Home</span>
+        </button>
+        <button onClick={() => fileRef.current?.click()}>
+          <span className="bn-icon">📷</span>
+          <span>Scan</span>
+        </button>
+        <button onClick={() => setHistoryAllOpen(true)} className={historyAllOpen ? "active" : ""}>
+          <span className="bn-icon">🕘</span>
+          <span>History {history.length > 0 && `(${history.length})`}</span>
+        </button>
+        <button onClick={() => setChatOpen(true)}>
+          <span className="bn-icon">👨‍⚕️</span>
+          <span>Doctor</span>
+        </button>
+      </nav>
     </div>
   );
 }
