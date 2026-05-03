@@ -202,10 +202,33 @@ function AppPage() {
     if (!historyMenuOpen) return;
     const onDoc = (e: MouseEvent) => {
       const t = e.target as HTMLElement;
-      if (!t.closest(".hx-dropdown-wrap")) setHistoryMenuOpen(false);
+      if (!t.closest(".hx-dropdown-wrap") && !t.closest(".hx-dropdown")) setHistoryMenuOpen(false);
     };
     document.addEventListener("click", onDoc);
     return () => document.removeEventListener("click", onDoc);
+  }, [historyMenuOpen]);
+
+  // Position the portal-rendered history dropdown under the trigger
+  useLayoutEffect(() => {
+    if (!historyMenuOpen) return;
+    const update = () => {
+      const el = hxTriggerRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const isMobile = window.innerWidth <= 720;
+      if (isMobile) {
+        setHxPos({ top: r.bottom + 8, right: 12, left: 12 });
+      } else {
+        setHxPos({ top: r.bottom + 12, right: Math.max(12, window.innerWidth - r.right) });
+      }
+    };
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
   }, [historyMenuOpen]);
 
   // Camera lifecycle
