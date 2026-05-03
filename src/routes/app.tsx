@@ -771,7 +771,22 @@ function AppPage() {
                     <button className="reset-link" onClick={reset}>↩ Try another leaf</button>
                   </div>
                 )}
-                {diagnosis && !diagnosing && (
+                {diagnosis && !diagnosing && diagnosis.conf < 70 && (
+                  <div className="result-card resultSlide low-conf">
+                    <div className="lc-icon">📷</div>
+                    <div className="lc-title">Photo unclear</div>
+                    <div className="lc-text">
+                      We're only {diagnosis.conf}% confident. Please retake the photo for an accurate diagnosis.
+                    </div>
+                    <div className="lc-tips" data-i18n-skip>
+                      <div className="lc-tip"><span>☀️</span><div><strong>Bright light</strong><span>Use natural daylight</span></div></div>
+                      <div className="lc-tip"><span>📏</span><div><strong>Get close</strong><span>Fill the frame with one leaf</span></div></div>
+                      <div className="lc-tip"><span>🎯</span><div><strong>Stay sharp</strong><span>Hold steady — no blur</span></div></div>
+                    </div>
+                    <button className="btn btn-primary" onClick={reset}>↻ Retake Photo</button>
+                  </div>
+                )}
+                {diagnosis && !diagnosing && diagnosis.conf >= 70 && (
                   <div className="result-card resultSlide">
                     <div className="result-row">
                       <span className="result-label">Disease Detected</span>
@@ -797,6 +812,36 @@ function AppPage() {
                     <div className="conf-track">
                       <div className="conf-fill" style={{ width: `${confFill}%` }} />
                     </div>
+
+                    {/* Severity meter */}
+                    {(() => {
+                      const b = severityBucket(diagnosis.sev);
+                      const meta = BUCKET_META[b];
+                      return (
+                        <div className="sev-meter" data-i18n-skip>
+                          <div className="sev-meter-bar">
+                            {(["Mild", "Moderate", "Severe"] as const).map((lvl) => {
+                              const m = BUCKET_META[lvl];
+                              const active = lvl === b;
+                              return (
+                                <div
+                                  key={lvl}
+                                  className={`sev-seg ${active ? "active" : ""}`}
+                                  style={{ background: active ? m.color : undefined }}
+                                >
+                                  {lvl}
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <div className="sev-action" style={{ borderColor: meta.color + "66", background: meta.color + "12" }}>
+                            <span className="sev-action-icon" style={{ color: meta.color }}>{meta.icon}</span>
+                            <span>{meta.action}</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                     <div className="rx-line">
                       <strong>Rx:</strong> {diagnosis.rx}
                     </div>
@@ -810,6 +855,7 @@ function AppPage() {
                             confidence: diagnosis.conf,
                             rx: diagnosis.rx,
                             imageUrl: preview || undefined,
+                            timeline: buildTimeline(diagnosis.name, diagnosis.rx),
                           })
                         }
                       >
@@ -825,6 +871,26 @@ function AppPage() {
             )}
           </div>
 
+          {/* Treatment Timeline */}
+          {diagnosis && !diagnosing && diagnosis.conf >= 70 && (
+            <div className="timeline-card resultSlide" data-i18n-skip>
+              <div className="timeline-head">
+                <span>📅</span>
+                <span>Step-by-Step Treatment Plan</span>
+              </div>
+              <div className="timeline-grid">
+                {buildTimeline(diagnosis.name, diagnosis.rx).map((s) => (
+                  <div key={s.day} className="timeline-step">
+                    <div className="timeline-day">{s.day}</div>
+                    <div className="timeline-icon">{s.icon}</div>
+                    <div className="timeline-title">{s.title}</div>
+                    <div className="timeline-text">{s.text}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+
           <div className="hero-ctas fadeSlideIn">
             <button className="btn btn-primary btn-lg" onClick={() => fileRef.current?.click()}>
               {t("cta_upload")}
@@ -839,7 +905,7 @@ function AppPage() {
 
           <div className="stat-pills">
             {[
-            { v: "38+", l: "Disease Classes" },
+              { v: "38+", l: "Disease Classes" },
               { v: "96.4%", l: "Accuracy" },
               { v: "54,305", l: "Training Images" },
               { v: "<1s", l: "Detection Time" },
