@@ -352,6 +352,13 @@ function AppPage() {
     if (userId) loadHistory(userId);
   }, [userId]);
 
+  // Mirror history to localStorage (offline access)
+  useEffect(() => {
+    try {
+      localStorage.setItem("leafrx_history_cache", JSON.stringify(history.slice(0, 50)));
+    } catch {}
+  }, [history]);
+
   // Scroll reveal
   useEffect(() => {
     const els = document.querySelectorAll<HTMLElement>(".reveal, .reveal-left, .reveal-right");
