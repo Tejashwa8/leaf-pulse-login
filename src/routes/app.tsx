@@ -72,6 +72,28 @@ const SEVERITY_COLOR: Record<string, string> = {
   Low: "#66bb6a",
 };
 
+/** Maps AI severity → 3-tier display bucket. */
+function severityBucket(sev: string): "Mild" | "Moderate" | "Severe" {
+  if (sev === "Severe" || sev === "High") return "Severe";
+  if (sev === "Moderate") return "Moderate";
+  return "Mild";
+}
+
+const BUCKET_META: Record<"Mild" | "Moderate" | "Severe", { color: string; icon: string; action: string }> = {
+  Mild: { color: "#66bb6a", icon: "🌱", action: "Low risk — keep monitoring weekly and improve airflow." },
+  Moderate: { color: "#ffa726", icon: "⚠️", action: "Act within 2–3 days. Apply treatment & isolate affected leaves." },
+  Severe: { color: "#ef5350", icon: "🚨", action: "Urgent! Treat today and remove infected foliage to stop spread." },
+};
+
+function buildTimeline(name: string, rx: string) {
+  return [
+    { day: "Day 1", icon: "💊", title: "Start treatment", text: `Apply prescribed remedy now. ${rx.split(".")[0]}.` },
+    { day: "Day 3", icon: "🔍", title: "Inspect & isolate", text: "Check for new lesions. Remove and burn (don't compost) badly infected leaves." },
+    { day: "Day 7", icon: "🔁", title: "Repeat application", text: "Re-apply the treatment. Water at the soil line — never on leaves." },
+    { day: "Week 2", icon: "✅", title: "Follow-up", text: `Re-scan a leaf to confirm ${name} has cleared. Resume normal care if healthy.` },
+  ];
+}
+
 const STEPS = [
   { n: "01", icon: "📷", title: "Capture Leaf", text: "Snap or upload a photo of an affected leaf." },
   { n: "02", icon: "⚙️", title: "Preprocess", text: "Resize, normalize, and enhance for the model." },
