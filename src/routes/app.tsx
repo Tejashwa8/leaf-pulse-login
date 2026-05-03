@@ -817,9 +817,9 @@ function AppPage() {
 
           <div className="stat-pills">
             {[
-              { v: "38+", l: "Disease Classes" },
+            { v: "38+", l: "Disease Classes" },
               { v: "96.4%", l: "Accuracy" },
-              { v: "54K+", l: "Training Images" },
+              { v: "54,305", l: "Training Images" },
               { v: "<1s", l: "Detection Time" },
             ].map((s, i) => (
               <div
