@@ -665,7 +665,8 @@ function AppPage() {
                       </button>
                     </>
                   )}
-                </div>
+                </div>,
+                document.body
               )}
             </div>
             <LanguageSwitcher />
