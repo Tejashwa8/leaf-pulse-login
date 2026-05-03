@@ -1871,4 +1871,57 @@ html, body { overflow-x:hidden; max-width:100%; }
   from { opacity:0; transform:translateY(8px); }
   to   { opacity:1; transform:translateY(0); }
 }
+
+/* Severity meter (3-segment) */
+.sev-meter { margin:14px 0 10px; }
+.sev-meter-bar { display:flex; gap:6px; }
+.sev-seg { flex:1; text-align:center; padding:8px 6px; border-radius:8px; font-size:11px; font-weight:700; color:#777; background:#2a2a2a; letter-spacing:.5px; transition:all .3s; }
+.sev-seg.active { color:#fff; transform:scale(1.04); box-shadow:0 4px 14px rgba(0,0,0,.35); }
+.sev-action { display:flex; align-items:flex-start; gap:10px; padding:10px 12px; margin-top:10px; border:1px solid; border-radius:10px; font-size:13px; line-height:1.45; color:var(--text); }
+.sev-action-icon { font-size:18px; line-height:1; }
+
+/* Low-confidence card */
+.low-conf { text-align:center; padding:22px; }
+.lc-icon { font-size:42px; margin-bottom:8px; }
+.lc-title { font-family:'Nunito',sans-serif; font-weight:900; font-size:20px; color:#fff; margin-bottom:4px; }
+.lc-text { color:var(--muted); font-size:13px; margin-bottom:16px; }
+.lc-tips { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+.lc-tip { display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 6px; background:#0d0d0d; border:1px solid var(--border); border-radius:10px; font-size:11px; color:var(--muted); }
+.lc-tip > span:first-child { font-size:22px; }
+.lc-tip strong { display:block; color:var(--text); font-size:12px; }
+.lc-tip > div span { font-size:10.5px; }
+@media (max-width:520px) { .lc-tips { grid-template-columns:1fr; } .lc-tip { flex-direction:row; align-items:center; gap:10px; text-align:left; } .lc-tip > div { display:flex; flex-direction:column; } }
+
+/* Treatment timeline */
+.timeline-card { max-width:760px; margin:18px auto 0; background:var(--card); border:1px solid var(--border); border-radius:18px; padding:20px; text-align:left; }
+.timeline-head { display:flex; align-items:center; gap:10px; font-family:'Nunito',sans-serif; font-weight:900; color:#fff; font-size:17px; margin-bottom:14px; }
+.timeline-head > span:first-child { font-size:22px; }
+.timeline-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; }
+.timeline-step { background:var(--card2); border:1px solid var(--border); border-left:4px solid var(--olive); border-radius:12px; padding:14px; transition:transform .25s, box-shadow .25s; }
+.timeline-step:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(107,142,35,.18); }
+.timeline-day { display:inline-block; background:var(--olive); color:#fff; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px; letter-spacing:.5px; }
+.timeline-icon { font-size:24px; margin-top:8px; }
+.timeline-title { font-weight:700; color:#fff; font-size:14px; margin:6px 0 4px; }
+.timeline-text { color:var(--muted); font-size:12.5px; line-height:1.5; }
+
+/* Mobile bottom nav (history shortcut) */
+.bottom-nav { display:none; }
+@media (max-width:720px) {
+  .bottom-nav {
+    display:flex;
+    position:fixed; left:0; right:0; bottom:0; z-index:55;
+    background:rgba(18,18,18,.97); backdrop-filter:blur(14px);
+    border-top:1px solid var(--border);
+    padding:6px 0 calc(6px + env(safe-area-inset-bottom));
+    justify-content:space-around;
+  }
+  .bottom-nav button {
+    background:none; border:none; color:var(--muted);
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    padding:6px 14px; font-size:11px; font-weight:600; min-width:64px;
+  }
+  .bottom-nav button.active, .bottom-nav button:hover { color:var(--green); }
+  .bottom-nav .bn-icon { font-size:20px; line-height:1; }
+  .leafrx-site { padding-bottom:64px; }
+}
 `;
