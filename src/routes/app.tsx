@@ -578,6 +578,7 @@ function AppPage() {
           <div className="nav-actions">
             <div className="hx-dropdown-wrap">
               <a
+                ref={hxTriggerRef}
                 onClick={(e) => {
                   e.stopPropagation();
                   setHistoryMenuOpen((v) => !v);
@@ -587,8 +588,17 @@ function AppPage() {
                 {t("nav_history")} {history.length > 0 && <span className="hx-count">{history.length}</span>}
                 <span className="hx-caret">▾</span>
               </a>
-              {historyMenuOpen && (
-                <div className="hx-dropdown" onClick={(e) => e.stopPropagation()}>
+              {historyMenuOpen && typeof document !== "undefined" && createPortal(
+                <div
+                  className="hx-dropdown"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    position: "fixed",
+                    top: hxPos.top,
+                    right: hxPos.right,
+                    ...(hxPos.left !== undefined ? { left: hxPos.left } : {}),
+                  }}
+                >
                   <div className="hx-dd-head-row">
                     <div className="hx-dd-head">{t("recent_scans")}</div>
                     {history.length > 0 && (
