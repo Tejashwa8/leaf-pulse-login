@@ -6,7 +6,8 @@ export type PdfPayload = {
   confidence: number;
   rx: string;
   createdAt?: string;
-  imageUrl?: string; // data URL or http(s) URL
+  imageUrl?: string;
+  timeline?: { day: string; title: string; text: string }[];
 };
 
 async function urlToDataUrl(url: string): Promise<string | null> {
@@ -25,122 +26,260 @@ async function urlToDataUrl(url: string): Promise<string | null> {
   }
 }
 
+const BRAND = { r: 107, g: 142, b: 35 };
+const BRAND_DARK = { r: 60, g: 90, b: 20 };
+const SEV_COLORS: Record<string, [number, number, number]> = {
+  Severe: [239, 83, 80],
+  High: [255, 112, 67],
+  Moderate: [255, 167, 38],
+  Mild: [102, 187, 106],
+  Low: [102, 187, 106],
+};
+
+function drawBrandHeader(doc: jsPDF) {
+  const W = doc.internal.pageSize.getWidth();
+  doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
+  doc.rect(0, 0, W, 78, "F");
+  doc.setFillColor(BRAND_DARK.r, BRAND_DARK.g, BRAND_DARK.b);
+  doc.rect(0, 78, W, 4, "F");
+
+  // Logo circle with leaf
+  doc.setFillColor(255, 255, 255);
+  doc.circle(64, 39, 22, "F");
+  doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(22);
+  doc.text("🌿", 64, 47, { align: "center" });
+
+  doc.setTextColor(255, 255, 255);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(24);
+  doc.text("LeafRx", 96, 40);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(10);
+  doc.text("AI-Powered Plant Disease Detection", 96, 56);
+}
+
+function drawFooter(doc: jsPDF, pageNum: number, totalPages: number) {
+  const W = doc.internal.pageSize.getWidth();
+  const H = doc.internal.pageSize.getHeight();
+  doc.setDrawColor(220, 220, 220);
+  doc.setLineWidth(0.4);
+  doc.line(40, H - 32, W - 40, H - 32);
+  doc.setFont("helvetica", "normal");
+  doc.setFontSize(9);
+  doc.setTextColor(150, 150, 150);
+  doc.text("LeafRx · leafrx.app", 40, H - 18);
+  doc.text(
+    `Page ${pageNum} of ${totalPages}  ·  Generated ${new Date().toLocaleString()}`,
+    W - 40,
+    H - 18,
+    { align: "right" },
+  );
+}
+
+function drawSeverityMeter(
+  doc: jsPDF,
+  x: number,
+  y: number,
+  w: number,
+  severity: string,
+) {
+  const segments: { label: string; color: [number, number, number] }[] = [
+    { label: "Mild", color: [102, 187, 106] },
+    { label: "Moderate", color: [255, 167, 38] },
+    { label: "Severe", color: [239, 83, 80] },
+  ];
+  const norm = severity === "Low" ? "Mild" : severity === "High" ? "Severe" : severity;
+  const segW = (w - 8) / 3;
+  segments.forEach((s, i) => {
+    const sx = x + i * (segW + 4);
+    const active = s.label === norm;
+    if (active) {
+      doc.setFillColor(s.color[0], s.color[1], s.color[2]);
+    } else {
+      doc.setFillColor(235, 235, 235);
+    }
+    doc.roundedRect(sx, y, segW, 22, 6, 6, "F");
+    doc.setTextColor(active ? 255 : 130, active ? 255 : 130, active ? 255 : 130);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(10);
+    doc.text(s.label.toUpperCase(), sx + segW / 2, y + 14, { align: "center" });
+  });
+}
+
 export async function exportDiagnosisPdf(p: PdfPayload) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
   const W = doc.internal.pageSize.getWidth();
-  const M = 48;
-  let y = M;
+  const H = doc.internal.pageSize.getHeight();
+  const M = 40;
+  let y = 0;
 
-  // Header band
-  doc.setFillColor(107, 142, 35);
-  doc.rect(0, 0, W, 70, "F");
-  doc.setTextColor(255, 255, 255);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.text("LeafRx — Diagnosis Report", M, 44);
-  doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.text("AI-Powered Plant Disease Detection", M, 60);
-  y = 100;
+  drawBrandHeader(doc);
+  y = 110;
 
-  // Image
+  // Image (right) and disease title (left)
+  let imgBottom = y;
   if (p.imageUrl) {
     const dataUrl = await urlToDataUrl(p.imageUrl);
     if (dataUrl) {
       try {
-        const imgW = 200;
-        const imgH = 200;
+        const imgW = 170;
+        const imgH = 170;
+        // shadow
+        doc.setFillColor(220, 220, 220);
+        doc.roundedRect(W - M - imgW + 3, y + 3, imgW, imgH, 10, 10, "F");
         doc.addImage(dataUrl, "JPEG", W - M - imgW, y, imgW, imgH, undefined, "FAST");
-      } catch {
-        // ignore image errors
-      }
+        imgBottom = y + imgH;
+      } catch {}
     }
   }
 
-  // Disease name
+  doc.setTextColor(30, 30, 30);
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(11);
+  doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
+  doc.text("DIAGNOSIS", M, y + 4);
   doc.setTextColor(20, 20, 20);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(18);
-  const nameLines = doc.splitTextToSize(p.diseaseName, W - 2 * M - 220);
-  doc.text(nameLines, M, y + 14);
-  y += 14 + nameLines.length * 22;
+  doc.setFontSize(20);
+  const nameLines = doc.splitTextToSize(p.diseaseName, W - 2 * M - 200);
+  doc.text(nameLines, M, y + 26);
+  let textY = y + 26 + nameLines.length * 22;
 
-  // Meta line
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(11);
-  doc.setTextColor(90, 90, 90);
-  const date = p.createdAt ? new Date(p.createdAt).toLocaleString() : new Date().toLocaleString();
-  doc.text(`Date: ${date}`, M, y);
-  y += 18;
+  doc.setFontSize(10);
+  doc.setTextColor(110, 110, 110);
+  const date = p.createdAt
+    ? new Date(p.createdAt).toLocaleString()
+    : new Date().toLocaleString();
+  doc.text(`Report date: ${date}`, M, textY + 6);
+  textY += 22;
 
-  // Severity badge
-  const sevColors: Record<string, [number, number, number]> = {
-    Severe: [239, 83, 80], High: [255, 112, 67], Moderate: [255, 167, 38], Low: [102, 187, 106],
-  };
-  const c = sevColors[p.severity] || [120, 120, 120];
-  doc.setFillColor(c[0], c[1], c[2]);
-  doc.roundedRect(M, y, 90, 22, 6, 6, "F");
-  doc.setTextColor(255, 255, 255);
+  // Severity meter
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(11);
-  doc.text(p.severity, M + 45, y + 15, { align: "center" });
+  doc.setFontSize(10);
+  doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
+  doc.text("SEVERITY", M, textY + 6);
+  drawSeverityMeter(doc, M, textY + 12, W - 2 * M - 200, p.severity);
+  textY += 48;
 
   // Confidence
-  doc.setTextColor(40, 40, 40);
-  doc.setFont("helvetica", "normal");
-  doc.text(`Confidence: ${p.confidence}%`, M + 110, y + 15);
-  y += 44;
-
-  // Confidence bar
-  const barW = W - 2 * M;
-  doc.setFillColor(230, 230, 230);
-  doc.roundedRect(M, y, barW, 10, 5, 5, "F");
-  doc.setFillColor(107, 142, 35);
-  doc.roundedRect(M, y, (barW * p.confidence) / 100, 10, 5, 5, "F");
-  y += 30;
-
-  // Rx box
+  doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
+  doc.text("CONFIDENCE", M, textY);
+  doc.setTextColor(30, 30, 30);
   doc.setFont("helvetica", "bold");
-  doc.setFontSize(13);
-  doc.setTextColor(107, 142, 35);
-  doc.text("PRESCRIBED TREATMENT (Rx)", M, y);
+  doc.setFontSize(14);
+  doc.text(`${p.confidence}%`, M + 90, textY);
+  textY += 8;
+  const barW = W - 2 * M - 200;
+  doc.setFillColor(235, 235, 235);
+  doc.roundedRect(M, textY, barW, 10, 5, 5, "F");
+  const sc = SEV_COLORS[p.severity] || [BRAND.r, BRAND.g, BRAND.b];
+  doc.setFillColor(sc[0], sc[1], sc[2]);
+  doc.roundedRect(M, textY, (barW * p.confidence) / 100, 10, 5, 5, "F");
+
+  y = Math.max(imgBottom, textY + 30) + 24;
+
+  // Rx box (auto-paginating)
+  const rxBoxX = M;
+  const rxBoxW = W - 2 * M;
+  doc.setFont("helvetica", "bold");
+  doc.setFontSize(12);
+  doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
+  doc.text("PRESCRIBED TREATMENT (Rx)", rxBoxX, y);
   y += 14;
 
-  doc.setDrawColor(107, 142, 35);
-  doc.setLineWidth(0.5);
-  doc.setFillColor(248, 250, 245);
-  const rxLines = doc.splitTextToSize(p.rx, W - 2 * M - 24);
-  const rxBoxH = rxLines.length * 16 + 24;
-  doc.roundedRect(M, y, W - 2 * M, rxBoxH, 8, 8, "FD");
-
   doc.setFont("helvetica", "normal");
-  doc.setFontSize(12);
+  doc.setFontSize(11);
   doc.setTextColor(30, 30, 30);
-  doc.text(rxLines, M + 12, y + 18);
-  y += rxBoxH + 24;
+  const lineH = 16;
+  const innerPad = 14;
+  const rxLines = doc.splitTextToSize(p.rx, rxBoxW - innerPad * 2);
+
+  let i = 0;
+  while (i < rxLines.length) {
+    const available = H - 80 - y;
+    const linesFit = Math.max(1, Math.floor((available - innerPad * 2) / lineH));
+    const chunk = rxLines.slice(i, i + linesFit);
+    const boxH = chunk.length * lineH + innerPad * 2;
+    doc.setDrawColor(BRAND.r, BRAND.g, BRAND.b);
+    doc.setFillColor(248, 250, 245);
+    doc.setLineWidth(0.6);
+    doc.roundedRect(rxBoxX, y, rxBoxW, boxH, 8, 8, "FD");
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(11);
+    doc.setTextColor(30, 30, 30);
+    doc.text(chunk, rxBoxX + innerPad, y + innerPad + 11);
+    y += boxH + 12;
+    i += linesFit;
+    if (i < rxLines.length) {
+      doc.addPage();
+      drawBrandHeader(doc);
+      y = 110;
+    }
+  }
+
+  // Timeline
+  if (p.timeline && p.timeline.length) {
+    if (y > H - 200) {
+      doc.addPage();
+      drawBrandHeader(doc);
+      y = 110;
+    }
+    y += 6;
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
+    doc.text("TREATMENT TIMELINE", M, y);
+    y += 14;
+    for (const step of p.timeline) {
+      const lines = doc.splitTextToSize(step.text, W - 2 * M - 80);
+      const boxH = 28 + lines.length * 14;
+      if (y + boxH > H - 60) {
+        doc.addPage();
+        drawBrandHeader(doc);
+        y = 110;
+      }
+      doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
+      doc.roundedRect(M, y, 64, boxH, 6, 6, "F");
+      doc.setTextColor(255, 255, 255);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text(step.day, M + 32, y + 18, { align: "center" });
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.setTextColor(30, 30, 30);
+      doc.text(step.title, M + 76, y + 14);
+      doc.setFont("helvetica", "normal");
+      doc.setFontSize(10);
+      doc.setTextColor(80, 80, 80);
+      doc.text(lines, M + 76, y + 30);
+      y += boxH + 8;
+    }
+  }
 
   // Disclaimer
+  if (y > H - 90) {
+    doc.addPage();
+    drawBrandHeader(doc);
+    y = 110;
+  }
+  y += 6;
   doc.setFont("helvetica", "italic");
   doc.setFontSize(9);
   doc.setTextColor(120, 120, 120);
   const disc = doc.splitTextToSize(
-    "This report is generated by LeafRx AI for informational purposes only. " +
-      "Consult a local agronomist before applying chemical treatments. " +
-      "Follow product labels and safety guidelines.",
+    "This report is generated by LeafRx AI for informational purposes only. Consult a local agronomist before applying chemical treatments. Follow product labels and safety guidelines.",
     W - 2 * M,
   );
   doc.text(disc, M, y);
 
-  // Footer
-  doc.setFontSize(9);
-  doc.setTextColor(150, 150, 150);
-  doc.text("LeafRx · leafrx.app", M, doc.internal.pageSize.getHeight() - 24);
-  doc.text(
-    `Generated ${new Date().toLocaleString()}`,
-    W - M,
-    doc.internal.pageSize.getHeight() - 24,
-    { align: "right" },
-  );
+  // Footer on every page
+  const total = doc.getNumberOfPages();
+  for (let pg = 1; pg <= total; pg++) {
+    doc.setPage(pg);
+    drawFooter(doc, pg, total);
+  }
 
   const safeName = p.diseaseName.replace(/[^a-z0-9]+/gi, "_").slice(0, 40);
   doc.save(`LeafRx_${safeName}_${Date.now()}.pdf`);

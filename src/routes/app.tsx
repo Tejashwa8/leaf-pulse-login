@@ -72,6 +72,28 @@ const SEVERITY_COLOR: Record<string, string> = {
   Low: "#66bb6a",
 };
 
+/** Maps AI severity → 3-tier display bucket. */
+function severityBucket(sev: string): "Mild" | "Moderate" | "Severe" {
+  if (sev === "Severe" || sev === "High") return "Severe";
+  if (sev === "Moderate") return "Moderate";
+  return "Mild";
+}
+
+const BUCKET_META: Record<"Mild" | "Moderate" | "Severe", { color: string; icon: string; action: string }> = {
+  Mild: { color: "#66bb6a", icon: "🌱", action: "Low risk — keep monitoring weekly and improve airflow." },
+  Moderate: { color: "#ffa726", icon: "⚠️", action: "Act within 2–3 days. Apply treatment & isolate affected leaves." },
+  Severe: { color: "#ef5350", icon: "🚨", action: "Urgent! Treat today and remove infected foliage to stop spread." },
+};
+
+function buildTimeline(name: string, rx: string) {
+  return [
+    { day: "Day 1", icon: "💊", title: "Start treatment", text: `Apply prescribed remedy now. ${rx.split(".")[0]}.` },
+    { day: "Day 3", icon: "🔍", title: "Inspect & isolate", text: "Check for new lesions. Remove and burn (don't compost) badly infected leaves." },
+    { day: "Day 7", icon: "🔁", title: "Repeat application", text: "Re-apply the treatment. Water at the soil line — never on leaves." },
+    { day: "Week 2", icon: "✅", title: "Follow-up", text: `Re-scan a leaf to confirm ${name} has cleared. Resume normal care if healthy.` },
+  ];
+}
+
 const STEPS = [
   { n: "01", icon: "📷", title: "Capture Leaf", text: "Snap or upload a photo of an affected leaf." },
   { n: "02", icon: "⚙️", title: "Preprocess", text: "Resize, normalize, and enhance for the model." },
@@ -87,8 +109,8 @@ const FEATURES = [
   { icon: "📱", title: "Any Phone Works", text: "Optimized TFLite models run offline." },
   { icon: "💊", title: "Treatment Prescription", text: "Actionable Rx with dosages & tips." },
   { icon: "💧", title: "Smart Watering", text: "Water early morning at the soil line — never on leaves — to prevent fungal disease." },
-  { icon: "🌱", title: "Healthy Soil", text: "Rotate crops every season and add compost to break disease cycles and boost immunity." },
-  { icon: "🌾", title: "Multi-Crop Support", text: "Tomato, potato, corn, grape and more." },
+  { icon: "🌱", title: "Healthy Soil", text: "Rotate plants every season and add compost to break disease cycles and boost immunity." },
+  { icon: "🌾", title: "Multi-Plant Support", text: "Tomato, potato, corn, grape and more." },
 ];
 
 const METRICS = [
@@ -112,8 +134,8 @@ const SAFETY_TIPS = [
   },
   {
     icon: "🔄",
-    title: "Rotate Your Crops",
-    text: "Never plant the same crop family in the same spot two seasons in a row. Rotation breaks pest and disease cycles naturally.",
+    title: "Rotate Your Plants",
+    text: "Never plant the same plant family in the same spot two seasons in a row. Rotation breaks pest and disease cycles naturally.",
   },
   {
     icon: "✂️",
@@ -329,6 +351,13 @@ function AppPage() {
   useEffect(() => {
     if (userId) loadHistory(userId);
   }, [userId]);
+
+  // Mirror history to localStorage (offline access)
+  useEffect(() => {
+    try {
+      localStorage.setItem("leafrx_history_cache", JSON.stringify(history.slice(0, 50)));
+    } catch {}
+  }, [history]);
 
   // Scroll reveal
   useEffect(() => {
@@ -749,7 +778,22 @@ function AppPage() {
                     <button className="reset-link" onClick={reset}>↩ Try another leaf</button>
                   </div>
                 )}
-                {diagnosis && !diagnosing && (
+                {diagnosis && !diagnosing && diagnosis.conf < 70 && (
+                  <div className="result-card resultSlide low-conf">
+                    <div className="lc-icon">📷</div>
+                    <div className="lc-title">Photo unclear</div>
+                    <div className="lc-text">
+                      We're only {diagnosis.conf}% confident. Please retake the photo for an accurate diagnosis.
+                    </div>
+                    <div className="lc-tips" data-i18n-skip>
+                      <div className="lc-tip"><span>☀️</span><div><strong>Bright light</strong><span>Use natural daylight</span></div></div>
+                      <div className="lc-tip"><span>📏</span><div><strong>Get close</strong><span>Fill the frame with one leaf</span></div></div>
+                      <div className="lc-tip"><span>🎯</span><div><strong>Stay sharp</strong><span>Hold steady — no blur</span></div></div>
+                    </div>
+                    <button className="btn btn-primary" onClick={reset}>↻ Retake Photo</button>
+                  </div>
+                )}
+                {diagnosis && !diagnosing && diagnosis.conf >= 70 && (
                   <div className="result-card resultSlide">
                     <div className="result-row">
                       <span className="result-label">Disease Detected</span>
@@ -775,6 +819,36 @@ function AppPage() {
                     <div className="conf-track">
                       <div className="conf-fill" style={{ width: `${confFill}%` }} />
                     </div>
+
+                    {/* Severity meter */}
+                    {(() => {
+                      const b = severityBucket(diagnosis.sev);
+                      const meta = BUCKET_META[b];
+                      return (
+                        <div className="sev-meter" data-i18n-skip>
+                          <div className="sev-meter-bar">
+                            {(["Mild", "Moderate", "Severe"] as const).map((lvl) => {
+                              const m = BUCKET_META[lvl];
+                              const active = lvl === b;
+                              return (
+                                <div
+                                  key={lvl}
+                                  className={`sev-seg ${active ? "active" : ""}`}
+                                  style={{ background: active ? m.color : undefined }}
+                                >
+                                  {lvl}
+                                </div>
+                              );
+                            })}
+                          </div>
+                          <div className="sev-action" style={{ borderColor: meta.color + "66", background: meta.color + "12" }}>
+                            <span className="sev-action-icon" style={{ color: meta.color }}>{meta.icon}</span>
+                            <span>{meta.action}</span>
+                          </div>
+                        </div>
+                      );
+                    })()}
+
                     <div className="rx-line">
                       <strong>Rx:</strong> {diagnosis.rx}
                     </div>
@@ -788,6 +862,7 @@ function AppPage() {
                             confidence: diagnosis.conf,
                             rx: diagnosis.rx,
                             imageUrl: preview || undefined,
+                            timeline: buildTimeline(diagnosis.name, diagnosis.rx),
                           })
                         }
                       >
@@ -802,6 +877,26 @@ function AppPage() {
               </div>
             )}
           </div>
+
+          {/* Treatment Timeline */}
+          {diagnosis && !diagnosing && diagnosis.conf >= 70 && (
+            <div className="timeline-card resultSlide" data-i18n-skip>
+              <div className="timeline-head">
+                <span>📅</span>
+                <span>Step-by-Step Treatment Plan</span>
+              </div>
+              <div className="timeline-grid">
+                {buildTimeline(diagnosis.name, diagnosis.rx).map((s) => (
+                  <div key={s.day} className="timeline-step">
+                    <div className="timeline-day">{s.day}</div>
+                    <div className="timeline-icon">{s.icon}</div>
+                    <div className="timeline-title">{s.title}</div>
+                    <div className="timeline-text">{s.text}</div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
 
           <div className="hero-ctas fadeSlideIn">
             <button className="btn btn-primary btn-lg" onClick={() => fileRef.current?.click()}>
@@ -819,7 +914,7 @@ function AppPage() {
             {[
               { v: "38+", l: "Disease Classes" },
               { v: "96.4%", l: "Accuracy" },
-              { v: "54K+", l: "Training Images" },
+              { v: "54,305", l: "Training Images" },
               { v: "<1s", l: "Detection Time" },
             ].map((s, i) => (
               <div
@@ -882,7 +977,7 @@ function AppPage() {
             { v: statCount.toLocaleString(), l: "Training Images" },
             { v: "38", l: "Disease Classes" },
             { v: "96.4%", l: "Accuracy" },
-            { v: "8+", l: "Crops Supported" },
+            { v: "8+", l: "Plants Supported" },
           ].map((s) => (
             <div key={s.l} className="stat-block reveal">
               <strong>{s.v}</strong>
@@ -1246,6 +1341,26 @@ function AppPage() {
           </div>
         </div>
       )}
+
+      {/* Mobile bottom nav */}
+      <nav className="bottom-nav" data-i18n-skip>
+        <button onClick={() => smoothScroll("hero")}>
+          <span className="bn-icon">🏠</span>
+          <span>Home</span>
+        </button>
+        <button onClick={() => fileRef.current?.click()}>
+          <span className="bn-icon">📷</span>
+          <span>Scan</span>
+        </button>
+        <button onClick={() => setHistoryAllOpen(true)} className={historyAllOpen ? "active" : ""}>
+          <span className="bn-icon">🕘</span>
+          <span>History {history.length > 0 && `(${history.length})`}</span>
+        </button>
+        <button onClick={() => setChatOpen(true)}>
+          <span className="bn-icon">👨‍⚕️</span>
+          <span>Doctor</span>
+        </button>
+      </nav>
     </div>
   );
 }
@@ -1261,7 +1376,6 @@ const CSS = `
   background:var(--bg); color:var(--text);
   font-family:'Open Sans',system-ui,sans-serif;
   min-height:100vh;
-  animation: pageFadeIn .7s ease both;
 }
 .leafrx-site h1,.leafrx-site h2,.leafrx-site h3,.leafrx-site h4 { font-family:'Nunito','Poppins',sans-serif; }
 .leafrx-site ::-webkit-scrollbar { width:5px; }
@@ -1783,5 +1897,58 @@ html, body { overflow-x:hidden; max-width:100%; }
 @keyframes hxRowIn {
   from { opacity:0; transform:translateY(8px); }
   to   { opacity:1; transform:translateY(0); }
+}
+
+/* Severity meter (3-segment) */
+.sev-meter { margin:14px 0 10px; }
+.sev-meter-bar { display:flex; gap:6px; }
+.sev-seg { flex:1; text-align:center; padding:8px 6px; border-radius:8px; font-size:11px; font-weight:700; color:#777; background:#2a2a2a; letter-spacing:.5px; transition:all .3s; }
+.sev-seg.active { color:#fff; transform:scale(1.04); box-shadow:0 4px 14px rgba(0,0,0,.35); }
+.sev-action { display:flex; align-items:flex-start; gap:10px; padding:10px 12px; margin-top:10px; border:1px solid; border-radius:10px; font-size:13px; line-height:1.45; color:var(--text); }
+.sev-action-icon { font-size:18px; line-height:1; }
+
+/* Low-confidence card */
+.low-conf { text-align:center; padding:22px; }
+.lc-icon { font-size:42px; margin-bottom:8px; }
+.lc-title { font-family:'Nunito',sans-serif; font-weight:900; font-size:20px; color:#fff; margin-bottom:4px; }
+.lc-text { color:var(--muted); font-size:13px; margin-bottom:16px; }
+.lc-tips { display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin-bottom:16px; }
+.lc-tip { display:flex; flex-direction:column; align-items:center; gap:4px; padding:10px 6px; background:#0d0d0d; border:1px solid var(--border); border-radius:10px; font-size:11px; color:var(--muted); }
+.lc-tip > span:first-child { font-size:22px; }
+.lc-tip strong { display:block; color:var(--text); font-size:12px; }
+.lc-tip > div span { font-size:10.5px; }
+@media (max-width:520px) { .lc-tips { grid-template-columns:1fr; } .lc-tip { flex-direction:row; align-items:center; gap:10px; text-align:left; } .lc-tip > div { display:flex; flex-direction:column; } }
+
+/* Treatment timeline */
+.timeline-card { max-width:760px; margin:18px auto 0; background:var(--card); border:1px solid var(--border); border-radius:18px; padding:20px; text-align:left; }
+.timeline-head { display:flex; align-items:center; gap:10px; font-family:'Nunito',sans-serif; font-weight:900; color:#fff; font-size:17px; margin-bottom:14px; }
+.timeline-head > span:first-child { font-size:22px; }
+.timeline-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(160px,1fr)); gap:12px; }
+.timeline-step { background:var(--card2); border:1px solid var(--border); border-left:4px solid var(--olive); border-radius:12px; padding:14px; transition:transform .25s, box-shadow .25s; }
+.timeline-step:hover { transform:translateY(-3px); box-shadow:0 10px 28px rgba(107,142,35,.18); }
+.timeline-day { display:inline-block; background:var(--olive); color:#fff; font-size:11px; font-weight:800; padding:3px 8px; border-radius:6px; letter-spacing:.5px; }
+.timeline-icon { font-size:24px; margin-top:8px; }
+.timeline-title { font-weight:700; color:#fff; font-size:14px; margin:6px 0 4px; }
+.timeline-text { color:var(--muted); font-size:12.5px; line-height:1.5; }
+
+/* Mobile bottom nav (history shortcut) */
+.bottom-nav { display:none; }
+@media (max-width:720px) {
+  .bottom-nav {
+    display:flex;
+    position:fixed; left:0; right:0; bottom:0; z-index:55;
+    background:rgba(18,18,18,.97); backdrop-filter:blur(14px);
+    border-top:1px solid var(--border);
+    padding:6px 0 calc(6px + env(safe-area-inset-bottom));
+    justify-content:space-around;
+  }
+  .bottom-nav button {
+    background:none; border:none; color:var(--muted);
+    display:flex; flex-direction:column; align-items:center; gap:2px;
+    padding:6px 14px; font-size:11px; font-weight:600; min-width:64px;
+  }
+  .bottom-nav button.active, .bottom-nav button:hover { color:var(--green); }
+  .bottom-nav .bn-icon { font-size:20px; line-height:1; }
+  .leafrx-site { padding-bottom:64px; }
 }
 `;
