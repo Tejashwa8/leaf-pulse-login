@@ -1,5 +1,6 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { LeafRxLogo, LeafRxWordmark } from "@/components/LeafRxLogo";
 import { LanguageSwitcher } from "@/components/LanguageSwitcher";
 import { useLang } from "@/lib/i18n";
@@ -187,6 +188,8 @@ function AppPage() {
   const [, , t] = useLang();
   useAutoTranslate();
   const fileRef = useRef<HTMLInputElement>(null);
+  const hxTriggerRef = useRef<HTMLAnchorElement>(null);
+  const [hxPos, setHxPos] = useState<{ top: number; right: number; left?: number; width?: number }>({ top: 0, right: 12 });
   const cameraRef = useRef<HTMLInputElement>(null);
   const videoRef = useRef<HTMLVideoElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -199,10 +202,33 @@ function AppPage() {
     if (!historyMenuOpen) return;
     const onDoc = (e: MouseEvent) => {
       const t = e.target as HTMLElement;
-      if (!t.closest(".hx-dropdown-wrap")) setHistoryMenuOpen(false);
+      if (!t.closest(".hx-dropdown-wrap") && !t.closest(".hx-dropdown")) setHistoryMenuOpen(false);
     };
     document.addEventListener("click", onDoc);
     return () => document.removeEventListener("click", onDoc);
+  }, [historyMenuOpen]);
+
+  // Position the portal-rendered history dropdown under the trigger
+  useLayoutEffect(() => {
+    if (!historyMenuOpen) return;
+    const update = () => {
+      const el = hxTriggerRef.current;
+      if (!el) return;
+      const r = el.getBoundingClientRect();
+      const isMobile = window.innerWidth <= 720;
+      if (isMobile) {
+        setHxPos({ top: r.bottom + 8, right: 12, left: 12 });
+      } else {
+        setHxPos({ top: r.bottom + 12, right: Math.max(12, window.innerWidth - r.right) });
+      }
+    };
+    update();
+    window.addEventListener("resize", update);
+    window.addEventListener("scroll", update, true);
+    return () => {
+      window.removeEventListener("resize", update);
+      window.removeEventListener("scroll", update, true);
+    };
   }, [historyMenuOpen]);
 
   // Camera lifecycle
@@ -552,6 +578,7 @@ function AppPage() {
           <div className="nav-actions">
             <div className="hx-dropdown-wrap">
               <a
+                ref={hxTriggerRef}
                 onClick={(e) => {
                   e.stopPropagation();
                   setHistoryMenuOpen((v) => !v);
@@ -561,8 +588,17 @@ function AppPage() {
                 {t("nav_history")} {history.length > 0 && <span className="hx-count">{history.length}</span>}
                 <span className="hx-caret">▾</span>
               </a>
-              {historyMenuOpen && (
-                <div className="hx-dropdown" onClick={(e) => e.stopPropagation()}>
+              {historyMenuOpen && typeof document !== "undefined" && createPortal(
+                <div
+                  className="hx-dropdown"
+                  onClick={(e) => e.stopPropagation()}
+                  style={{
+                    position: "fixed",
+                    top: hxPos.top,
+                    right: hxPos.right,
+                    ...(hxPos.left !== undefined ? { left: hxPos.left } : {}),
+                  }}
+                >
                   <div className="hx-dd-head-row">
                     <div className="hx-dd-head">{t("recent_scans")}</div>
                     {history.length > 0 && (
@@ -629,7 +665,8 @@ function AppPage() {
                       </button>
                     </>
                   )}
-                </div>
+                </div>,
+                document.body
               )}
             </div>
             <LanguageSwitcher />
@@ -1592,7 +1629,7 @@ const CSS = `
 .hx-trigger.active { color:var(--green); }
 .hx-count { background:var(--olive); color:#fff; font-size:10px; font-weight:700; padding:1px 7px; border-radius:10px; line-height:1.5; }
 .hx-caret { font-size:10px; opacity:.7; }
-.hx-dropdown { position:absolute; top:calc(100% + 12px); right:0; width:340px; max-height:70vh; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; background:#1a1a1a; border:1px solid #2a4010; border-radius:14px; box-shadow:0 18px 48px rgba(0,0,0,.55); padding:8px; z-index:60; animation:hxIn .2s cubic-bezier(.34,1.2,.64,1) both; scrollbar-width:thin; scrollbar-color:#3a3a3a transparent; }
+.hx-dropdown { position:fixed; width:340px; max-height:70vh; overflow-y:auto; overflow-x:hidden; overscroll-behavior:contain; background:#1a1a1a; border:1px solid #2a4010; border-radius:14px; box-shadow:0 18px 48px rgba(0,0,0,.55); padding:8px; z-index:9999; animation:hxIn .2s cubic-bezier(.34,1.2,.64,1) both; scrollbar-width:thin; scrollbar-color:#3a3a3a transparent; }
 .hx-dropdown::-webkit-scrollbar { width:6px; }
 .hx-dropdown::-webkit-scrollbar-track { background:transparent; }
 .hx-dropdown::-webkit-scrollbar-thumb { background:#3a3a3a; border-radius:3px; }
