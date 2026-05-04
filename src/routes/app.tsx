@@ -386,7 +386,7 @@ function AppPage() {
         entries.forEach((e) => {
           if (e.isIntersecting && !countedRef.current) {
             countedRef.current = true;
-            const target = 54305;
+            const target = 50000;
             const step = Math.ceil(target / 55);
             let cur = 0;
             const id = setInterval(() => {
@@ -914,7 +914,7 @@ function AppPage() {
             {[
               { v: "38+", l: "Disease Classes" },
               { v: "96.4%", l: "Accuracy" },
-              { v: "54,305", l: "Training Images" },
+              { v: "50,000", l: "Training Images" },
               { v: "<1s", l: "Detection Time" },
             ].map((s, i) => (
               <div
@@ -1342,25 +1342,7 @@ function AppPage() {
         </div>
       )}
 
-      {/* Mobile bottom nav */}
-      <nav className="bottom-nav" data-i18n-skip>
-        <button onClick={() => smoothScroll("hero")}>
-          <span className="bn-icon">🏠</span>
-          <span>Home</span>
-        </button>
-        <button onClick={() => fileRef.current?.click()}>
-          <span className="bn-icon">📷</span>
-          <span>Scan</span>
-        </button>
-        <button onClick={() => setHistoryAllOpen(true)} className={historyAllOpen ? "active" : ""}>
-          <span className="bn-icon">🕘</span>
-          <span>History {history.length > 0 && `(${history.length})`}</span>
-        </button>
-        <button onClick={() => setChatOpen(true)}>
-          <span className="bn-icon">👨‍⚕️</span>
-          <span>Doctor</span>
-        </button>
-      </nav>
+      {/* Mobile bottom nav removed per request */}
     </div>
   );
 }
