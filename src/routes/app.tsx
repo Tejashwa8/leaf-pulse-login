@@ -206,6 +206,7 @@ function AppPage() {
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [clearingHistory, setClearingHistory] = useState(false);
   const [installState, setInstallState] = useState<"available" | "installed" | "unsupported">("unsupported");
   const [, , t] = useLang();
   useAutoTranslate();
@@ -529,13 +530,20 @@ function AppPage() {
 
   async function clearHistory() {
     if (!userId) return;
-    // Delete all rows for this user; storage objects are kept (cheap) and re-used on hash match.
-    const { error } = await supabase.from("diagnoses").delete().eq("user_id", userId);
+    // 1. Trigger fade-out animation, keep UI responsive
+    setClearingHistory(true);
+    setConfirmClear(false);
+
+    // 2. Run delete + wait for animation in parallel (non-blocking)
+    const animDone = new Promise((r) => setTimeout(r, 420));
+    const deletePromise = supabase.from("diagnoses").delete().eq("user_id", userId);
+
+    const [{ error }] = await Promise.all([deletePromise, animDone]);
     if (!error) {
       setHistory([]);
       setActiveHistory(null);
     }
-    setConfirmClear(false);
+    setClearingHistory(false);
   }
 
   // Detect install eligibility (browser-backed checks)
@@ -646,10 +654,11 @@ function AppPage() {
                     <div className="hx-dd-empty">{t("no_scans")}</div>
                   ) : (
                     <>
-                      {history.slice(0, 5).map((h) => (
+                      {history.slice(0, 5).map((h, idx) => (
                         <button
                           key={h.id}
-                          className="hx-dd-item"
+                          className={`hx-dd-item${clearingHistory ? " is-clearing" : ""}`}
+                          style={clearingHistory ? { animationDelay: `${idx * 50}ms` } : undefined}
                           onClick={() => {
                             setActiveHistory(h);
                             setHistoryMenuOpen(false);
@@ -1231,10 +1240,11 @@ function AppPage() {
                 if (filtered.length === 0) {
                   return <div className="hx-dd-empty" style={{ gridColumn: "1/-1" }}>No matching scans.</div>;
                 }
-                return filtered.map((h) => (
+                return filtered.map((h, idx) => (
                   <button
                     key={h.id}
-                    className="hx-card"
+                    className={`hx-card${clearingHistory ? " is-clearing" : ""}`}
+                    style={clearingHistory ? { animationDelay: `${Math.min(idx, 12) * 40}ms` } : undefined}
                     onClick={() => {
                       setActiveHistory(h);
                       setHistoryAllOpen(false);
@@ -1737,6 +1747,17 @@ const CSS = `
 .hx-dd-head { font-size:11px; font-weight:700; letter-spacing:1.5px; color:var(--olive); padding:8px 10px 6px; }
 .hx-dd-empty { padding:18px 12px; text-align:center; color:var(--muted); font-size:13px; }
 .hx-dd-item { width:100%; display:flex; gap:12px; align-items:center; background:transparent; border:none; padding:10px; border-radius:10px; cursor:pointer; transition:background .15s; text-align:left; }
+@keyframes hxClearOut {
+  0%   { opacity:1; transform:translateX(0) scale(1); max-height:120px; padding-top:10px; padding-bottom:10px; margin-top:0; margin-bottom:0; }
+  60%  { opacity:0; transform:translateX(40px) scale(.96); }
+  100% { opacity:0; transform:translateX(40px) scale(.92); max-height:0; padding-top:0; padding-bottom:0; margin-top:0; margin-bottom:0; border-width:0; }
+}
+.hx-dd-item.is-clearing, .hx-card.is-clearing {
+  pointer-events:none;
+  overflow:hidden;
+  animation: hxClearOut .42s cubic-bezier(.55,0,.35,1) forwards;
+  will-change: opacity, transform;
+}
 .hx-dd-item:hover { background:rgba(107,142,35,.12); }
 .hx-dd-thumb { width:46px; height:46px; border-radius:10px; object-fit:cover; flex-shrink:0; background:#0d0d0d; }
 .hx-dd-thumb-fallback { display:flex; align-items:center; justify-content:center; font-size:22px; }
