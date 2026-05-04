@@ -852,7 +852,7 @@ function AppPage() {
                     <div className="rx-line">
                       <strong>Rx:</strong> {diagnosis.rx}
                     </div>
-                    <div className="result-actions" data-i18n-skip>
+                    <div className="result-actions">
                       <button
                         className="btn btn-primary btn-export"
                         onClick={() =>
@@ -866,10 +866,10 @@ function AppPage() {
                           })
                         }
                       >
-                        ⬇ Export as PDF
+                        <span data-i18n-skip>⬇</span> Export as PDF
                       </button>
                       <button className="reset-link" onClick={reset}>
-                        ↩ Try another leaf
+                        <span data-i18n-skip>🧹</span> {t("clear_scan")}
                       </button>
                     </div>
                   </div>
