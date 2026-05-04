@@ -654,10 +654,11 @@ function AppPage() {
                     <div className="hx-dd-empty">{t("no_scans")}</div>
                   ) : (
                     <>
-                      {history.slice(0, 5).map((h) => (
+                      {history.slice(0, 5).map((h, idx) => (
                         <button
                           key={h.id}
-                          className="hx-dd-item"
+                          className={`hx-dd-item${clearingHistory ? " is-clearing" : ""}`}
+                          style={clearingHistory ? { animationDelay: `${idx * 50}ms` } : undefined}
                           onClick={() => {
                             setActiveHistory(h);
                             setHistoryMenuOpen(false);
@@ -1239,10 +1240,11 @@ function AppPage() {
                 if (filtered.length === 0) {
                   return <div className="hx-dd-empty" style={{ gridColumn: "1/-1" }}>No matching scans.</div>;
                 }
-                return filtered.map((h) => (
+                return filtered.map((h, idx) => (
                   <button
                     key={h.id}
-                    className="hx-card"
+                    className={`hx-card${clearingHistory ? " is-clearing" : ""}`}
+                    style={clearingHistory ? { animationDelay: `${Math.min(idx, 12) * 40}ms` } : undefined}
                     onClick={() => {
                       setActiveHistory(h);
                       setHistoryAllOpen(false);
