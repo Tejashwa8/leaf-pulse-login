@@ -775,7 +775,7 @@ function AppPage() {
                 {diagError && !diagnosing && (
                   <div className="result-card resultSlide" style={{ borderColor: "rgba(239,83,80,.4)" }}>
                     <div style={{ color: "#ffb4b1", fontSize: 14 }}>⚠️ {diagError}</div>
-                    <button className="reset-link" onClick={reset}>↩ Try another leaf</button>
+                    <button className="reset-link" onClick={reset}><span data-i18n-skip>🧹</span> {t("clear_scan")}</button>
                   </div>
                 )}
                 {diagnosis && !diagnosing && diagnosis.conf < 70 && (
