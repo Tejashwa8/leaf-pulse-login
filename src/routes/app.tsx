@@ -206,6 +206,7 @@ function AppPage() {
   const [cameraOpen, setCameraOpen] = useState(false);
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [confirmClear, setConfirmClear] = useState(false);
+  const [clearingHistory, setClearingHistory] = useState(false);
   const [installState, setInstallState] = useState<"available" | "installed" | "unsupported">("unsupported");
   const [, , t] = useLang();
   useAutoTranslate();
@@ -529,13 +530,20 @@ function AppPage() {
 
   async function clearHistory() {
     if (!userId) return;
-    // Delete all rows for this user; storage objects are kept (cheap) and re-used on hash match.
-    const { error } = await supabase.from("diagnoses").delete().eq("user_id", userId);
+    // 1. Trigger fade-out animation, keep UI responsive
+    setClearingHistory(true);
+    setConfirmClear(false);
+
+    // 2. Run delete + wait for animation in parallel (non-blocking)
+    const animDone = new Promise((r) => setTimeout(r, 420));
+    const deletePromise = supabase.from("diagnoses").delete().eq("user_id", userId);
+
+    const [{ error }] = await Promise.all([deletePromise, animDone]);
     if (!error) {
       setHistory([]);
       setActiveHistory(null);
     }
-    setConfirmClear(false);
+    setClearingHistory(false);
   }
 
   // Detect install eligibility (browser-backed checks)
