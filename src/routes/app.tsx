@@ -638,7 +638,7 @@ function AppPage() {
                           setConfirmClear(true);
                         }}
                       >
-                        {t("clear_all")}
+                        {t("clear_history")}
                       </button>
                     )}
                   </div>
