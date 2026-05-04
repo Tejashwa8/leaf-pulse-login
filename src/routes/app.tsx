@@ -1747,6 +1747,17 @@ const CSS = `
 .hx-dd-head { font-size:11px; font-weight:700; letter-spacing:1.5px; color:var(--olive); padding:8px 10px 6px; }
 .hx-dd-empty { padding:18px 12px; text-align:center; color:var(--muted); font-size:13px; }
 .hx-dd-item { width:100%; display:flex; gap:12px; align-items:center; background:transparent; border:none; padding:10px; border-radius:10px; cursor:pointer; transition:background .15s; text-align:left; }
+@keyframes hxClearOut {
+  0%   { opacity:1; transform:translateX(0) scale(1); max-height:120px; padding-top:10px; padding-bottom:10px; margin-top:0; margin-bottom:0; }
+  60%  { opacity:0; transform:translateX(40px) scale(.96); }
+  100% { opacity:0; transform:translateX(40px) scale(.92); max-height:0; padding-top:0; padding-bottom:0; margin-top:0; margin-bottom:0; border-width:0; }
+}
+.hx-dd-item.is-clearing, .hx-card.is-clearing {
+  pointer-events:none;
+  overflow:hidden;
+  animation: hxClearOut .42s cubic-bezier(.55,0,.35,1) forwards;
+  will-change: opacity, transform;
+}
 .hx-dd-item:hover { background:rgba(107,142,35,.12); }
 .hx-dd-thumb { width:46px; height:46px; border-radius:10px; object-fit:cover; flex-shrink:0; background:#0d0d0d; }
 .hx-dd-thumb-fallback { display:flex; align-items:center; justify-content:center; font-size:22px; }
