@@ -16,6 +16,7 @@ const SKIP_TAGS = new Set([
   "TEXTAREA", "INPUT",
 ]);
 const KEEP_AS_IS = /^[\s\d\W]+$/; // pure whitespace / numbers / symbols
+const BRAND_ONLY = /^(LeafRx|Leaf|Rx|Dr\.?\s*LeafRx)$/i;
 
 function cacheKey(target: string) {
   return `leafrx_tx_${target}`;
@@ -47,6 +48,7 @@ function collectTextNodes(): Text[] {
       if (SKIP_TAGS.has(parent.tagName)) return NodeFilter.FILTER_REJECT;
       if (parent.closest("[data-i18n-skip]")) return NodeFilter.FILTER_REJECT;
       if (KEEP_AS_IS.test(t)) return NodeFilter.FILTER_REJECT;
+      if (BRAND_ONLY.test(t.trim())) return NodeFilter.FILTER_REJECT;
       return NodeFilter.FILTER_ACCEPT;
     },
   });

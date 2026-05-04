@@ -33,7 +33,9 @@ export const translateBatch = createServerFn({ method: "POST" })
             role: "system",
             content:
               `You are a professional translator. Translate each numbered English line into ${langName}. ` +
-              `Preserve numbering, punctuation, emoji, brand names (LeafRx, Dr. LeafRx, AI), and arrows like →. ` +
+              `Preserve numbering, punctuation, emoji, and arrows like →. ` +
+              `CRITICAL: NEVER translate, transliterate, or modify the brand name "LeafRx" — keep it exactly as "LeafRx" in Latin script. ` +
+              `Same rule for "Leaf", "Rx", "Dr. LeafRx", and "AI" — keep them in English. ` +
               `Return ONLY the numbered translated lines, one per line, no extra commentary.`,
           },
           { role: "user", content: numbered },
