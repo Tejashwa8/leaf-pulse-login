@@ -36,6 +36,8 @@ const en: Dict = {
   nav_clear: "Clear history",
   recent_scans: "Recent scans",
   clear_all: "Clear all",
+  clear_scan: "Clear Scan",
+  clear_history: "Clear History",
   no_scans: "No scans yet. Upload a leaf to get started.",
   view_all: "View all scans →",
   hero_badge: "Plant Health Detection · Powered by Dr. LeafRx",
@@ -77,7 +79,7 @@ const dicts: Record<LangCode, Dict> = {
   en,
   hi: {
     nav_how: "कैसे काम करता है", nav_features: "विशेषताएं", nav_install: "इंस्टॉल",
-    nav_history: "इतिहास", nav_doctor: "डॉ. लीफआरएक्स", nav_logout: "लॉगआउट",
+    nav_history: "इतिहास", nav_doctor: "Dr. LeafRx", nav_logout: "लॉगआउट",
     nav_clear: "इतिहास साफ़ करें", recent_scans: "हाल के स्कैन", clear_all: "सभी साफ़ करें",
     no_scans: "अभी कोई स्कैन नहीं। शुरू करने के लिए एक पत्ता अपलोड करें।",
     view_all: "सभी स्कैन देखें →",
@@ -103,7 +105,7 @@ const dicts: Record<LangCode, Dict> = {
   },
   bn: {
     nav_how: "এটি কীভাবে কাজ করে", nav_features: "বৈশিষ্ট্য", nav_install: "ইনস্টল",
-    nav_history: "ইতিহাস", nav_doctor: "ড. লিফআরএক্স", nav_logout: "লগআউট",
+    nav_history: "ইতিহাস", nav_doctor: "Dr. LeafRx", nav_logout: "লগআউট",
     nav_clear: "ইতিহাস মুছুন", recent_scans: "সাম্প্রতিক স্ক্যান", clear_all: "সব মুছুন",
     no_scans: "এখনো কোনো স্ক্যান নেই। শুরু করতে একটি পাতা আপলোড করুন।",
     view_all: "সব স্ক্যান দেখুন →",
@@ -127,7 +129,7 @@ const dicts: Record<LangCode, Dict> = {
   },
   ta: {
     nav_how: "எப்படி செயல்படுகிறது", nav_features: "அம்சங்கள்", nav_install: "நிறுவு",
-    nav_history: "வரலாறு", nav_doctor: "டாக்டர் லீஃப்ஆர்எக்ஸ்", nav_logout: "வெளியேறு",
+    nav_history: "வரலாறு", nav_doctor: "Dr. LeafRx", nav_logout: "வெளியேறு",
     nav_clear: "வரலாற்றை அழி", recent_scans: "சமீபத்திய ஸ்கேன்கள்", clear_all: "அனைத்தையும் அழி",
     no_scans: "இன்னும் ஸ்கேன்கள் இல்லை. தொடங்க இலையை பதிவேற்றவும்.",
     view_all: "அனைத்தையும் காண்க →",
@@ -152,7 +154,7 @@ const dicts: Record<LangCode, Dict> = {
   },
   te: {
     nav_how: "ఎలా పని చేస్తుంది", nav_features: "ఫీచర్లు", nav_install: "ఇన్‌స్టాల్",
-    nav_history: "చరిత్ర", nav_doctor: "డా. లీఫ్‌ఆర్‌ఎక్స్", nav_logout: "లాగ్ అవుట్",
+    nav_history: "చరిత్ర", nav_doctor: "Dr. LeafRx", nav_logout: "లాగ్ అవుట్",
     nav_clear: "చరిత్రను క్లియర్ చేయండి", recent_scans: "ఇటీవలి స్కాన్‌లు", clear_all: "అన్నీ క్లియర్",
     no_scans: "ఇంకా స్కాన్‌లు లేవు.", view_all: "అన్నీ చూడండి →",
     hero_badge: "మొక్క ఆరోగ్య గుర్తింపు", hero_title_1: "మీ మొక్క యొక్క",
@@ -175,7 +177,7 @@ const dicts: Record<LangCode, Dict> = {
   },
   mr: {
     nav_how: "हे कसे कार्य करते", nav_features: "वैशिष्ट्ये", nav_install: "इन्स्टॉल",
-    nav_history: "इतिहास", nav_doctor: "डॉ. लीफआरएक्स", nav_logout: "लॉगआउट",
+    nav_history: "इतिहास", nav_doctor: "Dr. LeafRx", nav_logout: "लॉगआउट",
     nav_clear: "इतिहास साफ करा", recent_scans: "अलीकडील स्कॅन", clear_all: "सर्व साफ करा",
     no_scans: "अद्याप कोणतेही स्कॅन नाहीत.", view_all: "सर्व पहा →",
     hero_badge: "वनस्पती आरोग्य ओळख", hero_title_1: "तुमच्या वनस्पतीचा",
@@ -198,7 +200,7 @@ const dicts: Record<LangCode, Dict> = {
   },
   gu: {
     nav_how: "તે કેવી રીતે કાર્ય કરે છે", nav_features: "વિશેષતાઓ", nav_install: "ઇન્સ્ટોલ",
-    nav_history: "ઇતિહાસ", nav_doctor: "ડૉ. લીફઆરએક્સ", nav_logout: "લોગઆઉટ",
+    nav_history: "ઇતિહાસ", nav_doctor: "Dr. LeafRx", nav_logout: "લોગઆઉટ",
     nav_clear: "ઇતિહાસ સાફ કરો", recent_scans: "તાજેતરના સ્કેન", clear_all: "બધું સાફ કરો",
     no_scans: "હજુ સુધી કોઈ સ્કેન નથી.", view_all: "બધા જુઓ →",
     hero_badge: "છોડ આરોગ્ય ઓળખ", hero_title_1: "તમારા છોડનો",
@@ -221,7 +223,7 @@ const dicts: Record<LangCode, Dict> = {
   },
   kn: {
     nav_how: "ಇದು ಹೇಗೆ ಕೆಲಸ ಮಾಡುತ್ತದೆ", nav_features: "ವೈಶಿಷ್ಟ್ಯಗಳು", nav_install: "ಇನ್‌ಸ್ಟಾಲ್",
-    nav_history: "ಇತಿಹಾಸ", nav_doctor: "ಡಾ. ಲೀಫ್‌ಆರ್‌ಎಕ್ಸ್", nav_logout: "ಲಾಗ್ ಔಟ್",
+    nav_history: "ಇತಿಹಾಸ", nav_doctor: "Dr. LeafRx", nav_logout: "ಲಾಗ್ ಔಟ್",
     nav_clear: "ಇತಿಹಾಸವನ್ನು ತೆರವುಗೊಳಿಸಿ", recent_scans: "ಇತ್ತೀಚಿನ ಸ್ಕ್ಯಾನ್‌ಗಳು", clear_all: "ಎಲ್ಲವನ್ನೂ ತೆರವುಗೊಳಿಸಿ",
     no_scans: "ಇನ್ನೂ ಯಾವುದೇ ಸ್ಕ್ಯಾನ್‌ಗಳಿಲ್ಲ.", view_all: "ಎಲ್ಲವನ್ನೂ ನೋಡಿ →",
     hero_badge: "ಸಸ್ಯ ಆರೋಗ್ಯ ಪತ್ತೆ", hero_title_1: "ನಿಮ್ಮ ಸಸ್ಯದ",
@@ -244,7 +246,7 @@ const dicts: Record<LangCode, Dict> = {
   },
   ml: {
     nav_how: "എങ്ങനെ പ്രവർത്തിക്കുന്നു", nav_features: "സവിശേഷതകൾ", nav_install: "ഇൻസ്റ്റാൾ",
-    nav_history: "ചരിത്രം", nav_doctor: "ഡോ. ലീഫ്ആർഎക്സ്", nav_logout: "ലോഗൗട്ട്",
+    nav_history: "ചരിത്രം", nav_doctor: "Dr. LeafRx", nav_logout: "ലോഗൗട്ട്",
     nav_clear: "ചരിത്രം മായ്ക്കുക", recent_scans: "സമീപകാല സ്കാനുകൾ", clear_all: "എല്ലാം മായ്ക്കുക",
     no_scans: "ഇതുവരെ സ്കാനുകളൊന്നുമില്ല.", view_all: "എല്ലാം കാണുക →",
     hero_badge: "സസ്യ ആരോഗ്യ കണ്ടെത്തൽ", hero_title_1: "നിങ്ങളുടെ സസ്യത്തിന്റെ",
@@ -267,7 +269,7 @@ const dicts: Record<LangCode, Dict> = {
   },
   pa: {
     nav_how: "ਇਹ ਕਿਵੇਂ ਕੰਮ ਕਰਦਾ ਹੈ", nav_features: "ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ", nav_install: "ਇੰਸਟਾਲ",
-    nav_history: "ਇਤਿਹਾਸ", nav_doctor: "ਡਾ. ਲੀਫਆਰਐਕਸ", nav_logout: "ਲਾਗਆਉਟ",
+    nav_history: "ਇਤਿਹਾਸ", nav_doctor: "Dr. LeafRx", nav_logout: "ਲਾਗਆਉਟ",
     nav_clear: "ਇਤਿਹਾਸ ਸਾਫ਼ ਕਰੋ", recent_scans: "ਤਾਜ਼ਾ ਸਕੈਨ", clear_all: "ਸਭ ਸਾਫ਼ ਕਰੋ",
     no_scans: "ਅਜੇ ਕੋਈ ਸਕੈਨ ਨਹੀਂ।", view_all: "ਸਭ ਵੇਖੋ →",
     hero_badge: "ਪੌਦਾ ਸਿਹਤ ਖੋਜ", hero_title_1: "ਤੁਹਾਡੇ ਪੌਦੇ ਦਾ",
@@ -290,7 +292,7 @@ const dicts: Record<LangCode, Dict> = {
   },
   ur: {
     nav_how: "یہ کیسے کام کرتا ہے", nav_features: "خصوصیات", nav_install: "انسٹال",
-    nav_history: "تاریخ", nav_doctor: "ڈاکٹر لیف آر ایکس", nav_logout: "لاگ آؤٹ",
+    nav_history: "تاریخ", nav_doctor: "Dr. LeafRx", nav_logout: "لاگ آؤٹ",
     nav_clear: "تاریخ صاف کریں", recent_scans: "حالیہ اسکین", clear_all: "سب صاف کریں",
     no_scans: "ابھی تک کوئی اسکین نہیں۔", view_all: "سب دیکھیں →",
     hero_badge: "پودے کی صحت کی شناخت", hero_title_1: "آپ کے پودے کا",
@@ -313,7 +315,7 @@ const dicts: Record<LangCode, Dict> = {
   },
   or: {
     nav_how: "ଏହା କିପରି କାମ କରେ", nav_features: "ବିଶେଷତା", nav_install: "ଇନଷ୍ଟଲ୍",
-    nav_history: "ଇତିହାସ", nav_doctor: "ଡା. ଲିଫଆର୍‌ଏକ୍ସ", nav_logout: "ଲଗଆଉଟ୍",
+    nav_history: "ଇତିହାସ", nav_doctor: "Dr. LeafRx", nav_logout: "ଲଗଆଉଟ୍",
     nav_clear: "ଇତିହାସ ସଫା କରନ୍ତୁ", recent_scans: "ସାମ୍ପ୍ରତିକ ସ୍କାନ୍", clear_all: "ସବୁ ସଫା କରନ୍ତୁ",
     no_scans: "ଏପର୍ଯ୍ୟନ୍ତ କୌଣସି ସ୍କାନ୍ ନାହିଁ।", view_all: "ସବୁ ଦେଖନ୍ତୁ →",
     hero_badge: "ଉଦ୍ଭିଦ ସ୍ୱାସ୍ଥ୍ୟ ଚିହ୍ନଟ", hero_title_1: "ତୁମର ଉଦ୍ଭିଦର",
@@ -336,7 +338,7 @@ const dicts: Record<LangCode, Dict> = {
   },
   as: {
     nav_how: "ই কেনেকৈ কাম কৰে", nav_features: "বৈশিষ্ট্য", nav_install: "ইনষ্টল",
-    nav_history: "ইতিহাস", nav_doctor: "ডাঃ লিফআৰএক্স", nav_logout: "লগআউট",
+    nav_history: "ইতিহাস", nav_doctor: "Dr. LeafRx", nav_logout: "লগআউট",
     nav_clear: "ইতিহাস পৰিষ্কাৰ কৰক", recent_scans: "শেহতীয়া স্কেন", clear_all: "সকলো পৰিষ্কাৰ",
     no_scans: "এতিয়ালৈকে কোনো স্কেন নাই।", view_all: "সকলো চাওক →",
     hero_badge: "উদ্ভিদ স্বাস্থ্য চিনাক্তকৰণ", hero_title_1: "আপোনাৰ গছৰ",

@@ -638,7 +638,7 @@ function AppPage() {
                           setConfirmClear(true);
                         }}
                       >
-                        {t("clear_all")}
+                        {t("clear_history")}
                       </button>
                     )}
                   </div>
@@ -775,7 +775,7 @@ function AppPage() {
                 {diagError && !diagnosing && (
                   <div className="result-card resultSlide" style={{ borderColor: "rgba(239,83,80,.4)" }}>
                     <div style={{ color: "#ffb4b1", fontSize: 14 }}>⚠️ {diagError}</div>
-                    <button className="reset-link" onClick={reset}>↩ Try another leaf</button>
+                    <button className="reset-link" onClick={reset}><span data-i18n-skip>🧹</span> {t("clear_scan")}</button>
                   </div>
                 )}
                 {diagnosis && !diagnosing && diagnosis.conf < 70 && (
@@ -852,7 +852,7 @@ function AppPage() {
                     <div className="rx-line">
                       <strong>Rx:</strong> {diagnosis.rx}
                     </div>
-                    <div className="result-actions" data-i18n-skip>
+                    <div className="result-actions">
                       <button
                         className="btn btn-primary btn-export"
                         onClick={() =>
@@ -866,10 +866,10 @@ function AppPage() {
                           })
                         }
                       >
-                        ⬇ Export as PDF
+                        <span data-i18n-skip>⬇</span> Export as PDF
                       </button>
                       <button className="reset-link" onClick={reset}>
-                        ↩ Try another leaf
+                        <span data-i18n-skip>🧹</span> {t("clear_scan")}
                       </button>
                     </div>
                   </div>
