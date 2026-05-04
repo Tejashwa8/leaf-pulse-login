@@ -35,7 +35,7 @@ export function LeafRxWordmark({
   gap?: number;
 }) {
   return (
-    <span style={{ display: "inline-flex", alignItems: "center", gap }}>
+    <span style={{ display: "inline-flex", alignItems: "center", gap }} data-i18n-skip translate="no">
       <LeafRxLogo size={iconSize} />
       <span
         style={{
