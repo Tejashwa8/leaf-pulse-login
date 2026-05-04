@@ -36,6 +36,8 @@ const en: Dict = {
   nav_clear: "Clear history",
   recent_scans: "Recent scans",
   clear_all: "Clear all",
+  clear_scan: "Clear Scan",
+  clear_history: "Clear History",
   no_scans: "No scans yet. Upload a leaf to get started.",
   view_all: "View all scans →",
   hero_badge: "Plant Health Detection · Powered by Dr. LeafRx",
