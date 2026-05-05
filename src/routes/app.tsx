@@ -707,7 +707,7 @@ function AppPage() {
                 document.body
               )}
             </div>
-            <LanguageSwitcher />
+            
           </div>
         </div>
       </nav>
