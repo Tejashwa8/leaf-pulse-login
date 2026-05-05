@@ -335,7 +335,7 @@ function AppPage() {
       .select("id, image_url, disease_name, severity, confidence, rx, created_at")
       .eq("user_id", uid)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(100);
     if (error || !data) return;
     // Sign each storage path
     const rows: HistoryRow[] = await Promise.all(
@@ -356,7 +356,7 @@ function AppPage() {
   // Mirror history to localStorage (offline access)
   useEffect(() => {
     try {
-      localStorage.setItem("leafrx_history_cache", JSON.stringify(history.slice(0, 50)));
+      localStorage.setItem("leafrx_history_cache", JSON.stringify(history.slice(0, 100)));
     } catch {}
   }, [history]);
 
@@ -581,6 +581,43 @@ function AppPage() {
     }, UNDO_MS + 50);
   }
 
+  async function deleteScan(id: string) {
+    if (!userId) return;
+    const snapshot = history;
+    const removed = history.find((h) => h.id === id);
+    if (!removed) return;
+    setHistory((prev) => prev.filter((h) => h.id !== id));
+    if (activeHistory?.id === id) setActiveHistory(null);
+
+    let undone = false;
+    const UNDO_MS = 5000;
+    toast(`Deleted "${removed.disease_name}"`, {
+      description: "Tap Undo to restore this scan.",
+      duration: UNDO_MS,
+      action: {
+        label: "Undo",
+        onClick: () => {
+          undone = true;
+          setHistory(snapshot);
+          toast.success("Scan restored");
+        },
+      },
+    });
+
+    setTimeout(async () => {
+      if (undone) return;
+      const { error } = await supabase
+        .from("diagnoses")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", userId);
+      if (error) {
+        setHistory(snapshot);
+        toast.error("Could not delete scan. Restored.");
+      }
+    }, UNDO_MS + 50);
+  }
+
   // Detect install eligibility (browser-backed checks)
   useEffect(() => {
     if (typeof window === "undefined") return;
@@ -689,14 +726,22 @@ function AppPage() {
                     <div className="hx-dd-empty">{t("no_scans")}</div>
                   ) : (
                     <>
-                      {history.slice(0, 5).map((h, idx) => (
-                        <button
+                      {history.slice(0, 8).map((h, idx) => (
+                        <div
                           key={h.id}
+                          role="button"
+                          tabIndex={0}
                           className={`hx-dd-item${clearingHistory ? " is-clearing" : ""}`}
                           style={clearingHistory ? { animationDelay: `${idx * 50}ms` } : undefined}
                           onClick={() => {
                             setActiveHistory(h);
                             setHistoryMenuOpen(false);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              setActiveHistory(h);
+                              setHistoryMenuOpen(false);
+                            }
                           }}
                         >
                           {h.signed_url ? (
@@ -725,7 +770,18 @@ function AppPage() {
                               </span>
                             </div>
                           </div>
-                        </button>
+                          <button
+                            type="button"
+                            className="hx-dd-del"
+                            aria-label="Delete scan"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteScan(h.id);
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
                       ))}
                       <button
                         className="hx-dd-viewall"
@@ -1276,13 +1332,21 @@ function AppPage() {
                   return <div className="hx-dd-empty" style={{ gridColumn: "1/-1" }}>No matching scans.</div>;
                 }
                 return filtered.map((h, idx) => (
-                  <button
+                  <div
                     key={h.id}
+                    role="button"
+                    tabIndex={0}
                     className={`hx-card${clearingHistory ? " is-clearing" : ""}`}
                     style={clearingHistory ? { animationDelay: `${Math.min(idx, 12) * 40}ms` } : undefined}
                     onClick={() => {
                       setActiveHistory(h);
                       setHistoryAllOpen(false);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        setActiveHistory(h);
+                        setHistoryAllOpen(false);
+                      }
                     }}
                   >
                     {h.signed_url ? (
@@ -1290,6 +1354,17 @@ function AppPage() {
                     ) : (
                       <div className="hx-card-img hx-dd-thumb-fallback">🌿</div>
                     )}
+                    <button
+                      type="button"
+                      className="hx-card-del"
+                      aria-label="Delete scan"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteScan(h.id);
+                      }}
+                    >
+                      ✕
+                    </button>
                     <div className="hx-card-body">
                       <div className="hx-dd-name">{h.disease_name}</div>
                       <div className="hx-dd-sub">
@@ -1309,7 +1384,7 @@ function AppPage() {
                         </span>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 ));
               })()}
             </div>
@@ -1794,6 +1869,13 @@ const CSS = `
   will-change: opacity, transform;
 }
 .hx-dd-item:hover { background:rgba(107,142,35,.12); }
+.hx-dd-del { flex-shrink:0; background:transparent; border:1px solid transparent; color:var(--muted); width:26px; height:26px; border-radius:8px; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; opacity:0; }
+.hx-dd-item:hover .hx-dd-del { opacity:1; }
+.hx-dd-del:hover { background:rgba(239,83,80,.18); border-color:rgba(239,83,80,.4); color:#ef5350; }
+.hx-card { position:relative; }
+.hx-card-del { position:absolute; top:8px; right:8px; z-index:2; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,.15); color:#fff; width:30px; height:30px; border-radius:50%; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0; transition:all .2s; }
+.hx-card:hover .hx-card-del { opacity:1; }
+.hx-card-del:hover { background:#ef5350; border-color:#ef5350; transform:scale(1.08); }
 .hx-dd-thumb { width:46px; height:46px; border-radius:10px; object-fit:cover; flex-shrink:0; background:#0d0d0d; }
 .hx-dd-thumb-fallback { display:flex; align-items:center; justify-content:center; font-size:22px; }
 .hx-dd-meta { flex:1; min-width:0; }
