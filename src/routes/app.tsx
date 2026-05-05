@@ -1869,6 +1869,13 @@ const CSS = `
   will-change: opacity, transform;
 }
 .hx-dd-item:hover { background:rgba(107,142,35,.12); }
+.hx-dd-del { flex-shrink:0; background:transparent; border:1px solid transparent; color:var(--muted); width:26px; height:26px; border-radius:8px; font-size:12px; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all .15s; opacity:0; }
+.hx-dd-item:hover .hx-dd-del { opacity:1; }
+.hx-dd-del:hover { background:rgba(239,83,80,.18); border-color:rgba(239,83,80,.4); color:#ef5350; }
+.hx-card { position:relative; }
+.hx-card-del { position:absolute; top:8px; right:8px; z-index:2; background:rgba(0,0,0,.55); backdrop-filter:blur(6px); border:1px solid rgba(255,255,255,.15); color:#fff; width:30px; height:30px; border-radius:50%; font-size:13px; cursor:pointer; display:flex; align-items:center; justify-content:center; opacity:0; transition:all .2s; }
+.hx-card:hover .hx-card-del { opacity:1; }
+.hx-card-del:hover { background:#ef5350; border-color:#ef5350; transform:scale(1.08); }
 .hx-dd-thumb { width:46px; height:46px; border-radius:10px; object-fit:cover; flex-shrink:0; background:#0d0d0d; }
 .hx-dd-thumb-fallback { display:flex; align-items:center; justify-content:center; font-size:22px; }
 .hx-dd-meta { flex:1; min-width:0; }
