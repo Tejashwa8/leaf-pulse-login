@@ -63,23 +63,24 @@ function drawBrandHeader(doc: jsPDF, logoDataUrl: string | null) {
   doc.setFillColor(BRAND_DARK.r, BRAND_DARK.g, BRAND_DARK.b);
   doc.rect(0, 78, W, 4, "F");
 
-  // Logo (top-left): real LeafRx brand image rendered in a white circle
+  // Logo (top-left): real LeafRx brand image (already a round green badge)
   const cx = 64;
   const cy = 39;
-  const r = 22;
-  doc.setFillColor(255, 255, 255);
-  doc.circle(cx, cy, r, "F");
+  const size = 48;
   if (logoDataUrl) {
     try {
-      const size = r * 2 - 4;
       doc.addImage(logoDataUrl, "PNG", cx - size / 2, cy - size / 2, size, size, undefined, "FAST");
     } catch {
+      doc.setFillColor(255, 255, 255);
+      doc.circle(cx, cy, 22, "F");
       doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
       doc.setFont("helvetica", "bold");
       doc.setFontSize(22);
       doc.text("Rx", cx, cy + 7, { align: "center" });
     }
   } else {
+    doc.setFillColor(255, 255, 255);
+    doc.circle(cx, cy, 22, "F");
     doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
     doc.setFont("helvetica", "bold");
     doc.setFontSize(22);
