@@ -1,4 +1,24 @@
 import { jsPDF } from "jspdf";
+import logoSrc from "@/assets/leafrx-logo.png";
+
+let logoDataUrlCache: string | null = null;
+async function getLogoDataUrl(): Promise<string | null> {
+  if (logoDataUrlCache) return logoDataUrlCache;
+  try {
+    const res = await fetch(logoSrc);
+    const blob = await res.blob();
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result as string);
+      fr.onerror = reject;
+      fr.readAsDataURL(blob);
+    });
+    logoDataUrlCache = dataUrl;
+    return dataUrl;
+  } catch {
+    return null;
+  }
+}
 
 export type PdfPayload = {
   diseaseName: string;
@@ -36,20 +56,35 @@ const SEV_COLORS: Record<string, [number, number, number]> = {
   Low: [102, 187, 106],
 };
 
-function drawBrandHeader(doc: jsPDF) {
+function drawBrandHeader(doc: jsPDF, logoDataUrl: string | null) {
   const W = doc.internal.pageSize.getWidth();
   doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
   doc.rect(0, 0, W, 78, "F");
   doc.setFillColor(BRAND_DARK.r, BRAND_DARK.g, BRAND_DARK.b);
   doc.rect(0, 78, W, 4, "F");
 
-  // Logo circle with leaf
+  // Logo (top-left): real LeafRx brand image rendered in a white circle
+  const cx = 64;
+  const cy = 39;
+  const r = 22;
   doc.setFillColor(255, 255, 255);
-  doc.circle(64, 39, 22, "F");
-  doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
-  doc.setFont("helvetica", "bold");
-  doc.setFontSize(22);
-  doc.text("🌿", 64, 47, { align: "center" });
+  doc.circle(cx, cy, r, "F");
+  if (logoDataUrl) {
+    try {
+      const size = r * 2 - 4;
+      doc.addImage(logoDataUrl, "PNG", cx - size / 2, cy - size / 2, size, size, undefined, "FAST");
+    } catch {
+      doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(22);
+      doc.text("Rx", cx, cy + 7, { align: "center" });
+    }
+  } else {
+    doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(22);
+    doc.text("Rx", cx, cy + 7, { align: "center" });
+  }
 
   doc.setTextColor(255, 255, 255);
   doc.setFont("helvetica", "bold");
@@ -110,12 +145,13 @@ function drawSeverityMeter(
 
 export async function exportDiagnosisPdf(p: PdfPayload) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const logoDataUrl = await getLogoDataUrl();
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
   const M = 40;
   let y = 0;
 
-  drawBrandHeader(doc);
+  drawBrandHeader(doc, logoDataUrl);
   y = 110;
 
   // Image (right) and disease title (left)
@@ -214,7 +250,7 @@ export async function exportDiagnosisPdf(p: PdfPayload) {
     i += linesFit;
     if (i < rxLines.length) {
       doc.addPage();
-      drawBrandHeader(doc);
+      drawBrandHeader(doc, logoDataUrl);
       y = 110;
     }
   }
@@ -223,7 +259,7 @@ export async function exportDiagnosisPdf(p: PdfPayload) {
   if (p.timeline && p.timeline.length) {
     if (y > H - 200) {
       doc.addPage();
-      drawBrandHeader(doc);
+      drawBrandHeader(doc, logoDataUrl);
       y = 110;
     }
     y += 6;
@@ -237,7 +273,7 @@ export async function exportDiagnosisPdf(p: PdfPayload) {
       const boxH = 28 + lines.length * 14;
       if (y + boxH > H - 60) {
         doc.addPage();
-        drawBrandHeader(doc);
+        drawBrandHeader(doc, logoDataUrl);
         y = 110;
       }
       doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
@@ -261,7 +297,7 @@ export async function exportDiagnosisPdf(p: PdfPayload) {
   // Disclaimer
   if (y > H - 90) {
     doc.addPage();
-    drawBrandHeader(doc);
+    drawBrandHeader(doc, logoDataUrl);
     y = 110;
   }
   y += 6;

@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { LeafRxLogo, LeafRxWordmark } from "@/components/LeafRxLogo";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { toast } from "sonner";
 import { useLang } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { diagnoseLeaf, type Diagnosis } from "@/utils/diagnose.functions";
@@ -530,20 +530,55 @@ function AppPage() {
 
   async function clearHistory() {
     if (!userId) return;
-    // 1. Trigger fade-out animation, keep UI responsive
+    const snapshot = history;
+    const snapshotActive = activeHistory;
+    if (snapshot.length === 0) {
+      setConfirmClear(false);
+      return;
+    }
+
+    // 1. Trigger fade-out animation
     setClearingHistory(true);
     setConfirmClear(false);
 
-    // 2. Run delete + wait for animation in parallel (non-blocking)
-    const animDone = new Promise((r) => setTimeout(r, 420));
-    const deletePromise = supabase.from("diagnoses").delete().eq("user_id", userId);
-
-    const [{ error }] = await Promise.all([deletePromise, animDone]);
-    if (!error) {
-      setHistory([]);
-      setActiveHistory(null);
-    }
+    // 2. Wait for animation, then clear UI immediately (no DB delete yet)
+    await new Promise((r) => setTimeout(r, 420));
+    setHistory([]);
+    setActiveHistory(null);
     setClearingHistory(false);
+
+    // 3. Show undo snackbar; only delete from DB after the toast expires
+    let undone = false;
+    const UNDO_MS = 6000;
+    toast(`Cleared ${snapshot.length} scan${snapshot.length === 1 ? "" : "s"}`, {
+      description: "Tap Undo to restore your history.",
+      duration: UNDO_MS,
+      action: {
+        label: "Undo",
+        onClick: () => {
+          undone = true;
+          setHistory(snapshot);
+          setActiveHistory(snapshotActive);
+          toast.success("History restored");
+        },
+      },
+    });
+
+    setTimeout(async () => {
+      if (undone) return;
+      const ids = snapshot.map((r) => r.id);
+      const { error } = await supabase
+        .from("diagnoses")
+        .delete()
+        .in("id", ids)
+        .eq("user_id", userId);
+      if (error) {
+        // Restore on failure
+        setHistory(snapshot);
+        setActiveHistory(snapshotActive);
+        toast.error("Could not clear history. Restored.");
+      }
+    }, UNDO_MS + 50);
   }
 
   // Detect install eligibility (browser-backed checks)
@@ -707,7 +742,7 @@ function AppPage() {
                 document.body
               )}
             </div>
-            <LanguageSwitcher />
+            
           </div>
         </div>
       </nav>

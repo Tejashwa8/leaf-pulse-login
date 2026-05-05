@@ -1,5 +1,6 @@
 import { Outlet, Link, createRootRoute, HeadContent, Scripts } from "@tanstack/react-router";
 import { InstallPrompt } from "@/components/InstallPrompt";
+import { Toaster } from "@/components/ui/sonner";
 
 import appCss from "../styles.css?url";
 
@@ -94,6 +95,7 @@ function RootComponent() {
     <>
       <Outlet />
       <InstallPrompt />
+      <Toaster position="bottom-center" richColors closeButton />
     </>
   );
 }
