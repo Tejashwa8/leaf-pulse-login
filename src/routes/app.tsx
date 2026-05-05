@@ -1332,13 +1332,21 @@ function AppPage() {
                   return <div className="hx-dd-empty" style={{ gridColumn: "1/-1" }}>No matching scans.</div>;
                 }
                 return filtered.map((h, idx) => (
-                  <button
+                  <div
                     key={h.id}
+                    role="button"
+                    tabIndex={0}
                     className={`hx-card${clearingHistory ? " is-clearing" : ""}`}
                     style={clearingHistory ? { animationDelay: `${Math.min(idx, 12) * 40}ms` } : undefined}
                     onClick={() => {
                       setActiveHistory(h);
                       setHistoryAllOpen(false);
+                    }}
+                    onKeyDown={(e) => {
+                      if (e.key === "Enter" || e.key === " ") {
+                        setActiveHistory(h);
+                        setHistoryAllOpen(false);
+                      }
                     }}
                   >
                     {h.signed_url ? (
@@ -1346,6 +1354,17 @@ function AppPage() {
                     ) : (
                       <div className="hx-card-img hx-dd-thumb-fallback">🌿</div>
                     )}
+                    <button
+                      type="button"
+                      className="hx-card-del"
+                      aria-label="Delete scan"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        deleteScan(h.id);
+                      }}
+                    >
+                      ✕
+                    </button>
                     <div className="hx-card-body">
                       <div className="hx-dd-name">{h.disease_name}</div>
                       <div className="hx-dd-sub">
@@ -1365,7 +1384,7 @@ function AppPage() {
                         </span>
                       </div>
                     </div>
-                  </button>
+                  </div>
                 ));
               })()}
             </div>
