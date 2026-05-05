@@ -335,7 +335,7 @@ function AppPage() {
       .select("id, image_url, disease_name, severity, confidence, rx, created_at")
       .eq("user_id", uid)
       .order("created_at", { ascending: false })
-      .limit(20);
+      .limit(100);
     if (error || !data) return;
     // Sign each storage path
     const rows: HistoryRow[] = await Promise.all(
@@ -356,7 +356,7 @@ function AppPage() {
   // Mirror history to localStorage (offline access)
   useEffect(() => {
     try {
-      localStorage.setItem("leafrx_history_cache", JSON.stringify(history.slice(0, 50)));
+      localStorage.setItem("leafrx_history_cache", JSON.stringify(history.slice(0, 100)));
     } catch {}
   }, [history]);
 

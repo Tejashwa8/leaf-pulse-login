@@ -216,7 +216,7 @@ function LoginPage() {
 
             <div className="stats-bar">
               <div className="stat">
-                <div className="stat-num">54K+</div>
+                <div className="stat-num">50,000</div>
                 <div className="stat-label">Training Images</div>
               </div>
               <div className="stat-divider" />
