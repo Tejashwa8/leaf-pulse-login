@@ -95,6 +95,7 @@ function RootComponent() {
     <>
       <Outlet />
       <InstallPrompt />
+      <Toaster position="bottom-center" richColors closeButton />
     </>
   );
 }
