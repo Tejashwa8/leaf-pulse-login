@@ -145,6 +145,7 @@ function drawSeverityMeter(
 
 export async function exportDiagnosisPdf(p: PdfPayload) {
   const doc = new jsPDF({ unit: "pt", format: "a4" });
+  const logoDataUrl = await getLogoDataUrl();
   const W = doc.internal.pageSize.getWidth();
   const H = doc.internal.pageSize.getHeight();
   const M = 40;
