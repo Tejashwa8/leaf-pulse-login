@@ -150,7 +150,7 @@ export async function exportDiagnosisPdf(p: PdfPayload) {
   const M = 40;
   let y = 0;
 
-  drawBrandHeader(doc);
+  drawBrandHeader(doc, logoDataUrl);
   y = 110;
 
   // Image (right) and disease title (left)
@@ -249,7 +249,7 @@ export async function exportDiagnosisPdf(p: PdfPayload) {
     i += linesFit;
     if (i < rxLines.length) {
       doc.addPage();
-      drawBrandHeader(doc);
+      drawBrandHeader(doc, logoDataUrl);
       y = 110;
     }
   }
@@ -258,7 +258,7 @@ export async function exportDiagnosisPdf(p: PdfPayload) {
   if (p.timeline && p.timeline.length) {
     if (y > H - 200) {
       doc.addPage();
-      drawBrandHeader(doc);
+      drawBrandHeader(doc, logoDataUrl);
       y = 110;
     }
     y += 6;
@@ -272,7 +272,7 @@ export async function exportDiagnosisPdf(p: PdfPayload) {
       const boxH = 28 + lines.length * 14;
       if (y + boxH > H - 60) {
         doc.addPage();
-        drawBrandHeader(doc);
+        drawBrandHeader(doc, logoDataUrl);
         y = 110;
       }
       doc.setFillColor(BRAND.r, BRAND.g, BRAND.b);
@@ -296,7 +296,7 @@ export async function exportDiagnosisPdf(p: PdfPayload) {
   // Disclaimer
   if (y > H - 90) {
     doc.addPage();
-    drawBrandHeader(doc);
+    drawBrandHeader(doc, logoDataUrl);
     y = 110;
   }
   y += 6;
