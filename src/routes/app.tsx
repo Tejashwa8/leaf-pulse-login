@@ -581,6 +581,43 @@ function AppPage() {
     }, UNDO_MS + 50);
   }
 
+  async function deleteScan(id: string) {
+    if (!userId) return;
+    const snapshot = history;
+    const removed = history.find((h) => h.id === id);
+    if (!removed) return;
+    setHistory((prev) => prev.filter((h) => h.id !== id));
+    if (activeHistory?.id === id) setActiveHistory(null);
+
+    let undone = false;
+    const UNDO_MS = 5000;
+    toast(`Deleted "${removed.disease_name}"`, {
+      description: "Tap Undo to restore this scan.",
+      duration: UNDO_MS,
+      action: {
+        label: "Undo",
+        onClick: () => {
+          undone = true;
+          setHistory(snapshot);
+          toast.success("Scan restored");
+        },
+      },
+    });
+
+    setTimeout(async () => {
+      if (undone) return;
+      const { error } = await supabase
+        .from("diagnoses")
+        .delete()
+        .eq("id", id)
+        .eq("user_id", userId);
+      if (error) {
+        setHistory(snapshot);
+        toast.error("Could not delete scan. Restored.");
+      }
+    }, UNDO_MS + 50);
+  }
+
   // Detect install eligibility (browser-backed checks)
   useEffect(() => {
     if (typeof window === "undefined") return;
