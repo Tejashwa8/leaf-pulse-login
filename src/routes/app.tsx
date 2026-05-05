@@ -726,14 +726,22 @@ function AppPage() {
                     <div className="hx-dd-empty">{t("no_scans")}</div>
                   ) : (
                     <>
-                      {history.slice(0, 5).map((h, idx) => (
-                        <button
+                      {history.slice(0, 8).map((h, idx) => (
+                        <div
                           key={h.id}
+                          role="button"
+                          tabIndex={0}
                           className={`hx-dd-item${clearingHistory ? " is-clearing" : ""}`}
                           style={clearingHistory ? { animationDelay: `${idx * 50}ms` } : undefined}
                           onClick={() => {
                             setActiveHistory(h);
                             setHistoryMenuOpen(false);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              setActiveHistory(h);
+                              setHistoryMenuOpen(false);
+                            }
                           }}
                         >
                           {h.signed_url ? (
@@ -762,7 +770,18 @@ function AppPage() {
                               </span>
                             </div>
                           </div>
-                        </button>
+                          <button
+                            type="button"
+                            className="hx-dd-del"
+                            aria-label="Delete scan"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              deleteScan(h.id);
+                            }}
+                          >
+                            ✕
+                          </button>
+                        </div>
                       ))}
                       <button
                         className="hx-dd-viewall"
