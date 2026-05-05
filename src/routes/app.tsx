@@ -2,7 +2,7 @@ import { createFileRoute, useNavigate } from "@tanstack/react-router";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { LeafRxLogo, LeafRxWordmark } from "@/components/LeafRxLogo";
-import { LanguageSwitcher } from "@/components/LanguageSwitcher";
+import { toast } from "sonner";
 import { useLang } from "@/lib/i18n";
 import { supabase } from "@/integrations/supabase/client";
 import { diagnoseLeaf, type Diagnosis } from "@/utils/diagnose.functions";
