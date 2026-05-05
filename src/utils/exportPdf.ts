@@ -1,4 +1,24 @@
 import { jsPDF } from "jspdf";
+import logoSrc from "@/assets/leafrx-logo.png";
+
+let logoDataUrlCache: string | null = null;
+async function getLogoDataUrl(): Promise<string | null> {
+  if (logoDataUrlCache) return logoDataUrlCache;
+  try {
+    const res = await fetch(logoSrc);
+    const blob = await res.blob();
+    const dataUrl = await new Promise<string>((resolve, reject) => {
+      const fr = new FileReader();
+      fr.onload = () => resolve(fr.result as string);
+      fr.onerror = reject;
+      fr.readAsDataURL(blob);
+    });
+    logoDataUrlCache = dataUrl;
+    return dataUrl;
+  } catch {
+    return null;
+  }
+}
 
 export type PdfPayload = {
   diseaseName: string;
