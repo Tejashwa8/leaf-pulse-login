@@ -899,6 +899,22 @@ function AppPage() {
                       <span className="result-label">Disease Detected</span>
                       <span className="result-value">{diagnosis.name}</span>
                     </div>
+                    {(diagnosis.commonName || diagnosis.scientificName) && (
+                      <div className="plant-id-box">
+                        {diagnosis.commonName && (
+                          <div className="plant-id-row">
+                            <span className="plant-id-label">🌿 Common Name</span>
+                            <span className="plant-id-value">{diagnosis.commonName}</span>
+                          </div>
+                        )}
+                        {diagnosis.scientificName && (
+                          <div className="plant-id-row">
+                            <span className="plant-id-label">🔬 Scientific Name</span>
+                            <span className="plant-id-value plant-id-sci">{diagnosis.scientificName}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     <div className="result-row">
                       <span className="result-label">Severity</span>
                       <span
@@ -952,15 +968,48 @@ function AppPage() {
                     <div className="rx-line">
                       <strong>Rx:</strong> {diagnosis.rx}
                     </div>
+
+                    {diagnosis.fullTreatment && (
+                      <div className="treat-block">
+                        <div className="treat-head">💊 Full Treatment — what to do from your side</div>
+                        <div className="treat-body">
+                          {diagnosis.fullTreatment.split(/\n+/).filter(Boolean).map((line, i) => (
+                            <div key={i} className="treat-line">
+                              <span className="treat-bullet">•</span>
+                              <span>{line.replace(/^[-•*]\s*/, "")}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {diagnosis.prevention && (
+                      <div className="treat-block treat-prev">
+                        <div className="treat-head">🛡 Prevention</div>
+                        <div className="treat-body">
+                          {diagnosis.prevention.split(/\n+/).filter(Boolean).map((line, i) => (
+                            <div key={i} className="treat-line">
+                              <span className="treat-bullet">•</span>
+                              <span>{line.replace(/^[-•*]\s*/, "")}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="result-actions">
                       <button
                         className="btn btn-primary btn-export"
                         onClick={() =>
                           exportDiagnosisPdf({
                             diseaseName: diagnosis.name,
+                            commonName: diagnosis.commonName,
+                            scientificName: diagnosis.scientificName,
                             severity: diagnosis.sev,
                             confidence: diagnosis.conf,
                             rx: diagnosis.rx,
+                            fullTreatment: diagnosis.fullTreatment,
+                            prevention: diagnosis.prevention,
                             imageUrl: preview || undefined,
                             timeline: buildTimeline(diagnosis.name, diagnosis.rx),
                           })
