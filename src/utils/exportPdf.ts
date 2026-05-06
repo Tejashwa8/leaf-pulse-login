@@ -22,9 +22,13 @@ async function getLogoDataUrl(): Promise<string | null> {
 
 export type PdfPayload = {
   diseaseName: string;
+  commonName?: string;
+  scientificName?: string;
   severity: string;
   confidence: number;
   rx: string;
+  fullTreatment?: string;
+  prevention?: string;
   createdAt?: string;
   imageUrl?: string;
   timeline?: { day: string; title: string; text: string }[];
