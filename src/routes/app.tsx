@@ -899,6 +899,22 @@ function AppPage() {
                       <span className="result-label">Disease Detected</span>
                       <span className="result-value">{diagnosis.name}</span>
                     </div>
+                    {(diagnosis.commonName || diagnosis.scientificName) && (
+                      <div className="plant-id-box">
+                        {diagnosis.commonName && (
+                          <div className="plant-id-row">
+                            <span className="plant-id-label">🌿 Common Name</span>
+                            <span className="plant-id-value">{diagnosis.commonName}</span>
+                          </div>
+                        )}
+                        {diagnosis.scientificName && (
+                          <div className="plant-id-row">
+                            <span className="plant-id-label">🔬 Scientific Name</span>
+                            <span className="plant-id-value plant-id-sci">{diagnosis.scientificName}</span>
+                          </div>
+                        )}
+                      </div>
+                    )}
                     <div className="result-row">
                       <span className="result-label">Severity</span>
                       <span
@@ -952,15 +968,48 @@ function AppPage() {
                     <div className="rx-line">
                       <strong>Rx:</strong> {diagnosis.rx}
                     </div>
+
+                    {diagnosis.fullTreatment && (
+                      <div className="treat-block">
+                        <div className="treat-head">💊 Full Treatment — what to do from your side</div>
+                        <div className="treat-body">
+                          {diagnosis.fullTreatment.split(/\n+/).filter(Boolean).map((line, i) => (
+                            <div key={i} className="treat-line">
+                              <span className="treat-bullet">•</span>
+                              <span>{line.replace(/^[-•*]\s*/, "")}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
+                    {diagnosis.prevention && (
+                      <div className="treat-block treat-prev">
+                        <div className="treat-head">🛡 Prevention</div>
+                        <div className="treat-body">
+                          {diagnosis.prevention.split(/\n+/).filter(Boolean).map((line, i) => (
+                            <div key={i} className="treat-line">
+                              <span className="treat-bullet">•</span>
+                              <span>{line.replace(/^[-•*]\s*/, "")}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
+
                     <div className="result-actions">
                       <button
                         className="btn btn-primary btn-export"
                         onClick={() =>
                           exportDiagnosisPdf({
                             diseaseName: diagnosis.name,
+                            commonName: diagnosis.commonName,
+                            scientificName: diagnosis.scientificName,
                             severity: diagnosis.sev,
                             confidence: diagnosis.conf,
                             rx: diagnosis.rx,
+                            fullTreatment: diagnosis.fullTreatment,
+                            prevention: diagnosis.prevention,
                             imageUrl: preview || undefined,
                             timeline: buildTimeline(diagnosis.name, diagnosis.rx),
                           })
@@ -1551,6 +1600,17 @@ const CSS = `
 .conf-track { height:8px; background:#2a2a2a; border-radius:4px; overflow:hidden; margin:10px 0; }
 .conf-fill { height:100%; background:linear-gradient(90deg,var(--olive),var(--green)); transition:width 1.4s cubic-bezier(.22,1,.36,1); }
 .rx-line { font-size:13px; color:var(--text); margin-top:8px; line-height:1.5; }
+.plant-id-box { margin:10px 0 14px; padding:12px 14px; background:rgba(107,142,35,0.08); border:1px solid rgba(107,142,35,0.25); border-radius:12px; display:flex; flex-direction:column; gap:6px; }
+.plant-id-row { display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:13px; }
+.plant-id-label { color:var(--muted); font-weight:600; }
+.plant-id-value { color:var(--text); font-weight:700; text-align:right; }
+.plant-id-sci { font-style:italic; font-weight:500; color:#9ec27a; }
+.treat-block { margin-top:14px; padding:12px 14px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(107,142,35,0.25); }
+.treat-prev { background:rgba(56,142,60,0.06); border-color:rgba(56,142,60,0.3); }
+.treat-head { font-size:13px; font-weight:700; color:var(--green); margin-bottom:8px; letter-spacing:.3px; }
+.treat-body { display:flex; flex-direction:column; gap:6px; }
+.treat-line { display:flex; gap:8px; font-size:13px; line-height:1.55; color:var(--text); }
+.treat-bullet { color:var(--green); font-weight:700; flex-shrink:0; }
 .reset-link { background:none; border:none; color:var(--green); font-size:13px; margin-top:10px; padding:0; }
 .reset-link:hover { color:var(--olive-h); }
 

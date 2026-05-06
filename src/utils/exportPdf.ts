@@ -22,9 +22,13 @@ async function getLogoDataUrl(): Promise<string | null> {
 
 export type PdfPayload = {
   diseaseName: string;
+  commonName?: string;
+  scientificName?: string;
   severity: string;
   confidence: number;
   rx: string;
+  fullTreatment?: string;
+  prevention?: string;
   createdAt?: string;
   imageUrl?: string;
   timeline?: { day: string; title: string; text: string }[];
@@ -183,6 +187,29 @@ export async function exportDiagnosisPdf(p: PdfPayload) {
   doc.text(nameLines, M, y + 26);
   let textY = y + 26 + nameLines.length * 22;
 
+  // Plant identification (common + scientific)
+  if (p.commonName || p.scientificName) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
+    doc.text("PLANT", M, textY + 6);
+    doc.setTextColor(30, 30, 30);
+    if (p.commonName) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text(`Common: ${p.commonName}`, M + 50, textY + 6);
+      textY += 14;
+    }
+    if (p.scientificName) {
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(10);
+      doc.setTextColor(80, 80, 80);
+      doc.text(`Scientific: ${p.scientificName}`, M + 50, textY + 6);
+      textY += 14;
+    }
+    textY += 4;
+  }
+
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   doc.setTextColor(110, 110, 110);
@@ -255,6 +282,40 @@ export async function exportDiagnosisPdf(p: PdfPayload) {
       y = 110;
     }
   }
+
+  // Full Treatment & Prevention sections
+  const drawSection = (title: string, body: string) => {
+    if (!body) return;
+    if (y > H - 120) {
+      doc.addPage();
+      drawBrandHeader(doc, logoDataUrl);
+      y = 110;
+    }
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
+    doc.text(title, M, y);
+    y += 12;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(40, 40, 40);
+    const items = body.split(/\n+/).map((s) => s.replace(/^[-•*]\s*/, "").trim()).filter(Boolean);
+    for (const item of items) {
+      const lines = doc.splitTextToSize(`• ${item}`, W - 2 * M - 8);
+      const blockH = lines.length * 14 + 4;
+      if (y + blockH > H - 60) {
+        doc.addPage();
+        drawBrandHeader(doc, logoDataUrl);
+        y = 110;
+      }
+      doc.text(lines, M + 4, y + 10);
+      y += blockH;
+    }
+    y += 8;
+  };
+
+  if (p.fullTreatment) drawSection("FULL TREATMENT — WHAT TO DO FROM YOUR SIDE", p.fullTreatment);
+  if (p.prevention) drawSection("PREVENTION TIPS", p.prevention);
 
   // Timeline
   if (p.timeline && p.timeline.length) {
