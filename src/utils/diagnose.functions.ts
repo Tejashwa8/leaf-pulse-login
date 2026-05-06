@@ -2,9 +2,13 @@ import { createServerFn } from "@tanstack/react-start";
 
 export type Diagnosis = {
   name: string;
+  commonName?: string;
+  scientificName?: string;
   conf: number;
   sev: "Severe" | "High" | "Moderate" | "Low";
   rx: string;
+  fullTreatment?: string;
+  prevention?: string;
 };
 
 const diagnoseTool = {
@@ -19,6 +23,14 @@ const diagnoseTool = {
           type: "string",
           description: "Crop and disease, formatted like 'Tomato — Early Blight'. If no disease, use 'Healthy Leaf'.",
         },
+        commonName: {
+          type: "string",
+          description: "Common (everyday) name of the plant, e.g. 'Tomato', 'Mango'. Use 'Unknown' if not a leaf.",
+        },
+        scientificName: {
+          type: "string",
+          description: "Latin/scientific binomial name of the plant, e.g. 'Solanum lycopersicum'. Use 'Unknown' if not a leaf.",
+        },
         conf: {
           type: "number",
           description: "Confidence percentage 0-100",
@@ -30,10 +42,18 @@ const diagnoseTool = {
         },
         rx: {
           type: "string",
-          description: "One-to-two sentence treatment prescription tailored to the disease. For healthy leaves, give a brief care tip.",
+          description: "One-to-two sentence quick treatment summary tailored to the disease. For healthy leaves, give a brief care tip.",
+        },
+        fullTreatment: {
+          type: "string",
+          description: "Detailed step-by-step cure plan: what the user should do from their side at home/farm — pruning, sanitation, organic remedies, chemical options with dosage, frequency, watering, sunlight, soil care. 4-8 clear sentences or bullet-style lines separated by newlines.",
+        },
+        prevention: {
+          type: "string",
+          description: "2-4 short prevention tips to avoid recurrence (spacing, watering practice, resistant varieties, etc.).",
         },
       },
-      required: ["name", "conf", "sev", "rx"],
+      required: ["name", "commonName", "scientificName", "conf", "sev", "rx", "fullTreatment", "prevention"],
       additionalProperties: false,
     },
   },
