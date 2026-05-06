@@ -187,6 +187,29 @@ export async function exportDiagnosisPdf(p: PdfPayload) {
   doc.text(nameLines, M, y + 26);
   let textY = y + 26 + nameLines.length * 22;
 
+  // Plant identification (common + scientific)
+  if (p.commonName || p.scientificName) {
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
+    doc.text("PLANT", M, textY + 6);
+    doc.setTextColor(30, 30, 30);
+    if (p.commonName) {
+      doc.setFont("helvetica", "bold");
+      doc.setFontSize(11);
+      doc.text(`Common: ${p.commonName}`, M + 50, textY + 6);
+      textY += 14;
+    }
+    if (p.scientificName) {
+      doc.setFont("helvetica", "italic");
+      doc.setFontSize(10);
+      doc.setTextColor(80, 80, 80);
+      doc.text(`Scientific: ${p.scientificName}`, M + 50, textY + 6);
+      textY += 14;
+    }
+    textY += 4;
+  }
+
   doc.setFont("helvetica", "normal");
   doc.setFontSize(10);
   doc.setTextColor(110, 110, 110);
