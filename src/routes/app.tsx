@@ -209,6 +209,7 @@ function AppPage() {
   const [confirmClear, setConfirmClear] = useState(false);
   const [clearingHistory, setClearingHistory] = useState(false);
   const [installState, setInstallState] = useState<"available" | "installed" | "unsupported">("unsupported");
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [, , t] = useLang();
   useAutoTranslate();
   const fileRef = useRef<HTMLInputElement>(null);
