@@ -677,6 +677,7 @@ function AppPage() {
               </a>
             )}
             <a onClick={() => setChatOpen(true)}>{t("nav_doctor")}</a>
+            <a onClick={() => setFeedbackOpen(true)}>Feedback</a>
             {history.length > 0 && (
               <a className="nav-clear-link" onClick={() => setConfirmClear(true)}>
                 {t("nav_clear")}
