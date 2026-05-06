@@ -198,7 +198,7 @@ function LoginPage() {
               </h1>
 
               <p className="hero-desc">
-                AI-powered plant disease detection for every farmer. Snap a leaf, get an instant
+                AI-powered plant disease detection for everyone. Snap a leaf, get an instant
                 diagnosis and treatment plan in seconds.
               </p>
 
