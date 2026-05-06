@@ -1221,6 +1221,7 @@ function AppPage() {
             <a onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Diagnose</a>
             <a onClick={() => smoothScroll("features")}>Features</a>
             <a onClick={() => setChatOpen(true)}>Dr. LeafRx</a>
+            <a onClick={() => setFeedbackOpen(true)}>Feedback</a>
           </div>
           <div>
             <h4>Developer</h4>
