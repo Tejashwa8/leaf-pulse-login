@@ -1600,6 +1600,17 @@ const CSS = `
 .conf-track { height:8px; background:#2a2a2a; border-radius:4px; overflow:hidden; margin:10px 0; }
 .conf-fill { height:100%; background:linear-gradient(90deg,var(--olive),var(--green)); transition:width 1.4s cubic-bezier(.22,1,.36,1); }
 .rx-line { font-size:13px; color:var(--text); margin-top:8px; line-height:1.5; }
+.plant-id-box { margin:10px 0 14px; padding:12px 14px; background:rgba(107,142,35,0.08); border:1px solid rgba(107,142,35,0.25); border-radius:12px; display:flex; flex-direction:column; gap:6px; }
+.plant-id-row { display:flex; justify-content:space-between; align-items:center; gap:10px; font-size:13px; }
+.plant-id-label { color:var(--muted); font-weight:600; }
+.plant-id-value { color:var(--text); font-weight:700; text-align:right; }
+.plant-id-sci { font-style:italic; font-weight:500; color:#9ec27a; }
+.treat-block { margin-top:14px; padding:12px 14px; border-radius:12px; background:rgba(255,255,255,0.03); border:1px solid rgba(107,142,35,0.25); }
+.treat-prev { background:rgba(56,142,60,0.06); border-color:rgba(56,142,60,0.3); }
+.treat-head { font-size:13px; font-weight:700; color:var(--green); margin-bottom:8px; letter-spacing:.3px; }
+.treat-body { display:flex; flex-direction:column; gap:6px; }
+.treat-line { display:flex; gap:8px; font-size:13px; line-height:1.55; color:var(--text); }
+.treat-bullet { color:var(--green); font-weight:700; flex-shrink:0; }
 .reset-link { background:none; border:none; color:var(--green); font-size:13px; margin-top:10px; padding:0; }
 .reset-link:hover { color:var(--olive-h); }
 
