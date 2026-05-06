@@ -283,6 +283,40 @@ export async function exportDiagnosisPdf(p: PdfPayload) {
     }
   }
 
+  // Full Treatment & Prevention sections
+  const drawSection = (title: string, body: string) => {
+    if (!body) return;
+    if (y > H - 120) {
+      doc.addPage();
+      drawBrandHeader(doc, logoDataUrl);
+      y = 110;
+    }
+    doc.setFont("helvetica", "bold");
+    doc.setFontSize(12);
+    doc.setTextColor(BRAND.r, BRAND.g, BRAND.b);
+    doc.text(title, M, y);
+    y += 12;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.setTextColor(40, 40, 40);
+    const items = body.split(/\n+/).map((s) => s.replace(/^[-•*]\s*/, "").trim()).filter(Boolean);
+    for (const item of items) {
+      const lines = doc.splitTextToSize(`• ${item}`, W - 2 * M - 8);
+      const blockH = lines.length * 14 + 4;
+      if (y + blockH > H - 60) {
+        doc.addPage();
+        drawBrandHeader(doc, logoDataUrl);
+        y = 110;
+      }
+      doc.text(lines, M + 4, y + 10);
+      y += blockH;
+    }
+    y += 8;
+  };
+
+  if (p.fullTreatment) drawSection("FULL TREATMENT — WHAT TO DO FROM YOUR SIDE", p.fullTreatment);
+  if (p.prevention) drawSection("PREVENTION TIPS", p.prevention);
+
   // Timeline
   if (p.timeline && p.timeline.length) {
     if (y > H - 200) {
