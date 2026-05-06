@@ -9,6 +9,7 @@ import { diagnoseLeaf, type Diagnosis } from "@/utils/diagnose.functions";
 import { DrLeafRxChat, DrLeafRxFab } from "@/components/DrLeafRxChat";
 import { exportDiagnosisPdf } from "@/utils/exportPdf";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import { FeedbackModal } from "@/components/FeedbackModal";
 
 export const Route = createFileRoute("/app")({
   component: AppPage,
