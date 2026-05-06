@@ -976,7 +976,7 @@ function AppPage() {
                           {diagnosis.fullTreatment.split(/\n+/).filter(Boolean).map((line, i) => (
                             <div key={i} className="treat-line">
                               <span className="treat-bullet">•</span>
-                              <span>{line.replace(/^[-•*]\s*/, "")}</span>
+                              <span>{line.replace(/^[-•*]\s*/, "").replace(/\*\*/g, "")}</span>
                             </div>
                           ))}
                         </div>
@@ -990,7 +990,7 @@ function AppPage() {
                           {diagnosis.prevention.split(/\n+/).filter(Boolean).map((line, i) => (
                             <div key={i} className="treat-line">
                               <span className="treat-bullet">•</span>
-                              <span>{line.replace(/^[-•*]\s*/, "")}</span>
+                              <span>{line.replace(/^[-•*]\s*/, "").replace(/\*\*/g, "")}</span>
                             </div>
                           ))}
                         </div>

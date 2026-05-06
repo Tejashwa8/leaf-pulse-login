@@ -116,14 +116,15 @@ export const diagnoseLeaf = createServerFn({ method: "POST" })
     if (!call?.function?.arguments) throw new Error("Model did not return a structured diagnosis.");
 
     const parsed = JSON.parse(call.function.arguments) as Diagnosis;
+    const stripMd = (s: string) => s.replace(/\*\*/g, "").replace(/__/g, "").trim();
     return {
-      name: String(parsed.name).slice(0, 120),
-      commonName: parsed.commonName ? String(parsed.commonName).slice(0, 80) : undefined,
-      scientificName: parsed.scientificName ? String(parsed.scientificName).slice(0, 120) : undefined,
+      name: stripMd(String(parsed.name)).slice(0, 120),
+      commonName: parsed.commonName ? stripMd(String(parsed.commonName)).slice(0, 80) : undefined,
+      scientificName: parsed.scientificName ? stripMd(String(parsed.scientificName)).slice(0, 120) : undefined,
       conf: Math.max(0, Math.min(100, Math.round(Number(parsed.conf) || 0))),
       sev: (["Severe", "High", "Moderate", "Low"] as const).includes(parsed.sev) ? parsed.sev : "Moderate",
-      rx: String(parsed.rx).slice(0, 500),
-      fullTreatment: parsed.fullTreatment ? String(parsed.fullTreatment).slice(0, 2000) : undefined,
-      prevention: parsed.prevention ? String(parsed.prevention).slice(0, 800) : undefined,
+      rx: stripMd(String(parsed.rx)).slice(0, 500),
+      fullTreatment: parsed.fullTreatment ? stripMd(String(parsed.fullTreatment)).slice(0, 2000) : undefined,
+      prevention: parsed.prevention ? stripMd(String(parsed.prevention)).slice(0, 800) : undefined,
     };
   });
