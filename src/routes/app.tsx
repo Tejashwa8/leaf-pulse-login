@@ -1515,6 +1515,8 @@ function AppPage() {
         </div>
       )}
 
+      <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
+
       {/* Mobile bottom nav removed per request */}
     </div>
   );
