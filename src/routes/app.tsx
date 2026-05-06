@@ -9,6 +9,7 @@ import { diagnoseLeaf, type Diagnosis } from "@/utils/diagnose.functions";
 import { DrLeafRxChat, DrLeafRxFab } from "@/components/DrLeafRxChat";
 import { exportDiagnosisPdf } from "@/utils/exportPdf";
 import { useAutoTranslate } from "@/hooks/useAutoTranslate";
+import { FeedbackModal } from "@/components/FeedbackModal";
 
 export const Route = createFileRoute("/app")({
   component: AppPage,
@@ -208,6 +209,7 @@ function AppPage() {
   const [confirmClear, setConfirmClear] = useState(false);
   const [clearingHistory, setClearingHistory] = useState(false);
   const [installState, setInstallState] = useState<"available" | "installed" | "unsupported">("unsupported");
+  const [feedbackOpen, setFeedbackOpen] = useState(false);
   const [, , t] = useLang();
   useAutoTranslate();
   const fileRef = useRef<HTMLInputElement>(null);
@@ -675,6 +677,7 @@ function AppPage() {
               </a>
             )}
             <a onClick={() => setChatOpen(true)}>{t("nav_doctor")}</a>
+            <a onClick={() => setFeedbackOpen(true)}>Feedback</a>
             {history.length > 0 && (
               <a className="nav-clear-link" onClick={() => setConfirmClear(true)}>
                 {t("nav_clear")}
@@ -1218,6 +1221,7 @@ function AppPage() {
             <a onClick={() => window.scrollTo({ top: 0, behavior: "smooth" })}>Diagnose</a>
             <a onClick={() => smoothScroll("features")}>Features</a>
             <a onClick={() => setChatOpen(true)}>Dr. LeafRx</a>
+            <a onClick={() => setFeedbackOpen(true)}>Feedback</a>
           </div>
           <div>
             <h4>Developer</h4>
@@ -1510,6 +1514,8 @@ function AppPage() {
           </div>
         </div>
       )}
+
+      <FeedbackModal open={feedbackOpen} onClose={() => setFeedbackOpen(false)} />
 
       {/* Mobile bottom nav removed per request */}
     </div>
